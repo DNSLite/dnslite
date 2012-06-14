@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menu_host_source_add" android:title="@string/host_source_add"></item>    
+    <item android:id="@+id/menu_item_show_active" android:title="@string/menu_item_show_active"></item>
+</menu>

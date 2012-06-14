@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="me.xu.DNSLite"
+    android:installLocation="preferExternal"
+    android:versionCode="4"
+    android:versionName="1.3" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="10" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Light" >
+        <meta-data
+            android:name="ADMOB_PUBLISHER_ID"
+            android:value="a14f8ec92eb2438" />
+        <meta-data
+            android:name="ADMOB_ALLOW_LOCATION_FOR_ADS"
+            android:value="true" />
+
+        <activity
+            android:name="me.xu.DNSLite.DNSLiteActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="me.xu.DNSLite.DnsPreferences" />
+        <activity android:name="me.xu.DNSLite.DNSServiceActivity" />
+        <activity android:name="me.xu.DNSLite.DnsGroupList" />
+        <activity android:name="me.xu.DNSLite.DnsHostsActivity" />
+        <activity android:name="me.xu.DNSLite.DnsLogsActivity" />
+        <activity android:name="me.xu.DNSLite.HostsActivity" />
+        <activity android:name="me.xu.DNSLite.HostSourceList" />
+        <activity android:name="me.xu.DNSLite.HostsEditorActivity" />
+        <activity android:name="me.xu.DNSLite.HostsRawEditorActivity" />
+        <activity
+            android:name="com.google.ads.AdActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+
+        <service android:name="me.xu.DNSLite.DNSService" />
+    </application>
+
+</manifest>

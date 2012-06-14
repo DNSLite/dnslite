@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/adView"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dns_control"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black" />
+
+            <TextView
+                android:id="@+id/wifi_ip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="#ff0000ff"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+            
+            <Button
+                android:id="@+id/dnsStart"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dnsStart" />
+
+            <Button
+                android:id="@+id/dnsStop"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dnsStop" />
+
+            <Button
+                android:id="@+id/dnsLog"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dnsLog" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dns_config"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black" />
+
+            <Button
+                android:id="@+id/dnsConfig"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dnsConfig" />
+
+            <Button
+                android:id="@+id/dnsCacheConfig"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:text="@string/dnsCacheConfig" />
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="a14f8ec92eb2438"
+        ads:loadAdOnCreate="true"
+        ads:testDevices="TEST_EMULATOR" />
+
+</RelativeLayout>

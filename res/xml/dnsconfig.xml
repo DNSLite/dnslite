@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory android:title="@string/preference_title_dns_setting" >
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="useTcp"
+            android:summary="@string/dns_setting_tcp_summary"
+            android:title="@string/dns_setting_tcp_title" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="listen_local"
+            android:summary="@string/dns_setting_local_summary"
+            android:title="@string/dns_setting_local_title" />
+
+        <ListPreference
+            android:defaultValue="30"
+            android:dialogTitle="@string/dialog_title_preference_dns_idle_timeout"
+            android:entries="@array/preference_dns_time_entrys"
+            android:entryValues="@array/preference_dns_time_entryvalues"
+            android:key="idle_time"
+            android:summary="@string/dns_idle_summary"
+            android:title="@string/dns_idle_title" />
+        
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="enableCache"
+            android:summary="@string/dns_setting_enable_cache_summary"
+            android:title="@string/dns_setting_enable_cache_title" />
+
+        <EditTextPreference
+            android:defaultValue="@string/dns_default_dns"
+            android:dialogTitle="@string/dialog_title_preference_dns_remote_dns"
+            android:key="remote_dns"
+            android:summary="@string/dns_remote_dns_summary"
+            android:title="@string/dns_remote_dns_title" />
+
+        <PreferenceScreen
+            android:summary="@string/dns_cache_config_summary"
+            android:title="@string/dnsCacheConfig" >
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetClass="me.xu.DNSLite.DnsGroupList"
+                android:targetPackage="me.xu.DNSLite" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preference_title_system_dns_setting" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="auto_set_system_dns"
+            android:summary="@string/dns_sds_change_summary"
+            android:title="@string/dns_sds_change_title" />
+
+        <EditTextPreference
+            android:dialogTitle="@string/dialog_title_preference_dns_net_dns"
+            android:key="netdns"
+            android:summary="@string/dns_net_dns_summary"
+            android:title="@string/dns_net_dns_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

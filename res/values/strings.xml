@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DNSLite</string>
+    <string name="dns_lable">DNS Proxy Beta</string>
+    
+    <string name="menu_about">Quick hints</string>
+    <string name="menu_fix_netdns">Fix netdns</string>
+    <string name="menu_feedback">Feedback</string>
+    <string name="fix_netdns_entry">Fix netdns</string>
+    <string name="fix_success">Fixed</string>
+    <string name="fix_failure">Fix failure, maybe failed to get root privileges</string>
+    <string name="cur">current</string>
+    <string name="v30">30</string>
+    <string name="v60">60</string>
+    <string name="v90">90</string>
+    <string name="v120">120</string>
+    
+    <string name="notext" />
+    <!-- about -->
+    <string name="about_title">Welcome to DNSLite</string>
+    <string name="about_message"><![CDATA[
+DNS proxy (beta) \n\n
+This is a DNS proxy tool \n
+Main features: \n\n
+1 DNS caching to reduce network delay. Only cache the IP query results (querytype A or AAAA). \n\n
+2 TCP mode to access the remote DNS server to avoid DNS pollution. \n\n
+3 DNS service for LAN. \n\n
+4 You can view the DNS request log. \n\n
+5 Can manually specify the domain name IP information. \n\n
+>> Risk: This may cause the SSL authentication fails, the android application network failure, such as your Gmail. But in the PC may ignore this issue, and normal access.\n\n
+>> reason: Authorized domain name in the SSL certificate does not match the request, so validation fails.\n\n
+>> Combination of hosts file, can effectively compensate for this shortcoming. \n\n
+\n
+6 Domain name support * way, eg: *.google.com . \n\n
+7 Change or repair the system DNS setting (net.dns). \n\n
+\n
+Logs legend\n\n
+The meaning of these letters is\n\n
+A:4  DNS querytype=A\n
+A:6  DNS querytype=AAAA\n
+C:ns_t_type DNS querytype=ns_t_type, response from cache\n
+S:ns_t_type DNS querytype=ns_t_type, response from static cache\n
+O    query overtime\n
+Q:ns_t_type  DNS querytype=ns_t_type\n
+\n\n
+hosts \n\n
+This is a /etc/hosts file management tool \n
+Main features: \n\n
+1 download a hosts file from network. \n\n
+2 hand-type hosts records. \n\n
+3 Database style management hosts, you can add, delete, comments, enable, disable hosts. \n\n
+4 directly edit the "/etc/hosts". \n\n
+5 imported from the "/etc/hosts" file. \n\n
+>> Step: \n
+>> A. Click "Manage". \n
+>> B. Long click "Local". \n
+>> C. Click "download updates". \n
+>> then you can import "/etc/hosts" file. \n
+	]]></string>
+    <!-- about end -->
+    
+    <string name="dns1">DNS1</string>
+    <string name="dns2">DNS2</string>
+    <string name="domain">Domain</string>
+    <string name="ip">IP</string>
+    <string name="name">Name</string>
+    <string name="url">Url</string>
+    
+	<!-- DNSService start -->
+	<string name="Status_OK">OK</string>
+	<string name="Status_ALREDY_RUNNING">already running</string>
+	<string name="Status_BIN_NOTEXIST">The author is a fool, there\'s no packaging services file.</string>
+	<string name="Status_SUFAIL">maybe failed to get root privileges</string>
+	<string name="Status_SETEXEC_FAIL">set bin executeable failure</string>
+	<string name="Status_SEND_COMMAND_FAIL">start failure, maybe failed to get root privileges</string>
+	<string name="Status_START_SUCC">Start Service success</string>
+	<string name="Status_START_FAIL">Start Service failure, maybe failed to get root privileges</string>
+	<string name="Status_UNKNOW_ERROR">unknow error</string>
+	<string name="Status_OTHER_STATUS">unknow status</string>
+	
+    <string name="alarm_service_stoped">Long time no request, the DNSLite automatically exit.\nYou can change the setting。</string>
+	<!-- DNSService end -->
+
+    <string name="fail">Fail</string>
+    
+    <!-- DNS Service start -->
+    <string name="dnsConfig">Configure</string>
+    <string name="dnsStart">Start DNS Server</string>
+    <string name="dnsStop">Stop DNS Server</string>
+    <string name="dnsCacheConfig">Cache Configure</string>
+    <string name="dnsLog">View Logs</string>
+    
+    <string name="dns_config">Configure</string>
+    <string name="dns_control">Control</string>
+    <string name="wifi_is_disable">Wifi is unavailable</string>
+    
+    <string name="dns_cache_config_summary">config static cache in dns server</string>
+    <string name="dns_server_connecting">connecting &#8230;</string>
+    
+    <string name="preference_title_dns_setting">dns configure</string>
+    
+    <string name="dns_setting_tcp_title">TCP method</string>
+    <string name="dns_setting_tcp_summary">tcp connect remote dns server</string>
+    <string name="dns_setting_local_title">Local only</string>
+    <string name="dns_setting_local_summary">access only local mobile</string>
+    
+    <string name="dialog_title_preference_dns_idle_timeout">max idle time</string>
+    <string name="dns_idle_summary">stop after idle timeout</string>
+    <string name="dns_idle_title">auto stop server</string>
+    
+    <string name="dns_setting_enable_cache_summary">enable cache for dns query (type: A/AAAA)</string>
+    <string name="dns_setting_enable_cache_title">Enable Cache</string>
+    <!-- 
+    <string name="dialog_title_preference_dns_cc_cycle">cache clean cycle</string>
+    <string name="dns_ccc_summary">set cache clean cycle time</string>
+    <string name="dns_ccc_title">cache clean cycle</string>
+     -->
+    <string name="dialog_title_preference_dns_remote_dns">Remote DNS Server</string>
+    <string name="dns_remote_dns_summary">set remote dns server</string>
+    <string name="dns_remote_dns_title">Remote DNS Server</string>
+    
+    <string name="preference_title_system_dns_setting">System dns configure</string>
+    
+    <string name="dns_sds_change_summary">auto change mobile dns configure</string>
+    <string name="dns_sds_change_title">change system dns</string>
+    
+    <string name="dialog_title_preference_dns_net_dns">System DNS Setting</string>
+    <string name="dns_net_dns_summary">system dns setting</string>
+    <string name="dns_net_dns_title">System DNS Setting</string>
+    <string name="dns_default_dns">8.8.8.8,8.8.4.4</string>
+    
+    <string name="dns_checking">check server &#8230;</string>
+    <string name="dns_check_connect_fail">maybe server not start, please start it.</string>
+    <string name="dns_check_ok">server check ok &#8230; read logs &#8230;</string>
+    <string name="dns_preGetLog_fail">get log failure</string>
+    <string name="menu_dns_group_add">Add Group</string>
+    <string name="menu_dns_import">Import</string>
+    <string name="menu_dns_export">Export</string>
+    <string name="dns_import_desc">Import DNS configure, from SD card/dnslite_dns.txt, are you ready?</string>
+    <string name="dns_export_desc">Export DNS configure, to SD card/dnslite_dns.txt</string>
+    <string name="menu_dns_setip">Set Team IP</string>
+    
+    <string name="dns_import_succ">Import success</string>
+    <string name="dns_import_fail">Import failure</string>
+    <string name="dns_export_succ">Export success</string>
+    <string name="dns_export_fail">Export failure</string>
+    
+    <string name="dns_host_text_entry">Accept: *.example.com\n\nRisk: This may cause the SSL authentication fails, the android application network failure, such as your Gmail. But in the PC may ignore this issue, and normal access.</string>
+    <string name="dns_host_domain_null">Domain can\'t be empty</string>
+    <string name="dns_host_domain_format_err">Not accept: xxx.*.xxx</string>
+    <string name="dns_setip_entry">Set IP\n\nRisk: This may cause the SSL authentication fails, the android application network failure, such as your Gmail. But in the PC may ignore this issue, and normal access.</string>
+    <string name="dns_setip_err">No items have been set, maybe already set.</string>
+    
+    <string name="dns_group_add_url_hit">Url optional</string>
+    <string name="dns_group_no_hosts">Touch here or menu, then you can add hosts info.</string>
+    
+    <string name="dns_group_text_entry">Add Group</string>
+    <string name="dns_group_add_input_error">Group Add Input Error</string>
+    <string name="dns_group_add_fail">Group Add failure</string>
+    <string name="no_dns_group">No group, you need add dns cache hosts group</string>
+    
+    
+    <string name="no_need_update">Don\'t need update!</string>
+    
+    <string name="dns_running">Service is running</string>
+    <string name="dns_start">Start Service &#8230;</string>
+    <string name="dns_stop">Stop Service &#8230;</string>
+    <string name="dns_start_succ">@string/Status_START_SUCC</string>
+    <string name="dns_start_fail">@string/Status_START_FAIL</string>
+    <string name="dns_stop_succ">Stop Service success</string>
+    <string name="dns_stop_fail">Stop Service failure</string>
+    
+    <!-- DNS Service end -->
+    <!-- preference -->
+    <string name="preferenceChangeTips">Please restart service if you want apply change.</string>
+    <string name="per30mins">every 30 minutes</string>
+    <string name="per60mins">every 60 minutes</string>
+    <string name="per90mins">every 90 minutes</string>
+    <string name="per120mins">every 120 minutes</string>
+    <!-- preference end -->
+
+    <string name="no_hosts_source">you need add hosts source</string>
+    <string name="no_hosts">Touch here or menu, then you can Add or Download or Import from "/etc/hosts"</string>
+    
+    <string name="hosts_source">internet hosts Source</string>
+    <string name="hosts_ops">local hosts database</string>
+    <string name="hosts_reset_ops">Reset DB</string>
+    <string name="hosts_save_ops">Save change</string>
+    <string name="btn_hosts_source_manage">Manage</string>
+    <string name="btn_hosts_edit">Manage Active hosts</string>
+    <string name="btn_hosts_resetEtc">Reset /etc/hosts</string>
+    <string name="btn_hosts_apply">Apply Change</string>
+    <string name="btn_hosts_rawview">Edit /etc/hosts</string>
+    <string name="hosts_welmsg">/etc/hosts editor</string>
+    <string name="host_source_add">Add Source</string>
+    <string name="hosts_source_add_name">Name</string>
+    <string name="hosts_source_add_url">Url</string>
+    <string name="hosts_source_text_entry">Add Source</string>
+    <string name="hosts_source_add_input_error">Source Add Input Error</string>
+    <string name="hosts_source_add_fail">Source Add failure</string>
+    <string name="hosts_host_add_domain">host Domain</string>
+    <string name="hosts_host_add_ip">host IP</string>
+    <string name="hosts_host_text_entry">Add host</string>
+    <string name="hosts_host_add_input_error">host Add Input Error</string>
+    <string name="hosts_host_add_fail">host Add failure</string>
+    <string name="host_enable">Enable</string>
+    <string name="host_disable">Disable</string>
+    <string name="host_comment">Comment</string>
+    <string name="host_delete">Delete</string>
+    <string name="host_add">Add</string>
+    <string name="pop_menu_enable">@string/host_enable</string>
+    <string name="pop_menu_disable">@string/host_disable</string>
+    <string name="pop_menu_comment">@string/host_comment</string>
+    <string name="pop_menu_delete">@string/host_delete</string>
+    <string name="pop_menu_edit">Edit</string>
+    <string name="menu_item_update">Download</string>
+    <string name="menu_item_replace">Replace /etc/hosts</string>
+    <string name="menu_item_merge">Merge /etc/hosts</string>
+    <string name="menu_item_disable">Disable all</string>
+    <string name="menu_item_enableAll">Enable all</string>
+    <string name="menu_item_view">Show</string>
+    <string name="menu_item_delete">Delete</string>
+    <string name="menu_item_empty">Empty</string>
+    <string name="menu_item_edit">Edit</string>
+    <string name="menu_item_show_active">Show Active hosts</string>
+    <string name="first_run_manage">It\'s your first time here, please follow the guide to import "/etc/hosts" to "Local" database.\n1. Click the Manage Button.\n2. Long click the item "local".\n3. Select Download to improt "/etc/hosts".</string>
+    <string name="first_run_localsource">Please long click the item "Local".\nSelect Download for improt "/etc/hosts" to "Local".</string>
+	<string name="dns_init_db"></string>
+</resources>
