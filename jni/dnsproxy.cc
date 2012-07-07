@@ -1184,6 +1184,9 @@ int main(int argc, char * const *argv)
 */
 		if (IDLE_TOO_LONG) {
 			logs("idle timeout\n");
+#ifdef ANDROID
+			system("am startservice -n me.xu.DNSLite/me.xu.DNSLite.DNSService -e _idle_exit 1");
+#endif
 			break;
 		}
 

@@ -5,18 +5,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.google.ads.AdView
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="a14f8ec92eb2438"
-        ads:loadAdOnCreate="true"
-        ads:testDevices="TEST_EMULATOR" />
-    
     <ListView
         android:id="@android:id/list"
-        android:layout_below="@id/adView"
+        android:layout_above="@id/adView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:stackFromBottom="true"
@@ -31,4 +22,14 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/black" />
 
+    <com.google.ads.AdView
+        android:layout_marginTop="20dip"
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="a14f8ec92eb2438"
+        ads:loadAdOnCreate="true"
+        ads:testDevices="TEST_EMULATOR" />
 </RelativeLayout>

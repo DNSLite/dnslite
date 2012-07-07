@@ -20,7 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Build.VERSION;
+//import android.os.Build.VERSION;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
@@ -29,7 +29,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -57,15 +57,11 @@ public class HostSourceList extends ListActivity {
 		setContentView(R.layout.host_source);
 		hdb = HostsDB.GetInstance(this);
 		cursor = hdb.getAllHostsSource();
-		if (VERSION.SDK_INT > 10) {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 }, 0);
-		} else {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 });
-		}
+
+		adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
+				cursor, new String[] { "name", "url" }, new int[] { R.id.text1,
+						R.id.text2 }, 0);
+
 		setListAdapter(adapter);
 
 		ListView lv = getListView();
@@ -75,17 +71,22 @@ public class HostSourceList extends ListActivity {
 			View adView = this.findViewById(R.id.adView);
 			adView.setVisibility(View.GONE);
 		}
-
-		if (HostsDB.first_run_hostsSource) {
-			Timer timer = new Timer();
-			timer.schedule(new firstRunPopupWindow(), 500);
-		}
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		view(id);
 		super.onListItemClick(l, v, position, id);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		if (HostsDB.first_run_hostsSource) {
+			Timer timer = new Timer();
+			timer.schedule(new firstRunPopupWindow(), 500);
+		}
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class HostSourceList extends ListActivity {
 		inflater.inflate(R.menu.hosts_source_option, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -395,7 +396,8 @@ public class HostSourceList extends ListActivity {
 					return getString(android.R.string.httpErrorBadUrl);
 				}
 				String schema = urls[0].substring(0, pos).toLowerCase();
-				if (!(schema.equals("http") || schema.equals("https") || schema.equals("ftp"))) {
+				if (!(schema.equals("http") || schema.equals("https") || schema
+						.equals("ftp"))) {
 					return getString(android.R.string.httpErrorUnsupportedScheme);
 				}
 			}
@@ -447,7 +449,8 @@ public class HostSourceList extends ListActivity {
 		protected void onPostExecute(String result) {
 			progressDialog.dismiss();
 			if (result != null) {
-				Toast.makeText(HostSourceList.this, getString(R.string.fail) +": " + result,
+				Toast.makeText(HostSourceList.this,
+						getString(R.string.fail) + ": " + result,
 						Toast.LENGTH_SHORT).show();
 			}
 		}

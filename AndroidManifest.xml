@@ -18,7 +18,7 @@
     <application
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.Light" >
+        android:theme="@android:style/Theme.Light.NoTitleBar" >
         <meta-data
             android:name="ADMOB_PUBLISHER_ID"
             android:value="a14f8ec92eb2438" />
@@ -27,7 +27,7 @@
             android:value="true" />
 
         <activity
-            android:name="me.xu.DNSLite.DNSLiteActivity"
+            android:name=".DNSLiteActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -35,20 +35,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="me.xu.DNSLite.DnsPreferences" />
-        <activity android:name="me.xu.DNSLite.DNSServiceActivity" />
-        <activity android:name="me.xu.DNSLite.DnsGroupList" />
-        <activity android:name="me.xu.DNSLite.DnsHostsActivity" />
-        <activity android:name="me.xu.DNSLite.DnsLogsActivity" />
-        <activity android:name="me.xu.DNSLite.HostsActivity" />
-        <activity android:name="me.xu.DNSLite.HostSourceList" />
-        <activity android:name="me.xu.DNSLite.HostsEditorActivity" />
-        <activity android:name="me.xu.DNSLite.HostsRawEditorActivity" />
+        <activity android:name=".DnsPreferences" />
+        <activity android:name=".DNSServiceActivity" />
+        <activity android:name=".DnsGroupList" />
+        <activity android:name=".DnsHostsActivity" />
+        <activity android:name=".DnsLogsActivity" />
+        <activity android:name=".HostsActivity" />
+        <activity android:name=".HostSourceList" />
+        <activity android:name=".HostsEditorActivity" />
+        <activity android:name=".HostsRawEditorActivity" />
         <activity
             android:name="com.google.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
 
-        <service android:name="me.xu.DNSLite.DNSService" />
+        <service android:name=".DNSService" />
     </application>
 
 </manifest>

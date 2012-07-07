@@ -219,4 +219,6 @@ hosts\n\n
     <string name="first_run_localsource">请长按 Local源，选择下载更新。为您导入现有hosts文件</string>
     <string name="dns_init_db">Apple:203.69.113.136:*.phobos.apple.com;Google::google.com,*.google.com,*.google.com.hk,*.gstatic.com,*.appspot.com,*.googlevideo.com,*.googleapis.com,*.googleusercontent.com,*.googlecode.com,*.googlesyndication.com,www.googlemashups.com,*.blogger.com,blogger.com,*.googlegroups.com,*.googlelabs.com,gmodules.com,*.gmodules.com,*.ggpht.com,*.gvt0.com,*.googlehosted.com,*.android.com,android.com,*.feedburner.com,goo.gl,g.co,www.googleinsidesearch.com,*.googleinsidesearch.com</string>
 
+	<string name="host_rewrite_alert_msg">保存到 /etc/hosts?</string>
+	<string name="host_reset_etc_alert_msg">清空/etc/hosts?\n清空使用中的hosts.</string>
 </resources>

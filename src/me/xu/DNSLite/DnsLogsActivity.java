@@ -148,11 +148,6 @@ public class DnsLogsActivity extends ListActivity {
 			mAdapter.add(logs[0]);
 		}
 
-		@Override
-		protected void onCancelled() {
-			super.onCancelled();
-		}
-
 		protected void onPostExecute(String result) {
 			if (result != null) {
 				mAdapter.add(result);

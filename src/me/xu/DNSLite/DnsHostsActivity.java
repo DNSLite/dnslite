@@ -22,7 +22,6 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 import android.widget.ToggleButton;
 
 import android.os.AsyncTask;
@@ -36,7 +35,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import android.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 
 public class DnsHostsActivity extends ListActivity {
 
@@ -64,13 +64,8 @@ public class DnsHostsActivity extends ListActivity {
 		}
 		cursor = hdb.getDnsHostsByGroup(search_gid);
 
-		if (VERSION.SDK_INT > 10) {
-			adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
-					SCA_item, SCA_item_id, 0);
-		} else {
-			adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
-					SCA_item, SCA_item_id);
-		}
+		adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
+				SCA_item, SCA_item_id, 0);
 
 		ListView lv = getListView();
 		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);

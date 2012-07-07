@@ -14,7 +14,6 @@ import android.R.color;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.net.http.AndroidHttpClient;
-import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +22,9 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
-import android.widget.SimpleCursorAdapter.ViewBinder;
+
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.widget.ToggleButton;
 
 import android.os.AsyncTask;
@@ -36,8 +37,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-
-import android.widget.SimpleCursorAdapter;
 
 public class HostsEditorActivity extends ListActivity {
 
@@ -68,13 +67,8 @@ public class HostsEditorActivity extends ListActivity {
 			cursor = hdb.getAllHostsBySourceId(search_sid);
 		}
 
-		if (VERSION.SDK_INT > 10) {
-			adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
-					SCA_item, SCA_item_id, 0);
-		} else {
-			adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
-					SCA_item, SCA_item_id);
-		}
+		adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
+				SCA_item, SCA_item_id, 0);
 
 		ListView lv = getListView();
 		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);

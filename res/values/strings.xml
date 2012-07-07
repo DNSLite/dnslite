@@ -226,4 +226,6 @@ Main features: \n\n
     <string name="first_run_manage">It\'s your first time here, please follow the guide to import "/etc/hosts" to "Local" database.\n1. Click the Manage Button.\n2. Long click the item "local".\n3. Select Download to improt "/etc/hosts".</string>
     <string name="first_run_localsource">Please long click the item "Local".\nSelect Download for improt "/etc/hosts" to "Local".</string>
 	<string name="dns_init_db"></string>
+	<string name="host_rewrite_alert_msg">Rewrite /system/etc/hosts?</string>
+	<string name="host_reset_etc_alert_msg">reset hosts?\nClear in use hosts.</string>
 </resources>

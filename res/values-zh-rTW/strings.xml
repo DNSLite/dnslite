@@ -211,5 +211,8 @@ hosts\n\n
     <string name="menu_item_show_active">查看使用中的hosts</string>
     <string name="first_run_manage">您是第一次打開應用，請跟隨嚮導完成一次&quot;/etc/hosts&quot;的導入。 \n1. 請點擊 管理 。 \n2. 長按 Local源。 \n3. 選擇下載更新。為您導入現有hosts文件</string>
     <string name="first_run_localsource">请長按 Local源，选择下載更新。为您導入現有hosts文件</string>
+    
+	<string name="host_rewrite_alert_msg">保存到 /etc/hosts?</string>
+	<string name="host_reset_etc_alert_msg">清空/etc/hosts?\n清空使用中的hosts.</string>
 
 </resources>

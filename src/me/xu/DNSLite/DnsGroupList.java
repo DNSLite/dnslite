@@ -14,7 +14,6 @@ import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Build.VERSION;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -22,7 +21,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -48,15 +47,11 @@ public class DnsGroupList extends ListActivity {
 
 		hdb = HostsDB.GetInstance(this);
 		cursor = hdb.getAllDnsGroup();
-		if (VERSION.SDK_INT > 10) {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 }, 0);
-		} else {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 });
-		}
+
+		adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
+				cursor, new String[] { "name", "url" }, new int[] {
+						R.id.text1, R.id.text2 }, 0);
+		
 		setListAdapter(adapter);
 
 		ListView lv = getListView();

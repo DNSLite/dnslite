@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import me.xu.tools.Sudo;
 import me.xu.tools.util;
 import android.content.ContentValues;
 import android.content.Context;
@@ -16,6 +17,7 @@ import android.database.DatabaseUtils.InsertHelper;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
+import android.widget.Toast;
 
 public class HostsDB extends SQLiteOpenHelper {
 
@@ -823,8 +825,71 @@ public class HostsDB extends SQLiteOpenHelper {
 		String sql = "SELECT * from hosts where domain like ? or domain like ?";
 		return db.rawQuery(sql, new String[] { str + "%", "%" + str });
 	}
-	
-	public void writeHostsCacheFile() {
+
+	public static void saveEtcHosts(Context mContext) {
+
+		Sudo sudo = new Sudo();
+		if (!sudo.prepareSuProc()) {
+			Toast.makeText(mContext, mContext.getString(R.string.Status_SUFAIL),
+					Toast.LENGTH_SHORT).show();
+			sudo.close();
+			return;
+		}
+
+		if (!sudo.mountRw("/system")) {
+			Toast.makeText(mContext, "RE-MOUNT fail", Toast.LENGTH_SHORT)
+					.show();
+			sudo.close();
+			return;
+		}
+
+		Cursor curs = null;
+		try {
+			HostsDB hdb = HostsDB.GetInstance(mContext);
+			curs = hdb.getDistinctInUseHosts();
+			sudo.writeBytes("chmod 644 /system/etc/hosts\n");
+			int iIP = curs.getColumnIndex("ip");
+			int iDomain = curs.getColumnIndex("domain");
+			sudo.writeBytes("> /system/etc/hosts\n");
+			while (curs.moveToNext()) {
+				String ip = curs.getString(iIP);
+				if (ip == null || ip.length() < 1) {
+					continue;
+				}
+				String domain = curs.getString(iDomain);
+				if (domain == null || domain.length() < 1) {
+					continue;
+				}
+				String line = ip + " " + domain;
+				line = line.replace('"', ' ');
+				line = line.replace('\'', ' ');
+				line = line.replace('\\', ' ');
+				line = line.trim();
+				sudo.writeBytes("echo '" + line + "' >> /system/etc/hosts\n");
+			}
+			sudo.remountRo();
+			sudo.writeBytes("exit\n");
+			HostsDB.saved();
+			if (curs != null) {
+				curs.close();
+				curs = null;
+			}
+			Toast.makeText(mContext, "Save Success!", Toast.LENGTH_SHORT)
+					.show();
+		} catch (IOException e) {
+			Toast.makeText(mContext, "Save error, " + e.getMessage(),
+					Toast.LENGTH_SHORT).show();
+			e.printStackTrace();
+		} finally {
+			if (curs != null) {
+				curs.close();
+				curs = null;
+			}
+			sudo.close();
+		}
+	}
+
+	private void writeHostsCacheFile() {
 		needRewriteHosts = false;
 		Cursor c = getDistinctInUseHosts();
 		if (c != null) {

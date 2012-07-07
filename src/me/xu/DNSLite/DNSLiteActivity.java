@@ -1,45 +1,211 @@
 package me.xu.DNSLite;
 
+import java.util.ArrayList;
+
 import me.xu.tools.Sudo;
 import me.xu.tools.util;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.app.ActivityGroup;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TabHost;
+import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DNSLiteActivity extends ActivityGroup {
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+
+public class DNSLiteActivity extends FragmentActivity {
+	TabHost mTabHost;
+	ViewPager mViewPager;
+	TabsAdapter mTabsAdapter;
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
+			if (HostsDB.needRewriteHosts) {
+				new AlertDialog.Builder(this)
+						.setMessage(R.string.host_rewrite_alert_msg)
+						.setPositiveButton(android.R.string.yes,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+										HostsDB.saveEtcHosts(getApplicationContext());
+										HostsDB.saved();
+										finish();
+									}
+								})
+						.setNegativeButton(android.R.string.no,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog,
+											int whichButton) {
+										finish();
+									}
+								}).create().show();
+			}
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tabs);
+		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
+		mTabHost.setup();
 
-		TabHost tabHost = (TabHost) findViewById(R.id.tabs_tabHost01);
-		tabHost.setup(getLocalActivityManager());
-		tabHost.addTab(tabHost.newTabSpec("DNS")
-				.setContent(new Intent(this, DNSServiceActivity.class))
-				.setIndicator(getString(R.string.dns_lable), null));
-		tabHost.addTab(tabHost.newTabSpec("hosts")
-				.setContent(new Intent(this, HostsActivity.class))
-				.setIndicator("hosts", null));
-		int count = tabHost.getTabWidget().getChildCount();
-		for (int i = 0; i < count; ++i) {
-			View view = tabHost.getTabWidget().getChildAt(i);
-			View iv = view.findViewById(android.R.id.icon);
-			iv.setVisibility(View.GONE);
-			view.getLayoutParams().height = 55;
+		mViewPager = (ViewPager) findViewById(R.id.pager);
+		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
+
+		mTabsAdapter.addTab(
+				mTabHost.newTabSpec("DNS").setIndicator(
+						getString(R.string.dns_lable)),
+				DNSServiceActivity.DNSServiceFragment.class, null);
+		mTabsAdapter.addTab(mTabHost.newTabSpec("hosts").setIndicator("hosts"),
+				HostsActivity.HostsFragment.class, null);
+		if (savedInstanceState != null) {
+			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
+		}
+		if (Build.VERSION.SDK_INT < 11) {
+			int count = mTabHost.getTabWidget().getChildCount();
+			for (int i = 0; i < count; ++i) {
+				View view = mTabHost.getTabWidget().getChildAt(i);
+				View iv = view.findViewById(android.R.id.icon);
+				iv.setVisibility(View.GONE);
+				view.getLayoutParams().height = 55;
+			}
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putString("tab", mTabHost.getCurrentTabTag());
+	}
+
+	/**
+	 * This is a helper class that implements the management of tabs and all
+	 * details of connecting a ViewPager with associated TabHost. It relies on a
+	 * trick. Normally a tab host has a simple API for supplying a View or
+	 * Intent that each tab will show. This is not sufficient for switching
+	 * between pages. So instead we make the content part of the tab host 0dp
+	 * high (it is not shown) and the TabsAdapter supplies its own dummy view to
+	 * show as the tab content. It listens to changes in tabs, and takes care of
+	 * switch to the correct paged in the ViewPager whenever the selected tab
+	 * changes.
+	 */
+	public static class TabsAdapter extends FragmentPagerAdapter implements
+			TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
+		private final Context mContext;
+		private final TabHost mTabHost;
+		private final ViewPager mViewPager;
+		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+
+		static final class TabInfo {
+			private final String tag;
+			private final Class<?> clss;
+			private final Bundle args;
+
+			TabInfo(String _tag, Class<?> _class, Bundle _args) {
+				tag = _tag;
+				clss = _class;
+				args = _args;
+			}
+		}
+
+		static class DummyTabFactory implements TabHost.TabContentFactory {
+			private final Context mContext;
+
+			public DummyTabFactory(Context context) {
+				mContext = context;
+			}
+
+			@Override
+			public View createTabContent(String tag) {
+				View v = new View(mContext);
+				v.setMinimumWidth(0);
+				v.setMinimumHeight(0);
+				return v;
+			}
+		}
+
+		public TabsAdapter(FragmentActivity activity, TabHost tabHost,
+				ViewPager pager) {
+			super(activity.getSupportFragmentManager());
+			mContext = activity;
+			mTabHost = tabHost;
+			mViewPager = pager;
+			mTabHost.setOnTabChangedListener(this);
+			mViewPager.setAdapter(this);
+			mViewPager.setOnPageChangeListener(this);
+		}
+
+		public void addTab(TabHost.TabSpec tabSpec, Class<?> clss, Bundle args) {
+			tabSpec.setContent(new DummyTabFactory(mContext));
+			String tag = tabSpec.getTag();
+
+			TabInfo info = new TabInfo(tag, clss, args);
+			mTabs.add(info);
+			mTabHost.addTab(tabSpec);
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public int getCount() {
+			return mTabs.size();
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			TabInfo info = mTabs.get(position);
+			return Fragment.instantiate(mContext, info.clss.getName(),
+					info.args);
+		}
+
+		@Override
+		public void onTabChanged(String tabId) {
+			int position = mTabHost.getCurrentTab();
+			mViewPager.setCurrentItem(position);
+		}
+
+		@Override
+		public void onPageScrolled(int position, float positionOffset,
+				int positionOffsetPixels) {
+		}
+
+		@Override
+		public void onPageSelected(int position) {
+			// Unfortunately when TabHost changes the current tab, it kindly
+			// also takes care of putting focus on it when not in touch mode.
+			// The jerk.
+			// This hack tries to prevent this from pulling focus out of our
+			// ViewPager.
+			TabWidget widget = mTabHost.getTabWidget();
+			int oldFocusability = widget.getDescendantFocusability();
+			widget.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
+			mTabHost.setCurrentTab(position);
+			widget.setDescendantFocusability(oldFocusability);
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int state) {
 		}
 	}
 
