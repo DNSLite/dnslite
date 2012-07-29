@@ -220,7 +220,7 @@ public class DNSServiceActivity extends FragmentActivity {
 
 					int t = 5;
 					do {
-						publishProgress("wait DNS Server ..." + t);
+						publishProgress("wait DNS Server ... " + t);
 						if (DNSProxyClient.isDnsRuning()) {
 							--t;
 						} else {
@@ -243,7 +243,7 @@ public class DNSServiceActivity extends FragmentActivity {
 							return R.string.dns_stop_succ;
 						}
 						try {
-							Thread.sleep(400);
+							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 						}
 					} while (t > 0);
@@ -270,14 +270,14 @@ public class DNSServiceActivity extends FragmentActivity {
 
 					int t = 5;
 					do {
-						publishProgress("check DNS Server ..." + t);
+						publishProgress("check DNS Server ... " + t);
 						if (!DNSProxyClient.isDnsRuning()) {
 							--t;
 						} else {
 							return R.string.dns_start_succ;
 						}
 						try {
-							Thread.sleep(400);
+							Thread.sleep(1000);
 						} catch (InterruptedException e) {
 						}
 					} while (t > 0);

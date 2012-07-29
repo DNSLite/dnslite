@@ -1,14 +1,23 @@
 package me.xu.DNSLite;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TabHost;
+import android.widget.TabWidget;
 import java.util.ArrayList;
 
 import me.xu.tools.Sudo;
 import me.xu.tools.util;
 import android.os.Build;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,18 +27,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 
 public class DNSLiteActivity extends FragmentActivity {
 	TabHost mTabHost;
@@ -80,17 +80,9 @@ public class DNSLiteActivity extends FragmentActivity {
 				DNSServiceActivity.DNSServiceFragment.class, null);
 		mTabsAdapter.addTab(mTabHost.newTabSpec("hosts").setIndicator("hosts"),
 				HostsActivity.HostsFragment.class, null);
+		
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
-		}
-		if (Build.VERSION.SDK_INT < 11) {
-			int count = mTabHost.getTabWidget().getChildCount();
-			for (int i = 0; i < count; ++i) {
-				View view = mTabHost.getTabWidget().getChildAt(i);
-				View iv = view.findViewById(android.R.id.icon);
-				iv.setVisibility(View.GONE);
-				view.getLayoutParams().height = 55;
-			}
 		}
 	}
 
@@ -164,6 +156,30 @@ public class DNSLiteActivity extends FragmentActivity {
 			TabInfo info = new TabInfo(tag, clss, args);
 			mTabs.add(info);
 			mTabHost.addTab(tabSpec);
+
+			// if (Build.VERSION.SDK_INT < 11) {
+			// int count = mTabHost.getTabWidget().getChildCount();
+			// for (int i = 0; i < count; ++i) {
+			// View view = mTabHost.getTabWidget().getChildAt(i);
+			// View iv = view.findViewById(android.R.id.icon);
+			// iv.setVisibility(View.GONE);
+			// view.getLayoutParams().height = 55;
+			// }
+			// }
+
+			if (Build.VERSION.SDK_INT < 11) {
+				int i = mTabHost.getTabWidget().getChildCount() - 1;
+				if (i > -1) {
+					View view = mTabHost.getTabWidget().getChildAt(i);
+					if (view != null) {
+						View iv = view.findViewById(android.R.id.icon);
+						if (iv != null) {
+							iv.setVisibility(View.GONE);
+						}
+						view.getLayoutParams().height = 55;
+					}
+				}
+			}
 			notifyDataSetChanged();
 		}
 
@@ -224,6 +240,11 @@ public class DNSLiteActivity extends FragmentActivity {
 			break;
 		case R.id.menu_fix_netdns:
 			fix_netdns();
+			break;
+		case R.id.menu_share:
+			sendShare("\"DNSLite\"<xudejian2008@gmail.com>",
+					getString(R.string.menu_share),
+					getString(R.string.menu_share_tpl));
 			break;
 		case R.id.menu_feedback:
 			sendFeedback(
@@ -346,11 +367,21 @@ public class DNSLiteActivity extends FragmentActivity {
 		buf.append("VERSION.INCREMENTAL: " + Build.VERSION.INCREMENTAL + "\n");
 		buf.append("VERSION.SDK: " + Build.VERSION.SDK_INT + "\n");
 		Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-		intent.setType("plain/text");
+		intent.setType("text/plain");
 		String[] strEmailReciver = new String[] { mailTo };
 		intent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
 		intent.putExtra(android.content.Intent.EXTRA_EMAIL, strEmailReciver);
 		intent.putExtra(android.content.Intent.EXTRA_TEXT, buf.toString());
 		startActivity(Intent.createChooser(intent, title));
+	}
+
+	private void sendShare(String mailTo, String subject, String body) {
+		Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+		intent.setType("text/plain");
+		String[] strEmailReciver = new String[] { mailTo };
+		intent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
+		intent.putExtra(android.content.Intent.EXTRA_EMAIL, strEmailReciver);
+		intent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+		startActivity(Intent.createChooser(intent, subject));
 	}
 }

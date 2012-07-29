@@ -3,6 +3,9 @@ package me.xu.DNSLite;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,6 +17,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -91,6 +95,16 @@ public class HostsActivity extends FragmentActivity {
 					.findViewById(R.id.btn_hosts_rawview);
 			btn_hosts_rawview.setOnClickListener(this);
 
+			AdView adv = (AdView)view.findViewById(R.id.adView);
+			AdRequest request = new AdRequest();
+			request.addTestDevice(AdRequest.TEST_EMULATOR);
+			if (!BuildConfig.DEBUG) {
+				//request.addTestDevice(AdRequest.TEST_EMULATOR);
+			}
+//			request.setGender(AdRequest.Gender.FEMALE);
+//			request.setLocation(location);
+//			request.setBirthday("19850101");
+			adv.loadAd(request);
 			return view;
 			// return super.onCreateView(inflater, container,
 			// savedInstanceState);
@@ -105,7 +119,7 @@ public class HostsActivity extends FragmentActivity {
 		@Override
 		public void onResume() {
 			super.onResume();
-			if (HostsDB.first_run_hostsActivity) {
+			if (this.isVisible() && HostsDB.first_run_hostsActivity) {
 				Timer timer = new Timer();
 				timer.schedule(new firstRunPopupWindow(), 500);
 			}

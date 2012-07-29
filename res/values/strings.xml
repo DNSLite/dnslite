@@ -6,6 +6,8 @@
     <string name="menu_about">Quick hints</string>
     <string name="menu_fix_netdns">Fix netdns</string>
     <string name="menu_feedback">Feedback</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_share_tpl">Share DNSLite</string>
     <string name="fix_netdns_entry">Fix netdns</string>
     <string name="fix_success">Fixed</string>
     <string name="fix_failure">Fix failure, maybe failed to get root privileges</string>

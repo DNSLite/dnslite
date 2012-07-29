@@ -19,8 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/dns_server_connecting"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/black" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <com.google.ads.AdView
         android:layout_marginTop="20dip"
