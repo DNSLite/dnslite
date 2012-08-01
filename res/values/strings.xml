@@ -6,8 +6,8 @@
     <string name="menu_about">Quick hints</string>
     <string name="menu_fix_netdns">Fix netdns</string>
     <string name="menu_feedback">Feedback</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_share_tpl">Share DNSLite</string>
+    <string name="menu_share">Share DNSLite</string>
+    <string name="menu_share_tpl">I found a good application, DNSLite market://details?id=me.xu.DNSLite , is used for the DNS proxy service, try it.</string>
     <string name="fix_netdns_entry">Fix netdns</string>
     <string name="fix_success">Fixed</string>
     <string name="fix_failure">Fix failure, maybe failed to get root privileges</string>
@@ -184,7 +184,7 @@ Main features: \n\n
     <string name="no_hosts_source">you need add hosts source</string>
     <string name="no_hosts">Touch here or menu, then you can Add or Download or Import from "/etc/hosts"</string>
     
-    <string name="hosts_source">internet hosts Source</string>
+    <string name="hosts_source">hosts Source</string>
     <string name="hosts_ops">local hosts database</string>
     <string name="hosts_reset_ops">Reset DB</string>
     <string name="hosts_save_ops">Save change</string>
@@ -193,7 +193,6 @@ Main features: \n\n
     <string name="btn_hosts_resetEtc">Reset /etc/hosts</string>
     <string name="btn_hosts_apply">Apply Change</string>
     <string name="btn_hosts_rawview">Edit /etc/hosts</string>
-    <string name="hosts_welmsg">/etc/hosts editor</string>
     <string name="host_source_add">Add Source</string>
     <string name="hosts_source_add_name">Name</string>
     <string name="hosts_source_add_url">Url</string>

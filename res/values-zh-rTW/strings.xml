@@ -8,6 +8,8 @@
     <string name="menu_about">快速提示</string>
     <string name="menu_fix_netdns">修復系統DNS</string>
     <string name="menu_feedback">發送反饋</string>
+    <string name="menu_share">分享DNSLite</string>
+    <string name="menu_share_tpl">我發現一個不錯的應用，DNSLite market://details?id=me.xu.DNSLite , 是用來做DNS代理服務的，來試試吧。</string>
     <string name="fix_netdns_entry">修復系統DNS設置</string>
     <string name="fix_success">已修復</string>
     <string name="fix_failure">未能完成修復, 獲取ROOT權限失敗</string>
@@ -177,7 +179,6 @@ hosts\n\n
     
     <string name="btn_hosts_apply">保存</string>
     <string name="btn_hosts_rawview">编辑 /etc/hosts</string>
-    <string name="hosts_welmsg">/etc/hosts 管理工具</string>
     <string name="host_source_add">增加hosts源</string>
     <string name="hosts_source_add_name">名稱</string>
     <string name="hosts_source_add_url">網址</string>

@@ -80,7 +80,7 @@ public class DNSLiteActivity extends FragmentActivity {
 				DNSServiceActivity.DNSServiceFragment.class, null);
 		mTabsAdapter.addTab(mTabHost.newTabSpec("hosts").setIndicator("hosts"),
 				HostsActivity.HostsFragment.class, null);
-		
+
 		if (savedInstanceState != null) {
 			mTabHost.setCurrentTabByTag(savedInstanceState.getString("tab"));
 		}
@@ -157,16 +157,6 @@ public class DNSLiteActivity extends FragmentActivity {
 			mTabs.add(info);
 			mTabHost.addTab(tabSpec);
 
-			// if (Build.VERSION.SDK_INT < 11) {
-			// int count = mTabHost.getTabWidget().getChildCount();
-			// for (int i = 0; i < count; ++i) {
-			// View view = mTabHost.getTabWidget().getChildAt(i);
-			// View iv = view.findViewById(android.R.id.icon);
-			// iv.setVisibility(View.GONE);
-			// view.getLayoutParams().height = 55;
-			// }
-			// }
-
 			if (Build.VERSION.SDK_INT < 11) {
 				int i = mTabHost.getTabWidget().getChildCount() - 1;
 				if (i > -1) {
@@ -242,9 +232,7 @@ public class DNSLiteActivity extends FragmentActivity {
 			fix_netdns();
 			break;
 		case R.id.menu_share:
-			sendShare("\"DNSLite\"<xudejian2008@gmail.com>",
-					getString(R.string.menu_share),
-					getString(R.string.menu_share_tpl));
+			sendShare(R.string.menu_share, R.string.menu_share_tpl);
 			break;
 		case R.id.menu_feedback:
 			sendFeedback(
@@ -375,13 +363,12 @@ public class DNSLiteActivity extends FragmentActivity {
 		startActivity(Intent.createChooser(intent, title));
 	}
 
-	private void sendShare(String mailTo, String subject, String body) {
+	private void sendShare(int subject, int body) {
 		Intent intent = new Intent(android.content.Intent.ACTION_SEND);
 		intent.setType("text/plain");
-		String[] strEmailReciver = new String[] { mailTo };
-		intent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
-		intent.putExtra(android.content.Intent.EXTRA_EMAIL, strEmailReciver);
-		intent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-		startActivity(Intent.createChooser(intent, subject));
+		intent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+				getString(subject));
+		intent.putExtra(android.content.Intent.EXTRA_TEXT, getString(body));
+		startActivity(Intent.createChooser(intent, getString(subject)));
 	}
 }

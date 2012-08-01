@@ -99,7 +99,7 @@ public class HostsActivity extends FragmentActivity {
 			AdRequest request = new AdRequest();
 			request.addTestDevice(AdRequest.TEST_EMULATOR);
 			if (!BuildConfig.DEBUG) {
-				//request.addTestDevice(AdRequest.TEST_EMULATOR);
+				request.addTestDevice("23C3AD2EF96BAD2B99CCBF5C3A5CAE61");
 			}
 //			request.setGender(AdRequest.Gender.FEMALE);
 //			request.setLocation(location);

@@ -88,12 +88,10 @@ public class DNSProxy {
 
 	public void stopDNSService() {
 		new StopDNS().execute();
-		Thread.yield();
 	}
 
 	public void startDNSService() {
 		new StartDNS().execute();
-		Thread.yield();
 	}
 
 	private String getDnsBin() {

@@ -1,5 +1,9 @@
 package me.xu.DNSLite;
 
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+
 import me.xu.tools.DNSProxyClient;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -17,10 +21,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 
 public class DNSServiceActivity extends FragmentActivity {
 
@@ -76,7 +76,6 @@ public class DNSServiceActivity extends FragmentActivity {
 			getActivity().registerReceiver(mReceiver,
 					new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
 			isReceiverRegistered = true;
-			Thread.yield();
 		}
 
 		@Override
@@ -265,7 +264,6 @@ public class DNSServiceActivity extends FragmentActivity {
 						DNSProxy dnsproxy = new DNSProxy(
 								getActivity().getApplicationContext());
 						dnsproxy.startDNSService();
-						Thread.yield();
 					}
 
 					int t = 5;
@@ -286,9 +284,9 @@ public class DNSServiceActivity extends FragmentActivity {
 			}
 
 			@Override
-			protected void onCancelled(Integer result) {
+			protected void onCancelled() {
 				progressDialog.dismiss();
-				super.onCancelled(result);
+				super.onCancelled();
 			}
 
 			@Override

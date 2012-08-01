@@ -20,13 +20,6 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/hosts_welmsg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/hosts_welmsg"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/hosts_source"
