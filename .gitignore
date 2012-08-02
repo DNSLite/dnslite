@@ -7,3 +7,4 @@ gen/*
 \#*#
 *.swp
 *~
+local.properties
