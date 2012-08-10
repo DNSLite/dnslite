@@ -117,7 +117,9 @@ hosts\n\n
     <string name="dialog_title_preference_dns_remote_dns">設定遠端DNS服務器</string>
     <string name="dns_remote_dns_summary">請設為您期望連接的DNS服務器IP</string>
     <string name="dns_remote_dns_title">遠端DNS設定</string>
-    <string name="preference_title_system_dns_setting">系統DNS設置</string>
+    <string name="preference_title_system_setting">系統設置</string>
+    <string name="auto_start_on_bootcompleted_summary">自動啟動DNS服務</string>
+    <string name="auto_start_on_bootcompleted_title">自動啟動</string>
     <string name="dns_sds_change_summary">自動更改系統DNS為127.0.0.1</string>
     <string name="dns_sds_change_title">更改系統DNS</string>
     <string name="dialog_title_preference_dns_net_dns">系統DNS設定</string>

@@ -121,7 +121,10 @@ Main features: \n\n
     <string name="dns_remote_dns_summary">set remote dns server</string>
     <string name="dns_remote_dns_title">Remote DNS Server</string>
     
-    <string name="preference_title_system_dns_setting">System dns configure</string>
+    <string name="preference_title_system_setting">System configure</string>
+    
+    <string name="auto_start_on_bootcompleted_summary">Auto Start DNS Service</string>
+    <string name="auto_start_on_bootcompleted_title">Auto Start</string>
     
     <string name="dns_sds_change_summary">auto change mobile dns configure</string>
     <string name="dns_sds_change_title">change system dns</string>

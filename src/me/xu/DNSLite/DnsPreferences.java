@@ -18,6 +18,7 @@ public class DnsPreferences extends PreferenceActivity implements
 	public static final String KEY_REMOTE_DNS = "remote_dns";
 	public static final String KEY_NET_DNS = "netdns";
 	public static final String KEY_ENABLE_CACHE = "enableCache";
+	public static final String KEY_AUTO_START_ON_BOOTCOMPLETED = "auto_start_on_bootcompleted";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
