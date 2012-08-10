@@ -98,7 +98,7 @@ public class HostsActivity extends FragmentActivity {
 			AdView adv = (AdView)view.findViewById(R.id.adView);
 			AdRequest request = new AdRequest();
 			request.addTestDevice(AdRequest.TEST_EMULATOR);
-			if (!BuildConfig.DEBUG) {
+			if (BuildConfig.DEBUG) {
 				request.addTestDevice("23C3AD2EF96BAD2B99CCBF5C3A5CAE61");
 			}
 //			request.setGender(AdRequest.Gender.FEMALE);

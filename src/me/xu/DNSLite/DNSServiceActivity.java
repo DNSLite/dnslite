@@ -7,13 +7,16 @@ import android.support.v4.app.FragmentManager;
 import me.xu.tools.DNSProxyClient;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +46,45 @@ public class DNSServiceActivity extends FragmentActivity {
 		private WifiManager wifimanage = null;
 		private boolean isReceiverRegistered = false;
 
+
+		private DNSService mBoundService;
+		private boolean mIsBound = false;
+		private ServiceConnection mConnection = new ServiceConnection() {
+			public void onServiceConnected(ComponentName className, IBinder service) {
+				mBoundService = ((DNSService.DNSBinder) service).getService();
+				doUnbindService();
+				new DnsOp().execute(false);
+			}
+
+			public void onServiceDisconnected(ComponentName className) {
+				mBoundService = null;
+				mIsBound = false;
+				if (progressDialog != null) {
+					progressDialog.dismiss();
+					progressDialog = null;
+				}
+			}
+
+		};
+
+		void doBindService() {
+			getActivity().getApplicationContext().bindService(
+					new Intent(getActivity().getApplicationContext(), DNSService.class),
+					mConnection, Context.BIND_AUTO_CREATE);
+			mIsBound = true;
+		}
+
+		void doUnbindService() {
+			if (mIsBound) {
+				try {
+					getActivity().getApplicationContext().unbindService(mConnection);
+				} catch (Exception e) {
+				}
+				mIsBound = false;
+				mBoundService = null;
+			}
+		}
+		
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -138,8 +180,22 @@ public class DNSServiceActivity extends FragmentActivity {
 			case R.id.dnsStart:
 				startProgressDialog(getString(R.string.dns_start),
 						getString(R.string.dns_start));
-				new DnsOp().execute(false);
-				Thread.yield();
+
+				HostsDB hdb = HostsDB
+						.GetInstance(getActivity().getApplicationContext());
+				if (HostsDB.needRewriteDnsCache) {
+					progressDialog.setMessage("load DNS cache ...");
+					hdb.writeDnsCacheFile();
+				}
+				progressDialog.setMessage(getString(R.string.dns_start));
+				doUnbindService();
+				getActivity().stopService(
+						new Intent(getActivity().getApplicationContext(),
+								DNSService.class));
+				getActivity().startService(
+						new Intent(getActivity().getApplicationContext(),
+								DNSService.class));
+				doBindService();
 				break;
 			case R.id.dnsStop:
 				startProgressDialog(getString(R.string.dns_stop),
@@ -165,6 +221,7 @@ public class DNSServiceActivity extends FragmentActivity {
 				progressDialog.dismiss();
 				progressDialog = null;
 			}
+			doUnbindService();
 			super.onDestroy();
 		}
 
@@ -213,24 +270,15 @@ public class DNSServiceActivity extends FragmentActivity {
 			protected Integer doInBackground(Boolean... stop) {
 				if (stop[0] == true) {
 					publishProgress("send quit to DNS Server ...");
+					doUnbindService();
+					getActivity().stopService(
+							new Intent(getActivity().getApplicationContext(),
+									DNSService.class));
 					if (DNSProxyClient.quit()) {
 						return R.string.dns_stop_succ;
 					}
 
 					int t = 5;
-					do {
-						publishProgress("wait DNS Server ... " + t);
-						if (DNSProxyClient.isDnsRuning()) {
-							--t;
-						} else {
-							return R.string.dns_stop_succ;
-						}
-						try {
-							Thread.sleep(400);
-						} catch (InterruptedException e) {
-						}
-					} while (t > 0);
-					t = 5;
 					do {
 						publishProgress("wait DNS Server " + t);
 						if (DNSProxyClient.isDnsRuning()) {
@@ -251,29 +299,15 @@ public class DNSServiceActivity extends FragmentActivity {
 					publishProgress("check DNS Server ...");
 					if (DNSProxyClient.isDnsRuning()) {
 						return R.string.dns_running;
-					} else {
-
-						HostsDB hdb = HostsDB
-								.GetInstance(getActivity().getApplicationContext());
-						if (HostsDB.needRewriteDnsCache) {
-							publishProgress("load DNS cache ...");
-							hdb.writeDnsCacheFile();
-						}
-
-						publishProgress(getString(R.string.dns_start));
-						DNSProxy dnsproxy = new DNSProxy(
-								getActivity().getApplicationContext());
-						dnsproxy.startDNSService();
 					}
 
 					int t = 5;
 					do {
-						publishProgress("check DNS Server ... " + t);
-						if (!DNSProxyClient.isDnsRuning()) {
-							--t;
-						} else {
+						publishProgress("wait DNS Server ... " + t);
+						if (DNSProxyClient.isDnsRuning()) {
 							return R.string.dns_start_succ;
 						}
+						--t;
 						try {
 							Thread.sleep(1000);
 						} catch (InterruptedException e) {

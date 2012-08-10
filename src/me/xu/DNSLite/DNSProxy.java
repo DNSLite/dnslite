@@ -7,7 +7,6 @@ import java.io.IOException;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.os.AsyncTask;
 import android.os.Build.VERSION;
 import android.preference.PreferenceManager;
 import me.xu.tools.DNSProxyClient;
@@ -17,7 +16,7 @@ import me.xu.tools.util;
 public class DNSProxy {
 
 	private Context context = null;
-	
+
 	public static final int Status_OK = 0;
 	public static final int Status_ALREDY_RUNNING = 1;
 	public static final int Status_BIN_NOTEXIST = 2;
@@ -41,11 +40,11 @@ public class DNSProxy {
 	public DNSProxy(Context context) {
 		this.context = context;
 	}
-	
+
 	public int getStatus() {
 		return run_status;
 	}
-	
+
 	private String getString(int resId) {
 		return context.getString(resId);
 	}
@@ -87,11 +86,70 @@ public class DNSProxy {
 	}
 
 	public void stopDNSService() {
-		new StopDNS().execute();
+		DNSProxyClient.quit();
 	}
 
 	public void startDNSService() {
-		new StartDNS().execute();
+		if (DNSProxyClient.isDnsRuning()) {
+			run_status = Status_ALREDY_RUNNING;
+			return;
+		}
+
+		String cmd = DNSProxy.this.getDnsStartCmd(true);
+		if (!DNSProxy.this.checkDnsBinExists()) {
+			run_status = Status_BIN_NOTEXIST;
+			return;
+		}
+		Sudo sudo = new Sudo();
+
+		try {
+			if (!sudo.prepareSuProc()) {
+				run_status = Status_SUFAIL;
+				return;
+			}
+
+			String chmodcmd = sudo.getCmdChmod(getDnsBin(), 755);
+			if (chmodcmd != null) {
+				if (!sudo.runcommand(chmodcmd + "\n")) {
+					run_status = Status_SEND_COMMAND_FAIL;
+					return;
+				}
+			}
+
+			String rv = null;
+			BufferedReader suOut = sudo.getSuOut();
+
+			if (!sudo.runcommand(cmd)) {
+				run_status = Status_SEND_COMMAND_FAIL;
+				return;
+			}
+			int status = Status_START_FAIL;
+			while ((rv = suOut.readLine()) != null) {
+				if (rv.equals("XDJ_START_OK")) {
+					status = Status_START_SUCC;
+					break;
+				} else if (rv.equals("XDJ_START_FAIL")) {
+					status = Status_START_FAIL;
+					break;
+				} else if (rv.equals("Success. DNS Proxy.")) {
+					status = Status_START_SUCC;
+					break;
+				}
+			}
+			sudo.runcommand("exit\n");
+			run_status = status;
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			run_status = Status_UNKNOW_ERROR;
+			return;
+		} catch (Exception e) {
+			e.printStackTrace();
+			run_status = Status_UNKNOW_ERROR;
+			return;
+		} finally {
+			sudo.close();
+		}
 	}
 
 	private String getDnsBin() {
@@ -203,75 +261,5 @@ public class DNSProxy {
 			sb.append(" && echo XDJ_START_OK || echo XDJ_START_FAIL \n");
 		}
 		return sb.toString();
-	}
-
-	private class StopDNS extends AsyncTask<Void, Void, Boolean> {
-		@Override
-		protected Boolean doInBackground(Void... v) {
-			return DNSProxyClient.quit();
-		}
-	}
-
-	private class StartDNS extends AsyncTask<Void, Void, Integer> {
-		@Override
-		protected Integer doInBackground(Void... v) {
-			if (DNSProxyClient.isDnsRuning()) {
-				return Status_ALREDY_RUNNING;
-			}
-
-			String cmd = DNSProxy.this.getDnsStartCmd(true);
-			if (!DNSProxy.this.checkDnsBinExists()) {
-				return Status_BIN_NOTEXIST;
-			}
-			Sudo sudo = new Sudo();
-
-			try {
-				if (!sudo.prepareSuProc()) {
-					return Status_SUFAIL;
-				}
-
-				String chmodcmd = sudo.getCmdChmod(getDnsBin(), 755);
-				if (chmodcmd != null) {
-					if (!sudo.runcommand(chmodcmd + "\n")) {
-						return Status_SEND_COMMAND_FAIL;
-					}
-				}
-
-				String rv = null;
-				BufferedReader suOut = sudo.getSuOut();
-
-				if (!sudo.runcommand(cmd)) {
-					return Status_SEND_COMMAND_FAIL;
-				}
-				int status = Status_START_FAIL;
-				while ((rv = suOut.readLine()) != null) {
-					if (rv.equals("XDJ_START_OK")) {
-						status = Status_START_SUCC;
-						break;
-					} else if (rv.equals("XDJ_START_FAIL")) {
-						status = Status_START_FAIL;
-						break;
-					} else if (rv.equals("Success. DNS Proxy.")) {
-						status = Status_START_SUCC;
-						break;
-					}
-				}
-				sudo.runcommand("exit\n");
-				return status;
-			} catch (IOException e) {
-				e.printStackTrace();
-				return Status_UNKNOW_ERROR;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return Status_UNKNOW_ERROR;
-			} finally {
-				sudo.close();
-			}
-		}
-
-		@Override
-		protected void onPostExecute(Integer result) {
-			run_status = result;
-		}
 	}
 }

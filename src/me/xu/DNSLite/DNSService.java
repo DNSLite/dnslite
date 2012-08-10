@@ -1,15 +1,17 @@
 package me.xu.DNSLite;
 
+import android.support.v4.app.NotificationCompat;
+import me.xu.tools.DNSProxyClient;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 
 public class DNSService extends Service {
 
@@ -24,6 +26,12 @@ public class DNSService extends Service {
 		DNSService getService() {
 			return DNSService.this;
 		}
+	}
+
+	@Override
+	public void onCreate() {
+		new DnsOp().execute(false);
+		super.onCreate();
 	}
 
 	@Override
@@ -42,6 +50,43 @@ public class DNSService extends Service {
 			}
 		}
 		return START_STICKY;
+	}
+	
+	@Override
+	public void onDestroy() {
+		new DnsOp().execute(true);
+		super.onDestroy();
+	}
+
+	private class DnsOp extends AsyncTask<Boolean, String, Integer> {
+		protected Integer doInBackground(Boolean... stop) {
+			if (stop[0] == true) {
+				int t = 5;
+				do {
+					if (DNSProxyClient.quit()) {
+						return R.string.dns_stop_succ;
+					}
+					if (DNSProxyClient.isDnsRuning()) {
+						--t;
+					} else {
+						return R.string.dns_stop_succ;
+					}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				} while (t > 0);
+				return R.string.dns_stop_fail;
+			} else {
+				if (DNSProxyClient.isDnsRuning()) {
+					return R.string.dns_running;
+				} else {					
+					DNSProxy dnsproxy = new DNSProxy(getApplicationContext());
+					dnsproxy.startDNSService();
+					return R.string.dns_start_succ;
+				}
+			}
+		}
 	}
 
 	private void showNotification() {
