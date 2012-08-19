@@ -70,6 +70,7 @@ typedef struct conf_t {
 	const char *db_filename;
 	struct in_addr eth0;
 	char host_name[MAXHOSTNAMELEN];
+	const char *fix_system_dns;
 } conf_t;
 
 #define ENABLE_CACHE (gconf->clean_cache_gap)
@@ -780,39 +781,51 @@ static void set_system_dns()
 static void reset_system_dns()
 {
 #ifdef ANDROID
+	char line[512];
+	char net_dns[PROP_VALUE_MAX];
+	int rv = 0;
+	int i = 0;
+	if (NULL != gconf->fix_system_dns) {
+		const char *pstart = gconf->fix_system_dns;
+		i = 1;
+		do {
+			const char *p = strchr(pstart, ',');
+			if (NULL == p) {
+				p = pstart + strlen(pstart);
+			}
+			rv = snprintf(line, sizeof(line), "setprop net.dns%d %.*s", i, p - pstart, pstart);
+			if (rv > 0) {
+				rv = system(line);
+				logs("re %s ret:%d\n", line, rv);
+			}
+			if ('\0' == *p) {
+				break;
+			}
+			if (++i > 2) {
+				break;
+			}
+			pstart = p + 1;
+		} while (*pstart);
+	}
+
 	if (gconf->net_dns[0][0] == 0) {
 		return;
 	}
 	if (!strcmp(gconf->net_dns[0], "127.0.0.1")) {
 		return;
 	}
-	char line[512];
-	char net_dns[PROP_VALUE_MAX];
-	int rv = 0;
-	int i = 0;
 	rv = __system_property_get("net.dns1", net_dns);
 	if (rv < 0) {
 		rv = 0;
 	}
 	net_dns[rv] = 0;
 	logs("net.dns1 %s\n", net_dns);
-#ifdef USELESS_HERE
-	int net_dnschange = 0;
-	rv = __system_property_get("net.dnschange", line);
-	if (rv < 1) {
-		net_dnschange = 0;
-	} else {
-		net_dnschange = atoi (line);
-	}
-	logs("net_dnschange %d\n", net_dnschange);
-#endif
 
 	if (strcmp(net_dns, "127.0.0.1")) {
 		logs("need not reset net.dns1=%s\n", net_dns);
 		return;
 	}
 
-	//rv = snprintf(line, sizeof(line), "setprop net.dns1 %s\nsetprop net.dnschange %d\nexit\n", gconf->net_dns[0],  net_dnschange + 1);
 	rv = snprintf(line, sizeof(line), "setprop net.dns1 %s", gconf->net_dns[0]);
 	if (rv > 0) {
 		rv = system(line);
@@ -917,7 +930,7 @@ void init_conf(int argc, char * const *argv)
 	int ch = 0;
 	const char *listen_addr = NULL;
 	const char *remote_dns = NULL;
-	while ((ch = getopt(argc, argv, "r:a:d:i:g:U:G:Dts?vh"))!= -1) {
+	while ((ch = getopt(argc, argv, "r:a:d:i:g:f:U:G:Dts?vh"))!= -1) {
 		switch (ch) {
 			case 'a':
 				listen_addr = optarg;
@@ -942,6 +955,9 @@ void init_conf(int argc, char * const *argv)
 				break;
 			case 'r':
 				remote_dns = optarg;
+				break;
+			case 'f':
+				gconf->fix_system_dns = optarg;
 				break;
 #ifndef ANDROID
 			case 'U':

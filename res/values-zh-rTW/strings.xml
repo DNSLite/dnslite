@@ -123,6 +123,7 @@ hosts\n\n
     <string name="dns_sds_change_summary">自動更改系統DNS為127.0.0.1</string>
     <string name="dns_sds_change_title">更改系統DNS</string>
     <string name="dialog_title_preference_dns_net_dns">系統DNS設定</string>
+    <string name="dialog_title_preference_dns_net_dns_msg">當停止服務時，DNS會被設定為如下值，或者恢復為原始狀態。\n推薦：留空。</string>
     <string name="dns_net_dns_summary">請設定為您平常使用的DNS</string>
     <string name="dns_net_dns_title">系統DNS</string>
     <string name="dns_checking">檢查服務狀態  …</string>

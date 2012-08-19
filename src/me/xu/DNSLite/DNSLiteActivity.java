@@ -265,7 +265,7 @@ public class DNSLiteActivity extends FragmentActivity {
 
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		String configDNS = sharedPref.getString(DnsPreferences.KEY_NET_DNS,
+		String configDNS = sharedPref.getString(DnsPreferences.KEY_FIX_DNS,
 				null);
 		if (configDNS != null) {
 			configDNS = configDNS.replaceAll(" ", ",");

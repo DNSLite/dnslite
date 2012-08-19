@@ -9,8 +9,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
-import android.util.Log;
-
 public class DNSProxyClient {
 
 	private final static String TAG = "DNSClient";
@@ -165,7 +163,6 @@ public class DNSProxyClient {
 				return read.readLine();
 			} catch (IOException e) {
 				e.printStackTrace();
-				Log.w(TAG, e.getMessage());
 			}
 		}
 		return null;
@@ -174,12 +171,9 @@ public class DNSProxyClient {
 	public static boolean isDnsRuning() {
 		DNSProxyClient dnsc = new DNSProxyClient();
 		try {
-			Log.w(TAG, "pre call connect");
 			if (dnsc.connect()) {
-				Log.w(TAG, "connected");
 				return dnsc.isServerAlive();
 			}
-			Log.w(TAG, "connect fail");
 		} finally {
 			dnsc.close();
 		}

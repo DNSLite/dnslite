@@ -130,6 +130,7 @@ Main features: \n\n
     <string name="dns_sds_change_title">change system dns</string>
     
     <string name="dialog_title_preference_dns_net_dns">System DNS Setting</string>
+    <string name="dialog_title_preference_dns_net_dns_msg">When stop the service, DNS will be set for the following values​​, or revert to its original state.\nRecommended: leave it blank.</string>
     <string name="dns_net_dns_summary">system dns setting</string>
     <string name="dns_net_dns_title">System DNS Setting</string>
     <string name="dns_default_dns">8.8.8.8,8.8.4.4</string>

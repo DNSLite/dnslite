@@ -16,7 +16,7 @@ public class DnsPreferences extends PreferenceActivity implements
 	public static final String KEY_IDLE_TIME = "idle_time";
 	public static final String KEY_AUTO_SET_SYSTEM_DNS = "auto_set_system_dns";
 	public static final String KEY_REMOTE_DNS = "remote_dns";
-	public static final String KEY_NET_DNS = "netdns";
+	public static final String KEY_FIX_DNS = "fixdns";
 	public static final String KEY_ENABLE_CACHE = "enableCache";
 	public static final String KEY_AUTO_START_ON_BOOTCOMPLETED = "auto_start_on_bootcompleted";
 

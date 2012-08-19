@@ -10,7 +10,10 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import android.util.Log;
+
 public class Sudo {
+	private static String TAG = "Sudo";
 	private Process suProc = null;
 
 	private BufferedReader suOut = null;
@@ -19,6 +22,12 @@ public class Sudo {
 	private String last_mount_dir = null;
 	private String last_mount_device = null;
 	private String chmod = null;
+
+	static {
+		System.loadLibrary("util");
+	}
+
+	public static native String getprop(String name);
 
 	public BufferedReader getSuOut() {
 		return suOut;
@@ -414,15 +423,16 @@ public class Sudo {
 			if (sudo.mountRw("/system")) {
 				try {
 					sudo.writeBytes("chmod 644 /system/etc/hosts\n");
-					sudo.writeBytes("> /system/etc/hosts\n");
+					sudo.writeBytes("echo > /system/etc/hosts\n");
 					if (lines != null) {
-						for (String line:lines) {
+						for (String line : lines) {
 							line = line.replace('"', ' ');
 							line = line.replace('\'', ' ');
 							line = line.replace('\\', ' ');
 							line = line.trim();
 
-							sudo.writeBytes("echo '"+line+"' >> /system/etc/hosts\n");
+							sudo.writeBytes("echo '" + line
+									+ "' >> /system/etc/hosts\n");
 						}
 					}
 					sudo.remountRo();
@@ -522,7 +532,9 @@ public class Sudo {
 			try {
 				for (int i = 0; i < param.length; ++i) {
 					sudo.writeBytes(param[i] + "\n");
+					sudo.skipOut();
 				}
+				sudo.skipOut();
 				sudo.writeBytes("exit\n");
 				rv = true;
 			} catch (IOException e) {
@@ -537,139 +549,46 @@ public class Sudo {
 		if (names == null || vals == null || names.length != vals.length) {
 			return false;
 		}
-		String[] cmds = new String[names.length];
-		for (int i = 0; i < names.length; ++i) {
-			if (vals[i].trim().length() < 1) {
-				cmds[i] = "setprop " + names[i] + " ''";
-			} else {
-				cmds[i] = "setprop " + names[i] + " " + vals[i];
-			}
-		}
-		return sudoCommand(cmds);
-	}
 
-	public static String getProperties(String name, String defval) {
-		Process p = null;
-		BufferedReader input = null;
-		try {
-			String line;
-			p = Runtime.getRuntime().exec(
-					"getprop " + name + " && echo xdj_END || echo xdj_END");
-			input = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			while ((line = input.readLine()) != null) {
-				if (line.equals("xdj_END")) {
-					break;
+		Sudo sudo = new Sudo();
+
+		if (sudo.prepareSuProc()) {
+			String cmd;
+			try {
+				for (int i = 0; i < names.length; ++i) {
+					if (vals[i].trim().length() < 1) {
+						cmd = "setprop " + names[i]
+								+ " 127.0.0.1 && echo SETOK || exit\n";
+					} else {
+						cmd = "setprop " + names[i] + " " + vals[i]
+								+ " && echo SETOK || exit\n";
+					}
+					sudo.writeBytes(cmd);
+					sudo.skipOut();
 				}
-				return line;
-			}
-		} catch (Exception err) {
-			err.printStackTrace();
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (p != null) {
-				p.destroy();
+				sudo.writeBytes("exit\n");
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
-		return defval;
+		sudo.close();
+		return true;
 	}
 
 	public static String[] getProperties(String[] names) {
-		String sh = getPath("sh");
-		if (sh != null) {
-			sh += "sh";
-		} else {
-			sh = "getprop";
-		}
-		Process p = null;
-		BufferedReader input = null;
-		PrintStream outPut = null;
 		if (names.length < 1) {
 			return null;
 		}
 		String[] vals = new String[names.length];
-		try {
-			String line;
-			p = Runtime.getRuntime().exec(sh);
-			input = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			outPut = new PrintStream(p.getOutputStream());
 
-			for (int i = 0; i < names.length; ++i) {
-				if (names[i].length() < 1) {
-					vals[i] = "";
-					continue;
-				}
-				outPut.println("getprop " + names[i]);
-				outPut.println("echo xdj_END");
+		for (int i = 0; i < names.length; ++i) {
+			if (names[i].length() < 1) {
 				vals[i] = "";
-				while ((line = input.readLine()) != null) {
-					if (line.equals("xdj_END")) {
-						break;
-					}
-					vals[i] = line;
-				}
+				continue;
 			}
-			outPut.println("exit");
-			return vals;
-		} catch (Exception err) {
-			err.printStackTrace();
-		} finally {
-			if (outPut != null) {
-				outPut.close();
-			}
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (p != null) {
-				p.destroy();
-			}
+			vals[i] = getprop(names[i]);
 		}
-		return null;
-	}
-
-	public static ArrayList<String> getProperties() {
-		Process p = null;
-		BufferedReader input = null;
-		try {
-			ArrayList<String> prop = new ArrayList<String>();
-			String line;
-			p = Runtime.getRuntime().exec(
-					"getprop && echo xdj_END || echo xdj_END");
-			input = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
-			while ((line = input.readLine()) != null) {
-				if (line.equals("xdj_END")) {
-					break;
-				}
-				prop.add(line);
-			}
-			return prop;
-		} catch (Exception err) {
-			err.printStackTrace();
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-			if (p != null) {
-				p.destroy();
-			}
-		}
-		return null;
+		return vals;
 	}
 
 	public String getCmdChmod(String file, int mval) {

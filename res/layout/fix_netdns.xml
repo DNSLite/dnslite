@@ -2,9 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:theme="@android:style/Theme.Dialog"
     android:orientation="vertical" >
-    
+
     <TextView
         android:id="@+id/tvdns1"
         android:layout_width="wrap_content"
@@ -12,7 +11,6 @@
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
         android:gravity="left"
-        android:textColor="@android:color/white"
         android:text="@string/dns1" />
 
     <EditText
@@ -32,7 +30,6 @@
         android:layout_marginLeft="20dip"
         android:layout_marginRight="20dip"
         android:gravity="left"
-        android:textColor="@android:color/white"
         android:text="@string/dns2" />
 
     <EditText

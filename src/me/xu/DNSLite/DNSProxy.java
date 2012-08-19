@@ -36,6 +36,7 @@ public class DNSProxy {
 	private int run_status = -1;
 	private String dnsBin = null;
 	private String remoteDNS = null;
+	private String fixDNS = null;
 
 	public DNSProxy(Context context) {
 		this.context = context;
@@ -212,6 +213,7 @@ public class DNSProxy {
 				DnsPreferences.KEY_LISTEN_LOCAL, false);
 		this.listen_addr = (listen_local) ? "127.0.0.1" : null;
 		remoteDNS = sharedPref.getString(DnsPreferences.KEY_REMOTE_DNS, null);
+		fixDNS = sharedPref.getString(DnsPreferences.KEY_FIX_DNS, null);
 	}
 
 	private String getDnsStartCmd(boolean appendTail) {
@@ -254,6 +256,14 @@ public class DNSProxy {
 			if (remoteDNS.length() > 1) {
 				sb.append(" -r ");
 				sb.append(remoteDNS);
+			}
+		}
+
+		if (fixDNS != null) {
+			fixDNS = fixDNS.replaceAll("\\s", ",").trim();
+			if (fixDNS.length() > 1) {
+				sb.append(" -f ");
+				sb.append(fixDNS);
 			}
 		}
 

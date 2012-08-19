@@ -59,9 +59,11 @@
 
         <EditTextPreference
             android:dialogTitle="@string/dialog_title_preference_dns_net_dns"
-            android:key="netdns"
+            android:key="fixdns"
             android:summary="@string/dns_net_dns_summary"
-            android:title="@string/dns_net_dns_title" />
+            android:title="@string/dns_net_dns_title"
+            android:dialogMessage="@string/dialog_title_preference_dns_net_dns_msg"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>
