@@ -1,19 +1,57 @@
 package me.xu.DNSLite;
 
-import android.support.v4.app.NotificationCompat;
 import me.xu.tools.DNSProxyClient;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 
 public class DNSService extends Service {
+	private static String TAG = "DNSService";
+	private final static int ctl_STOP = 1;
+	private final static int ctl_START = 2;
+	private final static int ctl_RE_SET_DNS = 3;
+
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			String action = arg1.getAction();
+			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+				NetworkInfo info = connManager.getActiveNetworkInfo();
+				if (info == null || !info.isAvailable()) {
+					return;
+				}
+				// String name = info.getTypeName();
+				State state = connManager.getNetworkInfo(
+						ConnectivityManager.TYPE_MOBILE).getState();
+				if (State.CONNECTED == state) {
+					new DnsOp().execute(ctl_RE_SET_DNS);
+				}
+
+				state = connManager.getNetworkInfo(
+						ConnectivityManager.TYPE_WIFI).getState();
+				if (State.CONNECTED == state) {
+					new DnsOp().execute(ctl_RE_SET_DNS);
+				}
+			}
+		}
+
+	};
 
 	private final DNSBinder mBinder = new DNSBinder();
 
@@ -30,8 +68,10 @@ public class DNSService extends Service {
 
 	@Override
 	public void onCreate() {
-		new DnsOp().execute(false);
 		super.onCreate();
+		registerReceiver(mReceiver, new IntentFilter(
+				ConnectivityManager.CONNECTIVITY_ACTION));
+		new DnsOp().execute(ctl_START);
 	}
 
 	@Override
@@ -51,16 +91,21 @@ public class DNSService extends Service {
 		}
 		return START_STICKY;
 	}
-	
+
 	@Override
 	public void onDestroy() {
-		new DnsOp().execute(true);
+		try {
+			unregisterReceiver(mReceiver);
+		} catch (Exception ee) {
+		}
+		new DnsOp().execute(ctl_STOP);
 		super.onDestroy();
 	}
 
-	private class DnsOp extends AsyncTask<Boolean, String, Integer> {
-		protected Integer doInBackground(Boolean... stop) {
-			if (stop[0] == true) {
+	private class DnsOp extends AsyncTask<Integer, Void, Integer> {
+		protected Integer doInBackground(Integer... cmd) {
+			switch (cmd[0]) {
+			case ctl_STOP: {
 				int t = 5;
 				do {
 					if (DNSProxyClient.quit()) {
@@ -77,15 +122,24 @@ public class DNSService extends Service {
 					}
 				} while (t > 0);
 				return R.string.dns_stop_fail;
-			} else {
+			}
+			case ctl_START: {
+
 				if (DNSProxyClient.isDnsRuning()) {
 					return R.string.dns_running;
-				} else {					
+				} else {
 					DNSProxy dnsproxy = new DNSProxy(getApplicationContext());
 					dnsproxy.startDNSService();
 					return R.string.dns_start_succ;
 				}
 			}
+			case ctl_RE_SET_DNS: {
+				return DNSProxyClient.re_set_dns() ? 0 : -1;
+			}
+			default:
+				break;
+			}
+			return -1;
 		}
 	}
 

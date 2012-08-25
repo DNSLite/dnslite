@@ -3,7 +3,7 @@
     <string name="app_name">DNSLite</string>
     <string name="dns_default_dns">8.8.8.8,8.8.4.4</string>
     <string name="dns_init_db"></string>
-    
+
     <string name="dns_lable">DNS代理(測試)</string>
     <string name="menu_about">快速提示</string>
     <string name="menu_fix_netdns">修復系統DNS</string>
@@ -14,8 +14,8 @@
     <string name="fix_success">已修復</string>
     <string name="fix_failure">未能完成修復, 獲取ROOT權限失敗</string>
     <string name="cur">當前</string>
-    
-    <string name="v30">30</string>
+
+    <string name="v0">0</string>
     <string name="v60">60</string>
     <string name="v90">90</string>
     <string name="v120">120</string>
@@ -27,7 +27,7 @@
     <string name="ip">IP</string>
     <string name="name">Name</string>
     <string name="url">Url</string>
-    
+
     <!-- about -->
     <string name="about_title">歡迎使用 DNSLite</string>
     <string name="about_message"><![CDATA[
@@ -93,7 +93,7 @@ hosts\n\n
     <string name="dnsStop">停止DNS服務</string>
     <string name="dnsCacheConfig">緩存配置</string>
     <string name="dnsLog">查看日誌</string>
-    
+
     <string name="dns_config">配置</string>
     <string name="dns_control">控制</string>
     <string name="wifi_is_disable">無線沒有網絡</string>
@@ -109,7 +109,7 @@ hosts\n\n
     <string name="dns_idle_title">自動停止服務</string>
     <string name="dns_setting_enable_cache_summary">緩存DNS請求結果。 (緩存類型: A/AAAA)</string>
     <string name="dns_setting_enable_cache_title">開啟緩存</string>
-    <!-- 
+    <!--
     <string name="dialog_title_preference_dns_cc_cycle">清理緩存週期</string>
     <string name="dns_ccc_summary">設置清理緩存時間週期</string>
     <string name="dns_ccc_title">清理緩存</string>
@@ -164,7 +164,7 @@ hosts\n\n
 
     <!-- preference -->
     <string name="preferenceChangeTips">您修改的配置，需要重新啟動服務，才能生效！</string>
-    <string name="per30mins">每30分鐘</string>
+    <string name="never">不自動退出</string>
     <string name="per60mins">每60分鐘</string>
     <string name="per90mins">每90分鐘</string>
     <string name="per120mins">每120分鐘</string>
@@ -179,7 +179,7 @@ hosts\n\n
     <string name="btn_hosts_source_manage">管理</string>
     <string name="btn_hosts_edit">管理使用中的hosts</string>
     <string name="btn_hosts_resetEtc">重置 /etc/hosts</string>
-    
+
     <string name="btn_hosts_apply">保存</string>
     <string name="btn_hosts_rawview">编辑 /etc/hosts</string>
     <string name="host_source_add">增加hosts源</string>
@@ -215,7 +215,7 @@ hosts\n\n
     <string name="menu_item_show_active">查看使用中的hosts</string>
     <string name="first_run_manage">您是第一次打開應用，請跟隨嚮導完成一次&quot;/etc/hosts&quot;的導入。 \n1. 請點擊 管理 。 \n2. 長按 Local源。 \n3. 選擇下載更新。為您導入現有hosts文件</string>
     <string name="first_run_localsource">请長按 Local源，选择下載更新。为您導入現有hosts文件</string>
-    
+
 	<string name="host_rewrite_alert_msg">保存到 /etc/hosts?</string>
 	<string name="host_reset_etc_alert_msg">清空/etc/hosts?\n清空使用中的hosts.</string>
 

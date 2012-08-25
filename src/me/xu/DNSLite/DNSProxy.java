@@ -4,14 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 
+import me.xu.tools.DNSProxyClient;
+import me.xu.tools.Sudo;
+import me.xu.tools.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.os.Build.VERSION;
 import android.preference.PreferenceManager;
-import me.xu.tools.DNSProxyClient;
-import me.xu.tools.Sudo;
-import me.xu.tools.util;
 
 public class DNSProxy {
 
@@ -137,6 +137,7 @@ public class DNSProxy {
 					break;
 				}
 			}
+			sudo.skipOut();
 			sudo.runcommand("exit\n");
 			run_status = status;
 			return;
@@ -192,7 +193,7 @@ public class DNSProxy {
 		int idle_time = 1;
 		try {
 			idle_time = Integer.valueOf(sharedPref.getString(
-					DnsPreferences.KEY_IDLE_TIME, "30"));
+					DnsPreferences.KEY_IDLE_TIME, "60"));
 		} catch (Exception e) {
 		}
 		idle_time *= 60;

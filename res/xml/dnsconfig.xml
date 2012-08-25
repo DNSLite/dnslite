@@ -14,14 +14,14 @@
             android:title="@string/dns_setting_local_title" />
 
         <ListPreference
-            android:defaultValue="30"
+            android:defaultValue="60"
             android:dialogTitle="@string/dialog_title_preference_dns_idle_timeout"
             android:entries="@array/preference_dns_time_entrys"
             android:entryValues="@array/preference_dns_time_entryvalues"
             android:key="idle_time"
             android:summary="@string/dns_idle_summary"
             android:title="@string/dns_idle_title" />
-        
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="enableCache"
@@ -50,7 +50,6 @@
             android:key="auto_start_on_bootcompleted"
             android:summary="@string/auto_start_on_bootcompleted_summary"
             android:title="@string/auto_start_on_bootcompleted_title" />
-        
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="auto_set_system_dns"
@@ -58,12 +57,11 @@
             android:title="@string/dns_sds_change_title" />
 
         <EditTextPreference
+            android:dialogMessage="@string/dialog_title_preference_dns_net_dns_msg"
             android:dialogTitle="@string/dialog_title_preference_dns_net_dns"
             android:key="fixdns"
             android:summary="@string/dns_net_dns_summary"
-            android:title="@string/dns_net_dns_title"
-            android:dialogMessage="@string/dialog_title_preference_dns_net_dns_msg"
-            />
+            android:title="@string/dns_net_dns_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

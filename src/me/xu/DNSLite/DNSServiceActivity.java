@@ -1,8 +1,9 @@
 package me.xu.DNSLite;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import me.xu.tools.DNSProxyClient;
 import android.app.ProgressDialog;
@@ -12,11 +13,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,25 +39,25 @@ public class DNSServiceActivity extends FragmentActivity {
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentById(android.R.id.content) == null) {
 			DNSServiceFragment dnsfrag = new DNSServiceFragment();
-            fm.beginTransaction().add(android.R.id.content, dnsfrag).commit();
-        }
+			fm.beginTransaction().add(android.R.id.content, dnsfrag).commit();
+		}
 	}
 
-	public static class DNSServiceFragment extends Fragment implements OnClickListener {
+	public static class DNSServiceFragment extends Fragment implements
+			OnClickListener {
 
 		private boolean dnsliteRunning = false;
 		private Button dnsStart = null;
 		private Button dnsStop = null;
 		private TextView wifi_ip = null;
 		private ProgressDialog progressDialog = null;
-		private WifiManager wifimanage = null;
 		private boolean isReceiverRegistered = false;
-
 
 		private DNSService mBoundService;
 		private boolean mIsBound = false;
 		private ServiceConnection mConnection = new ServiceConnection() {
-			public void onServiceConnected(ComponentName className, IBinder service) {
+			public void onServiceConnected(ComponentName className,
+					IBinder service) {
 				mBoundService = ((DNSService.DNSBinder) service).getService();
 				doUnbindService();
 				new DnsOp().execute(false);
@@ -69,22 +76,24 @@ public class DNSServiceActivity extends FragmentActivity {
 
 		void doBindService() {
 			getActivity().getApplicationContext().bindService(
-					new Intent(getActivity().getApplicationContext(), DNSService.class),
-					mConnection, Context.BIND_AUTO_CREATE);
+					new Intent(getActivity().getApplicationContext(),
+							DNSService.class), mConnection,
+					Context.BIND_AUTO_CREATE);
 			mIsBound = true;
 		}
 
 		void doUnbindService() {
 			if (mIsBound) {
 				try {
-					getActivity().getApplicationContext().unbindService(mConnection);
+					getActivity().getApplicationContext().unbindService(
+							mConnection);
 				} catch (Exception e) {
 				}
 				mIsBound = false;
 				mBoundService = null;
 			}
 		}
-		
+
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
@@ -92,7 +101,8 @@ public class DNSServiceActivity extends FragmentActivity {
 			Button dnsConfig = (Button) view.findViewById(R.id.dnsConfig);
 			dnsStart = (Button) view.findViewById(R.id.dnsStart);
 			dnsStop = (Button) view.findViewById(R.id.dnsStop);
-			Button dnsCacheConfig = (Button) view.findViewById(R.id.dnsCacheConfig);
+			Button dnsCacheConfig = (Button) view
+					.findViewById(R.id.dnsCacheConfig);
 			Button dnsLog = (Button) view.findViewById(R.id.dnsLog);
 			wifi_ip = (TextView) view.findViewById(R.id.wifi_ip);
 
@@ -102,12 +112,36 @@ public class DNSServiceActivity extends FragmentActivity {
 			dnsCacheConfig.setOnClickListener(this);
 			dnsLog.setOnClickListener(this);
 			return view;
-			//return super.onCreateView(inflater, container, savedInstanceState);
+			// return super.onCreateView(inflater, container,
+			// savedInstanceState);
 		}
-		
+
 		private String intToIp(int i) {
 			return (i & 0xFF) + "." + ((i >> 8) & 0xFF) + "."
 					+ ((i >> 16) & 0xFF) + "." + ((i >> 24) & 0xFF);
+		}
+
+		public String getLocalIPAddress() {
+			try {
+				for (Enumeration<NetworkInterface> mEnumeration = NetworkInterface
+						.getNetworkInterfaces(); mEnumeration.hasMoreElements();) {
+
+					NetworkInterface intf = mEnumeration.nextElement();
+					for (Enumeration<InetAddress> enumIPAddr = intf
+							.getInetAddresses(); enumIPAddr.hasMoreElements();) {
+						InetAddress inetAddress = enumIPAddr.nextElement();
+						// 如果不是回环地址
+						if (!inetAddress.isLoopbackAddress()) {
+							// 直接返回本地IP地址
+							return inetAddress.getHostAddress().toString();
+						}
+					}
+				}
+
+			} catch (SocketException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 
 		@Override
@@ -116,7 +150,7 @@ public class DNSServiceActivity extends FragmentActivity {
 			new StatusCheck().execute();
 
 			getActivity().registerReceiver(mReceiver,
-					new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
+					new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 			isReceiverRegistered = true;
 		}
 
@@ -137,35 +171,53 @@ public class DNSServiceActivity extends FragmentActivity {
 			@Override
 			public void onReceive(Context arg0, Intent arg1) {
 				final String action = arg1.getAction();
-				if (action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-					checkWifiStatus();
+				if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+					checkNetStatus();
 				}
 			}
 
 		};
 
-		public boolean checkWifiStatus() {
-			if (wifimanage == null) {
-				wifimanage = (WifiManager) getActivity().getSystemService(
-						Context.WIFI_SERVICE);
-			}
-			if (!wifimanage.isWifiEnabled()) {
+		private boolean checkNetStatus() {
+
+			ConnectivityManager connManager = (ConnectivityManager) getActivity()
+					.getSystemService(CONNECTIVITY_SERVICE);
+			NetworkInfo info = connManager.getActiveNetworkInfo();
+			if (info == null || !info.isAvailable()) {
 				if (wifi_ip != null) {
 					wifi_ip.setText(getString(R.string.wifi_is_disable));
 				}
 				return false;
 			}
+			String name = info.getTypeName();
+			State state = connManager.getNetworkInfo(
+					ConnectivityManager.TYPE_MOBILE).getState();
+			if (State.CONNECTED == state) {
+				if (wifi_ip != null) {
+					wifi_ip.setText(name + " IP:" + getLocalIPAddress());
+				}
+			}
 
-			WifiInfo wifiinfo = wifimanage.getConnectionInfo();
-			if (wifiinfo.getIpAddress() == 0) {
-				if (wifi_ip != null) {
-					wifi_ip.setText(getString(R.string.wifi_is_disable));
+			try {
+				state = connManager.getNetworkInfo(
+						ConnectivityManager.TYPE_WIFI).getState();
+				if (State.CONNECTED == state) {
+					WifiManager wifimanage = (WifiManager) getActivity()
+							.getSystemService(Context.WIFI_SERVICE);
+					WifiInfo wifiinfo = wifimanage.getConnectionInfo();
+					if (wifiinfo.getIpAddress() == 0) {
+						if (wifi_ip != null) {
+							wifi_ip.setText(getString(R.string.wifi_is_disable));
+						}
+					} else {
+						if (wifi_ip != null) {
+							wifi_ip.setText(name + " IP: "
+									+ intToIp(wifiinfo.getIpAddress()));
+						}
+					}
 				}
-			} else {
-				if (wifi_ip != null) {
-					wifi_ip.setText("Wifi IP: "
-							+ intToIp(wifiinfo.getIpAddress()));
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			return true;
 		}
@@ -181,8 +233,8 @@ public class DNSServiceActivity extends FragmentActivity {
 				startProgressDialog(getString(R.string.dns_start),
 						getString(R.string.dns_start));
 
-				HostsDB hdb = HostsDB
-						.GetInstance(getActivity().getApplicationContext());
+				HostsDB hdb = HostsDB.GetInstance(getActivity()
+						.getApplicationContext());
 				if (HostsDB.needRewriteDnsCache) {
 					progressDialog.setMessage("load DNS cache ...");
 					hdb.writeDnsCacheFile();
@@ -241,7 +293,6 @@ public class DNSServiceActivity extends FragmentActivity {
 					dnsStop.setVisibility(View.GONE);
 				}
 			}
-			checkWifiStatus();
 		}
 
 		private void startProgressDialog(String title, String message) {
@@ -249,7 +300,7 @@ public class DNSServiceActivity extends FragmentActivity {
 				progressDialog = new ProgressDialog(getActivity());
 			}
 			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-			//progressDialog.setTitle(title);
+			// progressDialog.setTitle(title);
 			progressDialog.setMessage(message);
 			progressDialog.setCancelable(true);
 			progressDialog.show();
@@ -355,13 +406,13 @@ public class DNSServiceActivity extends FragmentActivity {
 				case R.string.dns_stop_succ:
 				case R.string.dns_start_succ:
 				case R.string.dns_running:
-					Toast.makeText(getActivity().getApplicationContext(), getString(result),
-							Toast.LENGTH_SHORT).show();
+					Toast.makeText(getActivity().getApplicationContext(),
+							getString(result), Toast.LENGTH_SHORT).show();
 					break;
 				case R.string.dns_start_fail:
 				case R.string.dns_stop_fail:
-					Toast.makeText(getActivity().getApplicationContext(), getString(result),
-							Toast.LENGTH_LONG).show();
+					Toast.makeText(getActivity().getApplicationContext(),
+							getString(result), Toast.LENGTH_LONG).show();
 					break;
 				}
 			}

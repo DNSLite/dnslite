@@ -36,12 +36,6 @@ using namespace std;
 
 #define MIN_CLEAN_CACHE_GAP 86400
 
-#ifdef ANDROID
-# define MIN_IDLE_TIME 1800
-#else
-# define MIN_IDLE_TIME 86400
-#endif
-
 #define MAX_NAMESERVER_NUM 2
 #define MAX_IP_LEN 16
 #define MAX_DOMAIN_LEN 65
@@ -75,7 +69,8 @@ typedef struct conf_t {
 
 #define ENABLE_CACHE (gconf->clean_cache_gap)
 #define NEED_CLEAN_CACHE (ENABLE_CACHE && (gconf->tmnow.tv_sec - gconf->last_clean_cache > (int)gconf->clean_cache_gap))
-#define IDLE_TOO_LONG (gconf->tmnow.tv_sec - gconf->last_serv > (int)gconf->max_idle_time)
+#define ENABLE_AUTO_EXIT (gconf->max_idle_time)
+#define IDLE_TOO_LONG (ENABLE_AUTO_EXIT && gconf->tmnow.tv_sec - gconf->last_serv > (int)gconf->max_idle_time)
 
 static conf_t *gconf;
 
@@ -86,6 +81,7 @@ static int find_user_group(const char *user, const char *group, uid_t *uid, gid_
 static int do_send_response(epoll_util_t *u, udp_sock_t *c);
 static int do_send_0response(epoll_util_t *u, udp_sock_t *c);
 static void uninit_conf();
+static void set_system_dns();
 
 void printversion()
 {
@@ -650,6 +646,14 @@ void eu_on_read_tcp(epoll_util_t *u, int fd, uint32_t events)
 		}
 
 		switch (buf[10]) {
+			case 'R':
+				socket_send(fd, "SUCC\n", 5);
+				// for re-set netdns1
+				if (gconf->set_system_dns) {
+					set_system_dns();
+				}
+				// end
+				break;
 			case 'L':
 				if (gconf->logfd > -1) {
 					eu_del_fd(u, gconf->logfd);
@@ -743,7 +747,6 @@ static void set_system_dns()
 {
 #ifdef ANDROID
 	char line[512];
-	int net_dnschange = 0;
 	int rv = 0;
 	int i = 0;
 	for (i=0; i<2; ++i) {
@@ -760,17 +763,6 @@ static void set_system_dns()
 		return;
 	}
 
-#ifdef USELESS_HERE
-	rv = __system_property_get("net.dnschange", line);
-	if (rv < 1) {
-		net_dnschange = 0;
-	} else {
-		net_dnschange = atoi (line);
-	}
-	logs("net_dnschange %d\n", net_dnschange);
-#endif
-
-	//rv = snprintf(line, sizeof(line), "setprop net.dns1 127.0.0.1\nsetprop net.dnschange %d\nexit\n", net_dnschange + 1);
 	rv = snprintf(line, sizeof(line), "setprop net.dns1 127.0.0.1");
 	logs("%s\n", line);
 	rv = system(line);
@@ -1091,8 +1083,8 @@ void init_conf(int argc, char * const *argv)
 	if (ENABLE_CACHE && gconf->clean_cache_gap < MIN_CLEAN_CACHE_GAP) {
 		gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	}
-	if (gconf->max_idle_time < MIN_IDLE_TIME) {
-		gconf->max_idle_time = MIN_IDLE_TIME;
+	if (gconf->max_idle_time < 0) {
+		gconf->max_idle_time = 0;
 	}
 
 	GetTimeCurrent(gconf->tmnow);
