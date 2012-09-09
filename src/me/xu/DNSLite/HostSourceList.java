@@ -12,35 +12,33 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-//import android.os.Build.VERSION;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.support.v4.widget.SimpleCursorAdapter;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.view.LayoutInflater;
 import android.widget.EditText;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
 
 public class HostSourceList extends ListActivity {
 
@@ -66,11 +64,6 @@ public class HostSourceList extends ListActivity {
 
 		ListView lv = getListView();
 		registerForContextMenu(lv);
-
-		if (cursor.getCount() > 5) {
-			View adView = this.findViewById(R.id.adView);
-			adView.setVisibility(View.GONE);
-		}
 	}
 
 	@Override
@@ -315,13 +308,6 @@ public class HostSourceList extends ListActivity {
 		}
 
 		protected void onPostExecute(Cursor newCursor) {
-			try {
-				if (newCursor.getCount() > 5) {
-					View adView = HostSourceList.this.findViewById(R.id.adView);
-					adView.setVisibility(View.GONE);
-				}
-			} catch (Exception e) {
-			}
 			adapter.changeCursor(newCursor);
 			cursor.close();
 			cursor = newCursor;

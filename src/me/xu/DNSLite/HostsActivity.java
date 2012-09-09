@@ -19,9 +19,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
-
 public class HostsActivity extends FragmentActivity {
 
 	public static final String TAG = "HostsA";
@@ -102,19 +99,7 @@ public class HostsActivity extends FragmentActivity {
 					.findViewById(R.id.btn_hosts_rawview);
 			btn_hosts_rawview.setOnClickListener(this);
 
-			AdView adv = (AdView) view.findViewById(R.id.adView);
-			AdRequest request = new AdRequest();
-			request.addTestDevice(AdRequest.TEST_EMULATOR);
-			if (BuildConfig.DEBUG) {
-				request.addTestDevice("23C3AD2EF96BAD2B99CCBF5C3A5CAE61");
-			}
-			// request.setGender(AdRequest.Gender.FEMALE);
-			// request.setLocation(location);
-			// request.setBirthday("19850101");
-			adv.loadAd(request);
 			return view;
-			// return super.onCreateView(inflater, container,
-			// savedInstanceState);
 		}
 
 		@Override

@@ -11,10 +11,22 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
 import android.R.color;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.http.AndroidHttpClient;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,21 +34,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
-
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter.ViewBinder;
 import android.widget.ToggleButton;
-
-import android.os.AsyncTask;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.database.Cursor;
-import android.graphics.Rect;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
 public class HostsEditorActivity extends ListActivity {
 
@@ -96,11 +94,6 @@ public class HostsEditorActivity extends ListActivity {
 			}
 		});
 		setListAdapter(adapter);
-
-		if (cursor.getCount() > 5) {
-			View adView = this.findViewById(R.id.adView);
-			adView.setVisibility(View.GONE);
-		}
 	}
 
 	@Override
@@ -282,14 +275,6 @@ public class HostsEditorActivity extends ListActivity {
 		}
 
 		protected void onPostExecute(Cursor newCursor) {
-			try {
-				if (newCursor.getCount() > 5) {
-					View adView = HostsEditorActivity.this
-							.findViewById(R.id.adView);
-					adView.setVisibility(View.GONE);
-				}
-			} catch (Exception e) {
-			}
 			adapter.changeCursor(newCursor);
 			cursor.close();
 			cursor = newCursor;

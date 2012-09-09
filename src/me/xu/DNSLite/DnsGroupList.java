@@ -8,25 +8,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.support.v4.widget.SimpleCursorAdapter;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -51,7 +50,6 @@ public class DnsGroupList extends ListActivity {
 		adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
 				cursor, new String[] { "name", "url" }, new int[] {
 						R.id.text1, R.id.text2 }, 0);
-		
 		setListAdapter(adapter);
 
 		ListView lv = getListView();
@@ -63,11 +61,6 @@ public class DnsGroupList extends ListActivity {
 				DnsGroupList.this.openOptionsMenu();
 			}
 		});
-
-		if (cursor.getCount() > 5) {
-			View adView = this.findViewById(R.id.adView);
-			adView.setVisibility(View.GONE);
-		}
 	}
 
 	@Override
@@ -298,14 +291,6 @@ public class DnsGroupList extends ListActivity {
 		}
 
 		protected void onPostExecute(Cursor newCursor) {
-			try {
-				if (newCursor.getCount() > 5) {
-					View adView = DnsGroupList.this
-							.findViewById(R.id.adView);
-					adView.setVisibility(View.GONE);
-				}
-			} catch (Exception e) {
-			}
 			adapter.changeCursor(newCursor);
 			cursor.close();
 			cursor = newCursor;
