@@ -1,35 +1,30 @@
 package me.xu.DNSLite;
 
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.util.Log;
+import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
+
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 
 public class HostsActivity extends FragmentActivity {
+
+	public static final String TAG = "HostsA";
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -69,9 +64,20 @@ public class HostsActivity extends FragmentActivity {
 
 	public static class HostsFragment extends Fragment implements
 			OnClickListener {
+		private static final String TAG = "HostsFragment";
 		private PopupWindow mPop = null;
 		private Button btn_hosts_source_manage = null;
 		private HostsDB hdb = null;
+
+		@Override
+		public void setUserVisibleHint(boolean isVisibleToUser) {
+			super.setUserVisibleHint(isVisibleToUser);
+			if (this.isVisible()) {
+				if (isVisibleToUser) {
+					onPageVisible();
+				}
+			}
+		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -96,15 +102,15 @@ public class HostsActivity extends FragmentActivity {
 					.findViewById(R.id.btn_hosts_rawview);
 			btn_hosts_rawview.setOnClickListener(this);
 
-			AdView adv = (AdView)view.findViewById(R.id.adView);
+			AdView adv = (AdView) view.findViewById(R.id.adView);
 			AdRequest request = new AdRequest();
 			request.addTestDevice(AdRequest.TEST_EMULATOR);
 			if (BuildConfig.DEBUG) {
 				request.addTestDevice("23C3AD2EF96BAD2B99CCBF5C3A5CAE61");
 			}
-//			request.setGender(AdRequest.Gender.FEMALE);
-//			request.setLocation(location);
-//			request.setBirthday("19850101");
+			// request.setGender(AdRequest.Gender.FEMALE);
+			// request.setLocation(location);
+			// request.setBirthday("19850101");
 			adv.loadAd(request);
 			return view;
 			// return super.onCreateView(inflater, container,
@@ -117,12 +123,10 @@ public class HostsActivity extends FragmentActivity {
 			HostsDB.GetInstance(getActivity().getApplicationContext());
 		}
 
-		@Override
-		public void onResume() {
-			super.onResume();
-			if (this.isVisible() && HostsDB.first_run_hostsActivity) {
-				Timer timer = new Timer();
-				timer.schedule(new firstRunPopupWindow(), 500);
+		public void onPageVisible() {
+			if (HostsDB.first_run_hostsActivity) {
+				showPopupInfo(btn_hosts_source_manage);
+				HostsDB.first_run_hostsActivity = false;
 			}
 		}
 
@@ -180,9 +184,6 @@ public class HostsActivity extends FragmentActivity {
 			}
 		}
 
-		// public void doNegativeClick(int type) {
-		// }
-
 		public static class MyAlertDialogFragment extends DialogFragment {
 
 			public static MyAlertDialogFragment newInstance(int type,
@@ -214,46 +215,28 @@ public class HostsActivity extends FragmentActivity {
 			}
 		}
 
-		private Handler mHandler = new Handler() {
-
-			public void handleMessage(Message msg) {
-				switch (msg.what) {
-				case 1:
-					try {
-						LayoutInflater mLayoutInflater = (LayoutInflater) getActivity()
-								.getSystemService(LAYOUT_INFLATER_SERVICE);
-						View popmenu = mLayoutInflater.inflate(
-								R.layout.hosts_raw_editor, null);
-						TextView tv = (TextView) popmenu
-								.findViewById(R.id.hosts_raw_editor);
-						tv.setText(R.string.first_run_manage);
-						tv.setBackgroundColor(17170433);
-						tv.setEnabled(false);
-						popmenu.measure(LayoutParams.WRAP_CONTENT,
-								LayoutParams.WRAP_CONTENT);
-						mPop = new PopupWindow(popmenu,
-								LayoutParams.WRAP_CONTENT,
-								LayoutParams.WRAP_CONTENT);
-						mPop.setBackgroundDrawable(getResources().getDrawable(
-								R.drawable.popup_full_bright));
-						mPop.setOutsideTouchable(true);
-						mPop.setFocusable(false);
-						mPop.showAsDropDown(btn_hosts_source_manage, 0, -15);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					HostsDB.first_run_hostsActivity = false;
-					break;
-				}
-			};
-		};
-
-		private class firstRunPopupWindow extends TimerTask {
-			@Override
-			public void run() {
-				Message message = new Message();
-				message.what = 1;
-				mHandler.sendMessage(message);
+		public void showPopupInfo(View anchor) {
+			try {
+				LayoutInflater mLayoutInflater = (LayoutInflater) getActivity()
+						.getSystemService(LAYOUT_INFLATER_SERVICE);
+				View popmenu = mLayoutInflater.inflate(
+						R.layout.hosts_raw_editor, null);
+				TextView tv = (TextView) popmenu
+						.findViewById(R.id.hosts_raw_editor);
+				tv.setText(R.string.first_run_manage);
+				tv.setBackgroundColor(17170433);
+				tv.setEnabled(false);
+				popmenu.measure(LayoutParams.WRAP_CONTENT,
+						LayoutParams.WRAP_CONTENT);
+				mPop = new PopupWindow(popmenu, LayoutParams.WRAP_CONTENT,
+						LayoutParams.WRAP_CONTENT);
+				mPop.setBackgroundDrawable(getResources().getDrawable(
+						R.drawable.popup_full_bright));
+				mPop.setOutsideTouchable(true);
+				mPop.setFocusable(false);
+				mPop.showAsDropDown(anchor, 0, -15);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	}

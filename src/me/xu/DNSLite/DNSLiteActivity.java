@@ -1,33 +1,31 @@
 package me.xu.DNSLite;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TabHost;
-import android.widget.TabWidget;
 import java.util.ArrayList;
 
 import me.xu.tools.Sudo;
 import me.xu.tools.util;
-import android.os.Build;
-import android.preference.PreferenceManager;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TabHost;
+import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,6 +33,9 @@ public class DNSLiteActivity extends FragmentActivity {
 	TabHost mTabHost;
 	ViewPager mViewPager;
 	TabsAdapter mTabsAdapter;
+
+	public final static String TAB_TAG_DNS = "DNS";
+	public final static String TAB_TAG_HOSTS = "hosts";
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -75,10 +76,11 @@ public class DNSLiteActivity extends FragmentActivity {
 		mTabsAdapter = new TabsAdapter(this, mTabHost, mViewPager);
 
 		mTabsAdapter.addTab(
-				mTabHost.newTabSpec("DNS").setIndicator(
+				mTabHost.newTabSpec(TAB_TAG_DNS).setIndicator(
 						getString(R.string.dns_lable)),
 				DNSServiceActivity.DNSServiceFragment.class, null);
-		mTabsAdapter.addTab(mTabHost.newTabSpec("hosts").setIndicator("hosts"),
+		mTabsAdapter.addTab(
+				mTabHost.newTabSpec(TAB_TAG_HOSTS).setIndicator(TAB_TAG_HOSTS),
 				HostsActivity.HostsFragment.class, null);
 
 		if (savedInstanceState != null) {
@@ -111,6 +113,7 @@ public class DNSLiteActivity extends FragmentActivity {
 		private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
 
 		static final class TabInfo {
+			@SuppressWarnings("unused")
 			private final String tag;
 			private final Class<?> clss;
 			private final Bundle args;
