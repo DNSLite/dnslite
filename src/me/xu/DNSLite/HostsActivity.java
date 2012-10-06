@@ -1,11 +1,9 @@
 package me.xu.DNSLite;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -88,16 +86,6 @@ public class HostsActivity extends FragmentActivity {
 			Button btn_hosts_apply = (Button) view
 					.findViewById(R.id.btn_hosts_apply);
 			btn_hosts_apply.setOnClickListener(this);
-			Button btn_hosts_resetEtc = (Button) view
-					.findViewById(R.id.btn_hosts_resetEtc);
-			btn_hosts_resetEtc.setOnClickListener(this);
-
-			Button btn_hosts_edit = (Button) view
-					.findViewById(R.id.btn_hosts_edit);
-			btn_hosts_edit.setOnClickListener(this);
-			Button btn_hosts_rawview = (Button) view
-					.findViewById(R.id.btn_hosts_rawview);
-			btn_hosts_rawview.setOnClickListener(this);
 
 			return view;
 		}
@@ -115,35 +103,15 @@ public class HostsActivity extends FragmentActivity {
 			}
 		}
 
-		private final int ALERT_DIALOG_RESET_ETC = 1;
-		private final int ALERT_DIALOG_REWRITE_HOST = 2;
-
 		@Override
 		public void onClick(View v) {
 			switch (v.getId()) {
-			case R.id.btn_hosts_edit:
-				startActivity(new Intent(getActivity().getApplicationContext(),
-						HostsEditorActivity.class));
-				break;
-			case R.id.btn_hosts_rawview:
-				startActivity(new Intent(getActivity().getApplicationContext(),
-						HostsRawEditorActivity.class));
-				break;
 			case R.id.btn_hosts_source_manage:
 				startActivity(new Intent(getActivity().getApplicationContext(),
 						HostSourceList.class));
 				break;
 			case R.id.btn_hosts_apply:
 				HostsDB.saveEtcHosts(getActivity().getApplicationContext());
-				break;
-			case R.id.btn_hosts_resetEtc:
-
-				DialogFragment newFragment = MyAlertDialogFragment.newInstance(
-						ALERT_DIALOG_RESET_ETC,
-						R.string.host_reset_etc_alert_msg);
-				newFragment.setTargetFragment(this, 0);
-				newFragment.show(getActivity().getSupportFragmentManager(),
-						"dialog");
 				break;
 			default:
 				break;
@@ -155,48 +123,6 @@ public class HostsActivity extends FragmentActivity {
 			super.onDestroy();
 			if (mPop != null) {
 				mPop.dismiss();
-			}
-		}
-
-		public void doPositiveClick(int type) {
-			switch (type) {
-			case ALERT_DIALOG_REWRITE_HOST:
-				HostsDB.saveEtcHosts(getActivity().getApplicationContext());
-				break;
-			case ALERT_DIALOG_RESET_ETC:
-				hdb.resetEtcHosts();
-				break;
-			}
-		}
-
-		public static class MyAlertDialogFragment extends DialogFragment {
-
-			public static MyAlertDialogFragment newInstance(int type,
-					int message) {
-				MyAlertDialogFragment frag = new MyAlertDialogFragment();
-				Bundle args = new Bundle();
-				args.putInt("type", type);
-				args.putInt("message", message);
-				frag.setArguments(args);
-				return frag;
-			}
-
-			@Override
-			public Dialog onCreateDialog(Bundle savedInstanceState) {
-				final int type = getArguments().getInt("type");
-				int message = getArguments().getInt("message");
-
-				return new AlertDialog.Builder(getActivity())
-						.setMessage(message)
-						.setPositiveButton(android.R.string.yes,
-								new DialogInterface.OnClickListener() {
-									public void onClick(DialogInterface dialog,
-											int whichButton) {
-										((HostsFragment) getTargetFragment())
-												.doPositiveClick(type);
-									}
-								}).setNegativeButton(android.R.string.no, null)
-						.create();
 			}
 		}
 

@@ -170,12 +170,9 @@ Main features: \n\n
     <string name="no_hosts_source">you need add hosts source</string>
     <string name="no_hosts">Touch here or menu, then you can Add or Download or Import from "/etc/hosts"</string>
     <string name="hosts_source">hosts Source</string>
-    <string name="hosts_ops">local hosts database</string>
-    <string name="hosts_reset_ops">Reset DB</string>
     <string name="hosts_save_ops">Save change</string>
     <string name="btn_hosts_source_manage">Manage</string>
-    <string name="btn_hosts_edit">Manage Active hosts</string>
-    <string name="btn_hosts_resetEtc">Reset /etc/hosts</string>
+    <string name="btn_hosts_resetEtc">Empty /etc/hosts</string>
     <string name="btn_hosts_apply">Apply Change</string>
     <string name="btn_hosts_rawview">Edit /etc/hosts</string>
     <string name="host_source_add">Add Source</string>
@@ -200,7 +197,6 @@ Main features: \n\n
     <string name="pop_menu_delete">@string/host_delete</string>
     <string name="pop_menu_edit">Edit</string>
     <string name="menu_item_update">Download</string>
-    <string name="menu_item_replace">Replace /etc/hosts</string>
     <string name="menu_item_merge">Merge /etc/hosts</string>
     <string name="menu_item_disable">Disable all</string>
     <string name="menu_item_enableAll">Enable all</string>

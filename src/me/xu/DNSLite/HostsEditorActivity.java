@@ -102,7 +102,6 @@ public class HostsEditorActivity extends ListActivity {
 		inflater.inflate(R.menu.hosts_editor_option, menu);
 		if (search_sid == -1) {
 			menu.removeItem(R.id.menu_item_update);
-			menu.removeItem(R.id.menu_item_replace);
 			menu.removeItem(R.id.menu_item_merge);
 			menu.removeItem(R.id.menu_item_empty);
 			menu.removeItem(R.id.menu_item_disable);
@@ -116,13 +115,6 @@ public class HostsEditorActivity extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.menu_item_add:
 			addHosts(0, null, null);
-			break;
-		case R.id.menu_item_replace:
-			if (search_sid == -1) {
-				break;
-			}
-			hdb.replaceHostsSource(search_sid);
-			new RefreshList().execute();
 			break;
 		case R.id.menu_item_empty:
 			hdb.removeHostBySid(search_sid);

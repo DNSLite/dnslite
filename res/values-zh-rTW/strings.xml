@@ -173,12 +173,9 @@ hosts\n\n
     <string name="no_hosts_source">您需要添加網絡hosts源</string>
     <string name="no_hosts">點擊屏幕或者菜單鍵，您可以增加、下載或者從&quot;/etc/hosts&quot;導入hosts信息</string>
     <string name="hosts_source">網絡hosts源</string>
-    <string name="hosts_ops">本地hosts数据库</string>
-    <string name="hosts_reset_ops">重置数据库</string>
     <string name="hosts_save_ops">保存</string>
     <string name="btn_hosts_source_manage">管理</string>
-    <string name="btn_hosts_edit">管理使用中的hosts</string>
-    <string name="btn_hosts_resetEtc">重置 /etc/hosts</string>
+    <string name="btn_hosts_resetEtc">清空 /etc/hosts</string>
 
     <string name="btn_hosts_apply">保存</string>
     <string name="btn_hosts_rawview">编辑 /etc/hosts</string>
@@ -204,7 +201,6 @@ hosts\n\n
     <string name="pop_menu_delete">@string/host_delete</string>
     <string name="pop_menu_edit">編輯</string>
     <string name="menu_item_update">下載更新</string>
-    <string name="menu_item_replace">啟用全部(替換/etc/hosts)</string>
     <string name="menu_item_merge">啟用全部(合併/etc/hosts)</string>
     <string name="menu_item_disable">禁用全部(本組)</string>
     <string name="menu_item_enableAll">啟用全部(本組)</string>

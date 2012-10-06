@@ -28,59 +28,17 @@
                 android:layout_height="wrap_content"
                 android:text="@string/btn_hosts_source_manage" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+           <TextView
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:text="@string/hosts_save_ops"
+               android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hosts_ops"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Button
-                    android:id="@+id/btn_hosts_edit"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_hosts_edit" />
-
-                <Button
-                    android:id="@+id/btn_hosts_rawview"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_hosts_rawview" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hosts_reset_ops"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Button
-                    android:id="@+id/btn_hosts_resetEtc"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_hosts_resetEtc" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/hosts_save_ops"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-                <Button
-                    android:id="@+id/btn_hosts_apply"
-                    android:layout_width="200dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/btn_hosts_apply" />
-            </LinearLayout>
+           <Button
+               android:id="@+id/btn_hosts_apply"
+               android:layout_width="200dp"
+               android:layout_height="wrap_content"
+               android:text="@string/btn_hosts_apply" />
         </LinearLayout>
     </ScrollView>
 

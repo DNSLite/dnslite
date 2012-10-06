@@ -91,6 +91,13 @@ public class HostSourceList extends ListActivity {
 		case R.id.menu_host_source_add:
 			addHostsSource(0, null, null);
 			break;
+		case R.id.menu_hosts_raw_edit:
+			startActivity(new Intent(this, HostsRawEditorActivity.class));
+			break;
+		case R.id.menu_hosts_reset:
+			hosts_reset(ALERT_DIALOG_RESET_ETC,
+					R.string.host_reset_etc_alert_msg);
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -140,9 +147,6 @@ public class HostSourceList extends ListActivity {
 		case R.id.menu_item_view:
 			view(info.id);
 			break;
-		case R.id.menu_item_replace:
-			replace(info.id);
-			break;
 		case R.id.menu_item_merge:
 			merge(info.id);
 			break;
@@ -191,10 +195,6 @@ public class HostSourceList extends ListActivity {
 		Intent v = new Intent(HostSourceList.this, HostsEditorActivity.class);
 		v.putExtra("sid", rowId);
 		startActivity(v);
-	}
-
-	private void replace(final long rowId) {
-		hdb.replaceHostsSource(rowId);
 	}
 
 	private void merge(final long rowId) {
@@ -299,6 +299,33 @@ public class HostSourceList extends ListActivity {
 		if (mPop != null) {
 			mPop.dismiss();
 		}
+	}
+
+	private final int ALERT_DIALOG_RESET_ETC = 1;
+	private final int ALERT_DIALOG_REWRITE_HOST = 2;
+
+	public void doPositiveClick(int type) {
+		switch (type) {
+		case ALERT_DIALOG_REWRITE_HOST:
+			HostsDB.saveEtcHosts(this);
+			break;
+		case ALERT_DIALOG_RESET_ETC:
+			hdb.resetEtcHosts();
+			break;
+		}
+	}
+
+	private void hosts_reset(final int type, int message) {
+		new AlertDialog.Builder(this)
+				.setMessage(message)
+				.setPositiveButton(android.R.string.yes,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								doPositiveClick(type);
+							}
+						}).setNegativeButton(android.R.string.cancel, null)
+				.show();
 	}
 
 	private class RefreshList extends AsyncTask<Void, Void, Cursor> {
