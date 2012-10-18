@@ -198,7 +198,7 @@ Main features: \n\n
     <string name="pop_menu_delete">@string/host_delete</string>
     <string name="pop_menu_edit">Edit</string>
     <string name="menu_item_update">Download</string>
-    <string name="menu_item_merge">Merge /etc/hosts</string>
+    <string name="menu_item_merge">Merge into /etc/hosts</string>
     <string name="menu_item_disable">Disable all</string>
     <string name="menu_item_enableAll">Enable all</string>
     <string name="menu_item_view">Show</string>
