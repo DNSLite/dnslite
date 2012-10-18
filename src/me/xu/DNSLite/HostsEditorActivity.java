@@ -170,7 +170,6 @@ public class HostsEditorActivity extends ListActivity {
 		progressDialog.setProgress(0);
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMessage(message);
-		progressDialog.setCancelable(false);
 		progressDialog.show();
 	}
 
@@ -336,7 +335,7 @@ public class HostsEditorActivity extends ListActivity {
 			View popmenu = mLayoutInflater.inflate(
 					R.layout.hosts_editor_popmenu, null);
 			popmenu.measure(LayoutParams.WRAP_CONTENT,
-					LayoutParams.WRAP_CONTENT);
+                    LayoutParams.WRAP_CONTENT);
 			Button quick_actions_enable = (Button) popmenu
 					.findViewById(R.id.quick_actions_enable);
 			quick_actions_enable.setOnClickListener(onClickPopMenu);
@@ -448,6 +447,9 @@ public class HostsEditorActivity extends ListActivity {
 				HttpGet httpGet = new HttpGet(urls[0]);
 				HttpResponse response;
 				response = client.execute(httpGet);
+                if (this.isCancelled()) {
+                    return null;
+                }
 				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 					BufferedReader rd = new BufferedReader(
 							new InputStreamReader(response.getEntity()
@@ -487,8 +489,13 @@ public class HostsEditorActivity extends ListActivity {
 			progressDialog.setProgress(progress[0]);
 		}
 
-		protected void onPostExecute(String result) {
-			progressDialog.setProgress(0);
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            progressDialog.dismiss();
+        }
+
+        protected void onPostExecute(String result) {
 			progressDialog.dismiss();
 			if (result != null) {
 				Toast.makeText(HostsEditorActivity.this, getString(R.string.fail) +": " + result,

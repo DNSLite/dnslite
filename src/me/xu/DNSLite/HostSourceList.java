@@ -170,10 +170,8 @@ public class HostSourceList extends ListActivity {
 		progressDialog.setTitle(title);
 		progressDialog.setMax(100);
 		progressDialog.setProgress(0);
-		// progressDialog.setSecondaryProgress(0);
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMessage(message);
-		progressDialog.setCancelable(false);
 		progressDialog.show();
 	}
 
@@ -417,6 +415,10 @@ public class HostSourceList extends ListActivity {
 				HttpGet httpGet = new HttpGet(urls[0]);
 				HttpResponse response;
 				response = client.execute(httpGet);
+
+                if (this.isCancelled()) {
+                    return null;
+                }
 				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 					BufferedReader rd = new BufferedReader(
 							new InputStreamReader(response.getEntity()
@@ -456,7 +458,13 @@ public class HostSourceList extends ListActivity {
 			progressDialog.setProgress(progress[0]);
 		}
 
-		protected void onPostExecute(String result) {
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            progressDialog.dismiss();
+        }
+
+        protected void onPostExecute(String result) {
 			progressDialog.dismiss();
 			if (result != null) {
 				Toast.makeText(HostSourceList.this,
