@@ -43,9 +43,9 @@
         <activity android:name=".DnsHostsActivity" />
         <activity android:name=".DnsLogsActivity" />
         <activity android:name=".HostsActivity" />
-        <activity android:name=".HostSourceList" />
-        <activity android:name=".HostsEditorActivity" />
-        <activity android:name=".HostsRawEditorActivity" />
+        <activity android:name=".HostSourceList" android:label="@string/hosts_source" />
+        <activity android:name=".HostsEditorActivity" android:label="@string/hosts_lable" />
+        <activity android:name=".HostsRawEditorActivity" android:label="@string/btn_hosts_rawview" />
 
         <receiver android:name=".BootCompletedReceiver" >
             <intent-filter>
