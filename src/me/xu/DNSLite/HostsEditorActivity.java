@@ -232,12 +232,6 @@ public class HostsEditorActivity extends ListActivity {
 		}
 	}
 
-	private void comment(final long rowId) {
-		if (hdb.commentHost(rowId)) {
-			new RefreshList().execute();
-		}
-	}
-
 	private void delete(final long rowId) {
 		new AlertDialog.Builder(this)
 				.setTitle("Delete")
@@ -311,10 +305,6 @@ public class HostsEditorActivity extends ListActivity {
 				disable(id);
 				// Log.d(TAG, "disable id:" + id + " position:" + position);
 				break;
-			case R.id.quick_actions_comment:
-				comment(id);
-				// Log.d(TAG, "comment id:" + id + " position:" + position);
-				break;
 			case R.id.quick_actions_delete:
 				delete(id);
 				// Log.d(TAG, "delete id:" + id + " position:" + position);
@@ -353,9 +343,6 @@ public class HostsEditorActivity extends ListActivity {
 			Button quick_actions_disable = (Button) popmenu
 					.findViewById(R.id.quick_actions_disable);
 			quick_actions_disable.setOnClickListener(onClickPopMenu);
-			Button quick_actions_comment = (Button) popmenu
-					.findViewById(R.id.quick_actions_comment);
-			quick_actions_comment.setOnClickListener(onClickPopMenu);
 			Button quick_actions_delete = (Button) popmenu
 					.findViewById(R.id.quick_actions_delete);
 			quick_actions_delete.setOnClickListener(onClickPopMenu);
