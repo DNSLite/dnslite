@@ -144,9 +144,6 @@ public class HostSourceList extends ListActivity {
 			addHostsSource(info.id, name, url);
 		}
 			break;
-		case R.id.menu_item_view:
-			view(info.id);
-			break;
 		case R.id.menu_item_merge:
 			merge(info.id);
 			break;
