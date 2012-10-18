@@ -1,4 +1,5 @@
 app/*
+out/
 obj/*
 libs/*
 bin/*

@@ -3,6 +3,7 @@
 
     <string name="app_name">DNSLite</string>
     <string name="dns_lable">DNS Proxy Beta</string>
+    <string name="hosts_lable">hosts Manage</string>
     <string name="menu_about">Quick hints</string>
     <string name="menu_fix_netdns">Fix netdns</string>
     <string name="menu_feedback">Feedback</string>
