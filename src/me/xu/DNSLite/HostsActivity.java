@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class HostsActivity extends FragmentActivity {
 
@@ -60,7 +61,7 @@ public class HostsActivity extends FragmentActivity {
 	public static class HostsFragment extends Fragment implements
 			OnClickListener {
 		private static final String TAG = "HostsFragment";
-		private PopupWindow mPop = null;
+        private PopupWindow mPop = null;
 		private Button btn_hosts_source_manage = null;
 		private HostsDB hdb = null;
 
@@ -87,13 +88,19 @@ public class HostsActivity extends FragmentActivity {
 					.findViewById(R.id.btn_hosts_apply);
 			btn_hosts_apply.setOnClickListener(this);
 
+            Button btn_hosts_export = (Button) view
+                    .findViewById(R.id.btn_hosts_export);
+            btn_hosts_export.setOnClickListener(this);
+            Button btn_hosts_import = (Button) view
+                    .findViewById(R.id.btn_hosts_import);
+            btn_hosts_import.setOnClickListener(this);
 			return view;
 		}
 
 		@Override
 		public void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			HostsDB.GetInstance(getActivity().getApplicationContext());
+			hdb = HostsDB.GetInstance(getActivity().getApplicationContext());
 		}
 
 		public void onPageVisible() {
@@ -113,12 +120,54 @@ public class HostsActivity extends FragmentActivity {
 			case R.id.btn_hosts_apply:
 				HostsDB.saveEtcHosts(getActivity().getApplicationContext());
 				break;
+                case R.id.btn_hosts_export:
+                    new AlertDialog.Builder(this.getActivity())
+                            .setMessage(R.string.hosts_export_desc)
+                            .setPositiveButton(android.R.string.yes,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int which) {
+                                            do_export_hosts();
+                                        }
+                                    }).setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                    break;
+                case R.id.btn_hosts_import:
+                    new AlertDialog.Builder(this.getActivity())
+                            .setMessage(R.string.hosts_import_desc)
+                            .setPositiveButton(android.R.string.yes,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int which) {
+                                            do_import_hosts();
+                                        }
+                                    }).setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                    break;
 			default:
 				break;
 			}
 		}
 
-		@Override
+        private void do_import_hosts() {
+            boolean status = hdb.import_hosts_db(HostsDB.DNSLITE_HOSTS_JSON);
+            Toast.makeText(
+                    this.getActivity(),
+                    getString(status ? R.string.hosts_import_succ
+                            : R.string.hosts_import_fail), Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        private void do_export_hosts() {
+            boolean status = hdb.export_hosts_db(HostsDB.DNSLITE_HOSTS_JSON);
+            Toast.makeText(
+                    this.getActivity(),
+                    getString(status ? R.string.hosts_export_succ
+                            : R.string.hosts_export_fail), Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        @Override
 		public void onDestroy() {
 			super.onDestroy();
 			if (mPop != null) {
