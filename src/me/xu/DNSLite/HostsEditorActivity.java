@@ -6,6 +6,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -28,13 +31,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class HostsEditorActivity extends ListActivity {
 
@@ -48,6 +45,7 @@ public class HostsEditorActivity extends ListActivity {
 	private HostsDB hdb = null;
 	private SimpleCursorAdapter adapter = null;
 	private long search_sid = -1;
+    private EditText filterText = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -59,24 +57,30 @@ public class HostsEditorActivity extends ListActivity {
 		} catch (Exception e) {
 			search_sid = -1;
 		}
-		if (search_sid == -1) {
-			cursor = hdb.getAllInUseHosts();
-		} else {
-			cursor = hdb.getAllHostsBySourceId(search_sid);
-		}
+        cursor = get_hosts_list(null);
+
+        filterText = (EditText) findViewById(R.id.search_box);
+        filterText.addTextChangedListener(filterTextWatcher);
 
 		adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
 				SCA_item, SCA_item_id, 0);
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            @Override
+            public Cursor runQuery(CharSequence constraint) {
+                return get_hosts_list(constraint);
+            }
+        });
 
 		ListView lv = getListView();
+        lv.setTextFilterEnabled(true);
 		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		lv.getEmptyView().setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				HostsEditorActivity.this.openOptionsMenu();
-			}
-		});
+            @Override
+            public void onClick(View v) {
+                HostsEditorActivity.this.openOptionsMenu();
+            }
+        });
 		adapter.setViewBinder(new ViewBinder() {
 			public boolean setViewValue(View view, Cursor cursor,
 					int columnIndex) {
@@ -95,6 +99,32 @@ public class HostsEditorActivity extends ListActivity {
 		});
 		setListAdapter(adapter);
 	}
+
+    private Cursor get_hosts_list(CharSequence constraint) {
+        if (null == constraint || constraint.length() < 1) {
+            if (-1 == search_sid) {
+                return hdb.getAllInUseHosts();
+            } else {
+                return hdb.getAllHostsBySourceId(search_sid);
+            }
+        }
+        return hdb.getAllHostsByDomain(constraint.toString());
+    }
+
+    private TextWatcher filterTextWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+            SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter)getListView().getAdapter();
+            filterAdapter.getFilter().filter(s.toString());
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count,
+                                      int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before,
+                                  int count) {
+        }
+    };
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -252,11 +282,7 @@ public class HostsEditorActivity extends ListActivity {
 
 	private class RefreshList extends AsyncTask<Void, Void, Cursor> {
 		protected Cursor doInBackground(Void... params) {
-			if (search_sid == -1) {
-				return hdb.getAllInUseHosts();
-			} else {
-				return hdb.getAllHostsBySourceId(search_sid);
-			}
+			return get_hosts_list(null);
 		}
 
 		protected void onPostExecute(Cursor newCursor) {
@@ -269,6 +295,7 @@ public class HostsEditorActivity extends ListActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+        filterText.removeTextChangedListener(filterTextWatcher);
 		if (mPop != null) {
 			mPop.dismiss();
 		}

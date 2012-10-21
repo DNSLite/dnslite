@@ -224,4 +224,5 @@ Main features: \n\n
     <string name="share">Share</string>
     <string name="share_hosts_title">Share my settings</string>
     <string name="share_hosts_text">Share my hosts file</string>
+    <string name="search_box_hint">Type to search</string>
 </resources>
