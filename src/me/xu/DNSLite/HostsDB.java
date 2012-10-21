@@ -29,7 +29,7 @@ public class HostsDB extends SQLiteOpenHelper {
 	private static final String DB_NAME = "hosts.db";
 	public static boolean first_run_hostsActivity = false;
 	public static boolean first_run_hostsSource = false;
-    public static final String DNSLITE_HOSTS_JSON = "dnslite_hosts.json";
+    public static final String DNSLITE_HOSTS_JSON = "dnslite_hosts.js";
 
     private HostsDB(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
@@ -507,7 +507,7 @@ public class HostsDB extends SQLiteOpenHelper {
         try {
             String import_json = file_get_content_sd_card(file_path);
             JSONObject import_obj = new JSONObject(import_json);
-            JSONArray sources = import_obj.optJSONArray("sources");
+            JSONArray sources = import_obj.optJSONArray("host_sources");
             int size = sources.length();
             for (int index=0; index<size; index++) {
                 JSONObject source = sources.optJSONObject(index);
@@ -590,7 +590,7 @@ public class HostsDB extends SQLiteOpenHelper {
                 source.put("hosts", hosts);
                 sources.put(source);
             }
-            export.put("sources", sources);
+            export.put("host_sources", sources);
             file_puts_content_sd_card(file_path, export.toString(1));
         } catch (JSONException e) {
             e.printStackTrace();
