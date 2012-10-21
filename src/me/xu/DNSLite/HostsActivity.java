@@ -16,11 +16,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
-import android.widget.Button;
+import android.widget.*;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.PopupWindow;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 
@@ -103,13 +100,9 @@ public class HostsActivity extends FragmentActivity {
             Button btn_hosts_share = (Button) view
                     .findViewById(R.id.btn_share);
             btn_hosts_share.setOnClickListener(this);
-			return view;
-		}
 
-		@Override
-		public void onCreate(Bundle savedInstanceState) {
-			super.onCreate(savedInstanceState);
-			hdb = HostsDB.GetInstance(getActivity().getApplicationContext());
+            hdb = HostsDB.GetInstance(getActivity().getApplicationContext());
+			return view;
 		}
 
 		public void onPageVisible() {
