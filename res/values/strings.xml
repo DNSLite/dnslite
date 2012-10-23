@@ -174,7 +174,7 @@ Main features: \n\n
     <string name="hosts_save_ops">Save change</string>
     <string name="btn_hosts_source_manage">Manage</string>
     <string name="btn_hosts_resetEtc">Empty /etc/hosts</string>
-    <string name="btn_hosts_apply">Apply Change</string>
+    <string name="btn_hosts_apply">Rewrite /etc/hosts</string>
     <string name="btn_hosts_rawview">Edit /etc/hosts</string>
     <string name="host_source_add">Add Source</string>
     <string name="hosts_source_add_name">Name</string>
