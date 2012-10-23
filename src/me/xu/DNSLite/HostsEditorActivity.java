@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.*;
@@ -46,6 +48,7 @@ public class HostsEditorActivity extends ListActivity {
 	private SimpleCursorAdapter adapter = null;
 	private long search_sid = -1;
     private EditText filterText = null;
+    private View search_add = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +60,8 @@ public class HostsEditorActivity extends ListActivity {
 		} catch (Exception e) {
 			search_sid = -1;
 		}
+
+        search_add = findViewById(R.id.search_add);
         cursor = get_hosts_list(null);
 
         filterText = (EditText) findViewById(R.id.search_box);
@@ -74,13 +79,6 @@ public class HostsEditorActivity extends ListActivity {
 		ListView lv = getListView();
         lv.setTextFilterEnabled(true);
 		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		lv.getEmptyView().setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                HostsEditorActivity.this.openOptionsMenu();
-            }
-        });
 		adapter.setViewBinder(new ViewBinder() {
 			public boolean setViewValue(View view, Cursor cursor,
 					int columnIndex) {
@@ -100,6 +98,29 @@ public class HostsEditorActivity extends ListActivity {
 		setListAdapter(adapter);
 	}
 
+    public void btn_search_add_onclick(View v) {
+        addHosts(0, filterText.getText().toString(), null);
+    }
+
+    public void empty_view_onclick(View v) {
+        HostsEditorActivity.this.openOptionsMenu();
+    }
+
+    final int CURSOR_EMPTY_SIGNAL = 1;
+    final int CURSOR_NOT_EMPTY_SIGNAL = 2;
+    private Handler cursor_handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case CURSOR_EMPTY_SIGNAL:
+                    search_add.setVisibility(View.VISIBLE);
+                    break;
+                case CURSOR_NOT_EMPTY_SIGNAL:
+                    search_add.setVisibility(View.GONE);
+                    break;
+            }
+        }
+    };
+
     private Cursor get_hosts_list(CharSequence constraint) {
         if (null == constraint || constraint.length() < 1) {
             if (-1 == search_sid) {
@@ -108,13 +129,29 @@ public class HostsEditorActivity extends ListActivity {
                 return hdb.getAllHostsBySourceId(search_sid);
             }
         }
-        return hdb.getAllHostsByDomain(constraint.toString());
+        final Cursor search_cursor = hdb.getAllHostsByDomain(constraint.toString());
+        if (null != search_cursor) {
+            if (!search_cursor.moveToFirst()) {
+                Message message = new Message();
+                message.what = CURSOR_EMPTY_SIGNAL;
+                cursor_handler.sendMessage(message);
+            } else {
+                Message message = new Message();
+                message.what = CURSOR_NOT_EMPTY_SIGNAL;
+                cursor_handler.sendMessage(message);
+            }
+        }
+        return search_cursor;
     }
 
     private TextWatcher filterTextWatcher = new TextWatcher() {
         public void afterTextChanged(Editable s) {
             SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter)getListView().getAdapter();
-            filterAdapter.getFilter().filter(s.toString());
+            final String constraint = s.toString();
+            filterAdapter.getFilter().filter(constraint);
+            if (constraint.length() < 1) {
+                search_add.setVisibility(View.GONE);
+            }
         }
 
         public void beforeTextChanged(CharSequence s, int start, int count,
@@ -280,7 +317,7 @@ public class HostsEditorActivity extends ListActivity {
 		}
 	}
 
-	private class RefreshList extends AsyncTask<Void, Void, Cursor> {
+    private class RefreshList extends AsyncTask<Void, Void, Cursor> {
 		protected Cursor doInBackground(Void... params) {
 			return get_hosts_list(null);
 		}
