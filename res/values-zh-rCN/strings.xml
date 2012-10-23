@@ -174,7 +174,7 @@ hosts\n\n
     <string name="hosts_save_ops">保存</string>
     <string name="btn_hosts_source_manage">管理</string>
     <string name="btn_hosts_resetEtc">清空 /etc/hosts</string>
-    <string name="btn_hosts_apply">保存</string>
+    <string name="btn_hosts_apply">重写/etc/hosts</string>
     <string name="btn_hosts_rawview">编辑 /etc/hosts</string>
     <string name="host_source_add">增加hosts源</string>
     <string name="hosts_source_add_name">名称</string>
