@@ -78,6 +78,7 @@ public class HostsEditorActivity extends ListActivity {
 
 		ListView lv = getListView();
         lv.setTextFilterEnabled(true);
+        lv.getEmptyView().setOnClickListener(empty_view_onclick);
 		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		adapter.setViewBinder(new ViewBinder() {
 			public boolean setViewValue(View view, Cursor cursor,
@@ -105,9 +106,12 @@ public class HostsEditorActivity extends ListActivity {
     public void btn_search_add_dns_onclick(View v) {
     }
 
-    public void empty_view_onclick(View v) {
-        HostsEditorActivity.this.openOptionsMenu();
-    }
+    private View.OnClickListener empty_view_onclick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            HostsEditorActivity.this.openOptionsMenu();
+        }
+    };
 
     final int CURSOR_EMPTY_SIGNAL = 1;
     final int CURSOR_NOT_EMPTY_SIGNAL = 2;
