@@ -98,8 +98,11 @@ public class HostsEditorActivity extends ListActivity {
 		setListAdapter(adapter);
 	}
 
-    public void btn_search_add_onclick(View v) {
+    public void btn_search_add_host_onclick(View v) {
         addHosts(0, filterText.getText().toString(), null);
+    }
+
+    public void btn_search_add_dns_onclick(View v) {
     }
 
     public void empty_view_onclick(View v) {

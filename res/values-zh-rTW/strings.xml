@@ -230,4 +230,6 @@ hosts\n\n
     <string name="share_hosts_title">分享我的配置</string>
     <string name="share_hosts_text">分享我的hosts配置</string>
     <string name="search_box_hint">搜索</string>
+    <string name="search_add_host">保存爲host</string>
+    <string name="search_add_dns">保存爲DNS</string>
 </resources>
