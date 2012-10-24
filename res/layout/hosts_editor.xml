@@ -37,11 +37,10 @@
                 android:fastScrollEnabled="true"/>
         <TextView
                 android:id="@android:id/empty"
-                android:layout_marginTop="40dip"
+                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/no_hosts"
-                android:onClick="empty_view_onclick"
                 android:textAppearance="?android:attr/textAppearanceMedium"/>
     </FrameLayout>
 </LinearLayout>
