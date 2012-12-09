@@ -282,7 +282,10 @@ void unexpectedsignal(int sig, siginfo_t * info, void *)
 
 void signalsetup()
 {
-	int catch_sig[] = {SIGILL,SIGQUIT,SIGFPE,SIGBUS,SIGSEGV,SIGSYS,SIGPWR,SIGTERM,
+	int catch_sig[] = {SIGILL,SIGQUIT,SIGFPE,SIGBUS,SIGSEGV,SIGSYS,SIGTERM,
+#ifdef SIGPWR
+		SIGPWR,
+#endif
 #ifdef SIGEMT
 	SIGEMT,
 #endif
@@ -291,7 +294,7 @@ void signalsetup()
 #endif
 	0
 	};
-	
+
 	int i = 0;
 	struct sigaction act;
 	act.sa_flags = SA_SIGINFO;
