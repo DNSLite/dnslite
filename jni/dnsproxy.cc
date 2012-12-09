@@ -56,7 +56,7 @@ typedef struct conf_t {
 	unsigned int max_idle_time;
 	int listen_udpfd;
 	int logfd;
-	epoll_util_t *eu;
+	event_util_t *eu;
 	int set_system_dns;
 #ifdef ANDROID
 	char net_dns[2][PROP_VALUE_MAX];
@@ -78,8 +78,8 @@ static conf_t *gconf;
 static int find_user_group(const char *user, const char *group, uid_t *uid, gid_t *gid, const char **username);
 #endif
 
-static int do_send_response(epoll_util_t *u, udp_sock_t *c);
-static int do_send_0response(epoll_util_t *u, udp_sock_t *c);
+static int do_send_response(event_util_t *u, udp_sock_t *c);
+static int do_send_0response(event_util_t *u, udp_sock_t *c);
 static void uninit_conf();
 static void set_system_dns();
 
@@ -179,7 +179,7 @@ static const char *get_rand_nameserver_ip()
 	return gconf->nameservers[t];
 }
 
-static int queryDNS(epoll_util_t *u, udp_sock_t *c)
+static int queryDNS(event_util_t *u, udp_sock_t *c)
 {
 	int ret = 0;
 	int wlen = 0;
@@ -302,7 +302,7 @@ void signalsetup()
 	return;
 }
 
-void eu_on_accept_tcp(epoll_util_t *u, int fd, uint32_t)
+void eu_on_accept_tcp(event_util_t *u, int fd, uint32_t)
 {
 	while(1) {
 		int s = accept(fd, NULL, NULL);
@@ -469,7 +469,7 @@ static int cache_hit_ptr(const char *domain, char *ans_cache, int *size)
 	return -1;
 }
 
-static void do_request(epoll_util_t *u, udp_sock_t *c)
+static void do_request(event_util_t *u, udp_sock_t *c)
 {
 	if (c->bufLen < 1) {
 		return;
@@ -569,7 +569,7 @@ static void do_request(epoll_util_t *u, udp_sock_t *c)
 	}
 }
 
-static int do_send_0response(epoll_util_t *u, udp_sock_t *c)
+static int do_send_0response(event_util_t *u, udp_sock_t *c)
 {
 	struct  DNS_HEADER *dns = (struct DNS_HEADER *)(c->buf);
 	dns->qr = 1;
@@ -581,7 +581,7 @@ static int do_send_0response(epoll_util_t *u, udp_sock_t *c)
 	return do_send_response(u, c);
 }
 
-static int do_send_response(epoll_util_t *u, udp_sock_t *c)
+static int do_send_response(event_util_t *u, udp_sock_t *c)
 {
 	int ret = 0;
 	if (c->istcp) {
@@ -596,7 +596,7 @@ static int do_send_response(epoll_util_t *u, udp_sock_t *c)
 	return ret;
 }
 
-void eu_on_accept_udp(epoll_util_t *u, int fd, uint32_t)
+void eu_on_accept_udp(event_util_t *u, int fd, uint32_t)
 {
 	int i;
 	udp_sock_t *UDPSock = (udp_sock_t *)eu_get_userdata(u);
@@ -613,7 +613,7 @@ void eu_on_accept_udp(epoll_util_t *u, int fd, uint32_t)
 	}
 }
 
-void eu_on_read_tcp(epoll_util_t *u, int fd, uint32_t events)
+void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 {
 	if (events & EPOLLRDHUP) {
 		if (gconf->logfd == fd) {
@@ -700,7 +700,7 @@ void eu_on_read_tcp(epoll_util_t *u, int fd, uint32_t events)
 	}
 }
 
-void eu_on_read_dns(epoll_util_t *u, int fd, uint32_t events)
+void eu_on_read_dns(event_util_t *u, int fd, uint32_t events)
 {
 	int i;
 	udp_sock_t *UDPSock = (udp_sock_t *)eu_get_userdata(u);
@@ -1104,7 +1104,7 @@ int main(int argc, char * const *argv)
 	init_conf (argc, argv);
 	signalsetup();
 	udp_sock_t *UDPSock = gconf->UDPSock;
-	epoll_util_t *eu = gconf->eu;
+	event_util_t *eu = gconf->eu;
 
 	int i;
 	for (i=0; i<MAXSOCKET; i++) {
