@@ -6,7 +6,6 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <time.h>
-#include <malloc.h>
 
 #include "net.h"
 
@@ -18,6 +17,7 @@
 
 void dumpMemStatus()
 {
+#ifdef _MALLOC_H_
 	struct mallinfo info = mallinfo ();
 	printf("   arena = %d\n", info.arena);
 	printf(" ordblks = %d\n", info.ordblks);
@@ -29,6 +29,9 @@ void dumpMemStatus()
 	printf("uordblks = %d\n", info.uordblks);
 	printf("fordblks = %d\n", info.fordblks);
 	printf("keepcost = %d\n", info.keepcost);
+#else
+	printf("unsupport struct mallinfo\n");
+#endif
 }
 
 void dumpHex(char *buf, int len)
@@ -606,4 +609,3 @@ void *eu_get_userdata(epoll_util_t *u)
 {
 	return u->userdata;
 }
-

@@ -18,6 +18,12 @@
 #include <fcntl.h>
 #include <sys/epoll.h>
 
+#if defined(__APPLE__)
+# include <malloc/malloc.h>
+# else
+# include <malloc.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -104,4 +110,3 @@ int eu_del_fd(epoll_util_t *u, int fd);
 #endif
 
 #endif /* __DNS_SOCKET_H_ */
-
