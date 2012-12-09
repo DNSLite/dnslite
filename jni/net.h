@@ -16,13 +16,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/epoll.h>
-
-#if defined(__APPLE__)
-# include <malloc/malloc.h>
-# else
-# include <malloc.h>
-#endif
 
 #ifdef __cplusplus
 extern "C" {

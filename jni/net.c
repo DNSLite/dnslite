@@ -7,6 +7,14 @@
 #include <sys/ioctl.h>
 #include <time.h>
 
+#if defined(__APPLE__)
+# include <malloc/malloc.h>
+# include <sys/event.h>
+# else
+# include <malloc.h>
+# include <sys/epoll.h>
+#endif
+
 #include "net.h"
 
 #ifndef NDEBUG
