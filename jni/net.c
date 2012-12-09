@@ -483,13 +483,13 @@ int wait_for_io(int socket, int for_read, int timeout_ms, int *revents)
 	return rv;
 }
 
-epoll_util_t *eu_new(int epoll_size)
+event_util_t *eu_new(int epoll_size)
 {
-	epoll_util_t *u = (epoll_util_t *)malloc(sizeof(epoll_util_t));
+	event_util_t *u = (event_util_t *)malloc(sizeof(event_util_t));
 	if (u == NULL) {
 		return NULL;
 	}
-	memset(u, 0, sizeof(epoll_util_t));
+	memset(u, 0, sizeof(event_util_t));
 	u->epoll_fd = epoll_create (epoll_size);
 	if (-1 == u->epoll_fd) {
 		free(u);
@@ -498,7 +498,7 @@ epoll_util_t *eu_new(int epoll_size)
 	return u;
 }
 
-int eu_add_listenfd(epoll_util_t *u, int fd, int istcp)
+int eu_add_listenfd(event_util_t *u, int fd, int istcp)
 {
 	if (fd < 0 || fd >= MAX_EU_FD_NUM) {
 		return -1;
@@ -515,7 +515,7 @@ int eu_add_listenfd(epoll_util_t *u, int fd, int istcp)
 	return 0;
 }
 
-int eu_add_readfd(epoll_util_t *u, int fd, int istcp)
+int eu_add_readfd(event_util_t *u, int fd, int istcp)
 {
 	if (fd < 0 || fd >= MAX_EU_FD_NUM) {
 		return -1;
@@ -532,7 +532,7 @@ int eu_add_readfd(epoll_util_t *u, int fd, int istcp)
 	return 0;
 }
 
-int eu_del_fd(epoll_util_t *u, int fd)
+int eu_del_fd(event_util_t *u, int fd)
 {
 	int ret = epoll_ctl(u->epoll_fd, EPOLL_CTL_DEL, fd, NULL);
 	lingering_close(fd);
@@ -542,7 +542,7 @@ int eu_del_fd(epoll_util_t *u, int fd)
 	return ret;
 }
 
-void eu_free(epoll_util_t *u)
+void eu_free(event_util_t *u)
 {
 	int i = 0;
 	for (i=0; i<MAX_EU_FD_NUM; ++i) {
@@ -557,7 +557,7 @@ void eu_free(epoll_util_t *u)
 	free(u);
 }
 
-int eu_once(epoll_util_t *u, int timeout)
+int eu_once(event_util_t *u, int timeout)
 {
 	struct epoll_event events[20];
 	int num = epoll_wait(u->epoll_fd, events, 20, timeout);
@@ -588,32 +588,32 @@ int eu_once(epoll_util_t *u, int timeout)
 	return num;
 }
 
-void eu_set_onaccept_tcp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onaccept_tcp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_accept_tcp = on_func;
 }
 
-void eu_set_onread_tcp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onread_tcp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_read_tcp = on_func;
 }
 
-void eu_set_onaccept_udp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onaccept_udp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_accept_udp = on_func;
 }
 
-void eu_set_onread_udp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onread_udp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_read_udp = on_func;
 }
 
-void eu_set_userdata(epoll_util_t *u, void *userdata)
+void eu_set_userdata(event_util_t *u, void *userdata)
 {
 	u->userdata = userdata;
 }
 
-void *eu_get_userdata(epoll_util_t *u)
+void *eu_get_userdata(event_util_t *u)
 {
 	return u->userdata;
 }
