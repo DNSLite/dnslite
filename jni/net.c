@@ -605,7 +605,7 @@ int eu_once(event_util_t *u, int timeout)
 		num = kevent(u->epoll_fd, NULL, 0, events, MAX_READ_EVENT_SIZE, ptspec);
 	}
 #else
-	int num = eu_wait(u->epoll_fd, events, MAX_READ_EVENT_SIZE, timeout);
+	num = epoll_wait(u->epoll_fd, events, MAX_READ_EVENT_SIZE, timeout);
 #endif
 	int i;
 	for (i=0; i<num; ++i) {
