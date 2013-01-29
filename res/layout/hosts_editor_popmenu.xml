@@ -17,12 +17,6 @@
         android:text="@string/pop_menu_disable" />
 
     <Button
-        android:id="@+id/quick_actions_comment"
-        style="@style/QuickActionsMenu.IconEntry"
-        android:drawableTop="@drawable/ic_menu_comment"
-        android:text="@string/pop_menu_comment" />
-
-    <Button
         android:id="@+id/quick_actions_delete"
         style="@style/QuickActionsMenu.IconEntry"
         android:drawableTop="@android:drawable/ic_menu_delete"

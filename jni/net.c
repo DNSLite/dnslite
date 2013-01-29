@@ -6,7 +6,18 @@
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <time.h>
-#include <malloc.h>
+
+#if defined(__APPLE__)
+# include <malloc/malloc.h>
+# include <sys/event.h>
+# define eu_event kevent
+# define _eu_fd_create(_eu_size) kqueue()
+#else
+# include <malloc.h>
+# include <sys/epoll.h>
+# define eu_event epoll_event
+# define _eu_fd_create epoll_create
+#endif
 
 #include "net.h"
 
@@ -18,6 +29,7 @@
 
 void dumpMemStatus()
 {
+#ifdef _MALLOC_H_
 	struct mallinfo info = mallinfo ();
 	printf("   arena = %d\n", info.arena);
 	printf(" ordblks = %d\n", info.ordblks);
@@ -29,6 +41,9 @@ void dumpMemStatus()
 	printf("uordblks = %d\n", info.uordblks);
 	printf("fordblks = %d\n", info.fordblks);
 	printf("keepcost = %d\n", info.keepcost);
+#else
+	printf("unsupport struct mallinfo\n");
+#endif
 }
 
 void dumpHex(char *buf, int len)
@@ -472,14 +487,14 @@ int wait_for_io(int socket, int for_read, int timeout_ms, int *revents)
 	return rv;
 }
 
-epoll_util_t *eu_new(int epoll_size)
+event_util_t *eu_new(int epoll_size)
 {
-	epoll_util_t *u = (epoll_util_t *)malloc(sizeof(epoll_util_t));
+	event_util_t *u = (event_util_t *)malloc(sizeof(event_util_t));
 	if (u == NULL) {
 		return NULL;
 	}
-	memset(u, 0, sizeof(epoll_util_t));
-	u->epoll_fd = epoll_create (epoll_size);
+	memset(u, 0, sizeof(event_util_t));
+	u->epoll_fd = _eu_fd_create (epoll_size);
 	if (-1 == u->epoll_fd) {
 		free(u);
 		return NULL;
@@ -487,16 +502,22 @@ epoll_util_t *eu_new(int epoll_size)
 	return u;
 }
 
-int eu_add_listenfd(epoll_util_t *u, int fd, int istcp)
+int eu_add_listenfd(event_util_t *u, int fd, int istcp)
 {
 	if (fd < 0 || fd >= MAX_EU_FD_NUM) {
 		return -1;
 	}
-	struct epoll_event ev;
+	struct eu_event ev;
+	u->fds[fd] = istcp ? EU_accept_tcp : EU_accept_udp;
+#if defined(__APPLE__)
+	EV_SET(&ev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	int ret = kevent(u->epoll_fd, &ev, 1, NULL, 0, NULL);
+#else
 	ev.events = EPOLLIN;
 	ev.data.fd = fd;
-	u->fds[fd] = istcp ? EU_accept_tcp : EU_accept_udp;
-	if (epoll_ctl(u->epoll_fd, EPOLL_CTL_ADD, fd, &ev) < 0) {
+	int ret = epoll_ctl(u->epoll_fd, EPOLL_CTL_ADD, fd, &ev);
+#endif
+	if (ret < 0) {
 		if (errno != EEXIST) {
 			return -1;
 		}
@@ -504,16 +525,22 @@ int eu_add_listenfd(epoll_util_t *u, int fd, int istcp)
 	return 0;
 }
 
-int eu_add_readfd(epoll_util_t *u, int fd, int istcp)
+int eu_add_readfd(event_util_t *u, int fd, int istcp)
 {
 	if (fd < 0 || fd >= MAX_EU_FD_NUM) {
 		return -1;
 	}
-	struct epoll_event ev;
+	struct eu_event ev;
+	u->fds[fd] = istcp ? EU_read_tcp : EU_read_udp;
+#if defined(__APPLE__)
+	EV_SET(&ev, fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	int ret = kevent(u->epoll_fd, &ev, 1, NULL, 0, NULL);
+#else
 	ev.events = EPOLLIN | POLLRDHUP | POLLHUP | POLLERR;
 	ev.data.fd = fd;
-	u->fds[fd] = istcp ? EU_read_tcp : EU_read_udp;
-	if (epoll_ctl(u->epoll_fd, EPOLL_CTL_ADD, fd, &ev) < 0) {
+	int ret = epoll_ctl(u->epoll_fd, EPOLL_CTL_ADD, fd, &ev);
+#endif
+	if (ret < 0) {
 		if (errno != EEXIST) {
 			return -1;
 		}
@@ -521,9 +548,15 @@ int eu_add_readfd(epoll_util_t *u, int fd, int istcp)
 	return 0;
 }
 
-int eu_del_fd(epoll_util_t *u, int fd)
+int eu_del_fd(event_util_t *u, int fd)
 {
+#if defined(__APPLE__)
+	struct eu_event ev;
+	EV_SET(&ev, fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	int ret = kevent(u->epoll_fd, &ev, 1, NULL, 0, NULL);
+#else
 	int ret = epoll_ctl(u->epoll_fd, EPOLL_CTL_DEL, fd, NULL);
+#endif
 	lingering_close(fd);
 	if (fd > -1 && fd < MAX_EU_FD_NUM) {
 		u->fds[fd] = 0;
@@ -531,7 +564,7 @@ int eu_del_fd(epoll_util_t *u, int fd)
 	return ret;
 }
 
-void eu_free(epoll_util_t *u)
+void eu_free(event_util_t *u)
 {
 	int i = 0;
 	for (i=0; i<MAX_EU_FD_NUM; ++i) {
@@ -546,64 +579,89 @@ void eu_free(epoll_util_t *u)
 	free(u);
 }
 
-int eu_once(epoll_util_t *u, int timeout)
+#if defined(__APPLE__)
+# define get_event_fd(_event) (_event).ident
+# define get_event_events(_event) (_event).filter
+#else
+# define get_event_fd(_event) (_event).data.fd
+# define get_event_events(_event) (_event).events
+#endif
+
+#define MAX_READ_EVENT_SIZE 20
+
+int eu_once(event_util_t *u, int timeout)
 {
-	struct epoll_event events[20];
-	int num = epoll_wait(u->epoll_fd, events, 20, timeout);
+	struct eu_event events[MAX_READ_EVENT_SIZE];
+	int num = 0;
+#if defined(__APPLE__)
+	{
+		struct timespec *ptspec = NULL;
+		struct timespec tspec;
+		if (timeout > 0) {
+			tspec.tv_sec = timeout / 1000000;
+			tspec.tv_nsec = timeout * 1000 % 1000000;
+			ptspec = &tspec;
+		}
+		num = kevent(u->epoll_fd, NULL, 0, events, MAX_READ_EVENT_SIZE, ptspec);
+	}
+#else
+	num = epoll_wait(u->epoll_fd, events, MAX_READ_EVENT_SIZE, timeout);
+#endif
 	int i;
 	for (i=0; i<num; ++i) {
-		if (events[i].data.fd > -1 && events[i].data.fd < MAX_EU_FD_NUM) {
-			switch (u->fds[events[i].data.fd]) {
+		int fd = get_event_fd(events[i]);
+		int event = get_event_events(events[i]);
+		if (fd > -1 && fd < MAX_EU_FD_NUM) {
+			switch (u->fds[fd]) {
 			case EU_accept_udp:
-				u->on_accept_udp(u, events[i].data.fd, events[i].events);
+				u->on_accept_udp(u, fd, event);
 				break;
 			case EU_accept_tcp:
-				u->on_accept_tcp(u, events[i].data.fd, events[i].events);
+				u->on_accept_tcp(u, fd, event);
 				break;
 			case EU_read_udp:
-				u->on_read_udp(u, events[i].data.fd, events[i].events);
+				u->on_read_udp(u, fd, event);
 				break;
 			case EU_read_tcp:
-				u->on_read_tcp(u, events[i].data.fd, events[i].events);
+				u->on_read_tcp(u, fd, event);
 				break;
 			default:
-				eu_del_fd(u, events[i].data.fd);
+				eu_del_fd(u, fd);
 				break;
 			}
 		} else {
-			eu_del_fd(u, events[i].data.fd);
+			eu_del_fd(u, fd);
 		}
 	}
 	return num;
 }
 
-void eu_set_onaccept_tcp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onaccept_tcp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_accept_tcp = on_func;
 }
 
-void eu_set_onread_tcp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onread_tcp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_read_tcp = on_func;
 }
 
-void eu_set_onaccept_udp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onaccept_udp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_accept_udp = on_func;
 }
 
-void eu_set_onread_udp(epoll_util_t *u, eu_on_callback on_func)
+void eu_set_onread_udp(event_util_t *u, eu_on_callback on_func)
 {
 	u->on_read_udp = on_func;
 }
 
-void eu_set_userdata(epoll_util_t *u, void *userdata)
+void eu_set_userdata(event_util_t *u, void *userdata)
 {
 	u->userdata = userdata;
 }
 
-void *eu_get_userdata(epoll_util_t *u)
+void *eu_get_userdata(event_util_t *u)
 {
 	return u->userdata;
 }
-

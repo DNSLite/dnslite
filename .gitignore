@@ -1,4 +1,5 @@
 app/*
+out/
 obj/*
 libs/*
 bin/*
@@ -8,3 +9,5 @@ gen/*
 *.swp
 *~
 local.properties
+*.iml
+.idea/
