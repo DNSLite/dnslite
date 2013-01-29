@@ -18,14 +18,8 @@
                 android:background="#FFF"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:onClick="btn_search_add_host_onclick"
-                android:text="@string/search_add_host"/>
-        <Button android:drawableLeft="@android:drawable/ic_input_add"
-                android:background="#FFF"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="btn_search_add_dns_onclick"
-                android:text="@string/search_add_dns"/>
+                android:onClick="btn_search_add_onclick"
+                android:text="@string/search_add"/>
     </LinearLayout>
     <FrameLayout android:layout_width="match_parent"
                  android:layout_height="match_parent">
