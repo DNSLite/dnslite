@@ -1,18 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    <ListView
-        android:id="@android:id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:drawSelectorOnTop="false"
-        android:fastScrollEnabled="true" />
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:text="@string/no_hosts"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-</RelativeLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+    <EditText android:id="@+id/search_box"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="@string/search_box_hint"
+              android:inputType="text"
+              android:maxLines="1"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:id="@+id/search_add"
+                  android:visibility="gone"
+                  android:orientation="horizontal">
+        <Button android:drawableLeft="@android:drawable/ic_input_add"
+                android:background="#FFF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="btn_search_add_onclick"
+                android:text="@string/search_add"/>
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+        <ListView
+                android:id="@android:id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawSelectorOnTop="false"
+                android:fastScrollEnabled="true"/>
+        <TextView
+                android:id="@android:id/empty"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/no_hosts"
+                android:textAppearance="?android:attr/textAppearanceMedium"/>
+    </FrameLayout>
+</LinearLayout>

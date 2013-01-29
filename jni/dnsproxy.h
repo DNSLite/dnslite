@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <malloc.h>
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -109,4 +108,3 @@ void cache_clean();
 void static_cache_add_line(char *line);
 
 #endif /* _DNSPROXY_INCLUDE_H_ */
-

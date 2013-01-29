@@ -67,7 +67,8 @@ hosts\n\n
 		>> a. 請點選"琯理"。\n
 		>> b. 長按 Local源。\n
 		>> c. 點選下載更新。\n
-		>> 即可為您導入現有hosts文件。\n]]></string>
+		>> 即可為您導入現有hosts文件。\n
+]]></string>
     <!-- about end -->
 
 
@@ -177,7 +178,7 @@ hosts\n\n
     <string name="btn_hosts_source_manage">管理</string>
     <string name="btn_hosts_resetEtc">清空 /etc/hosts</string>
 
-    <string name="btn_hosts_apply">保存</string>
+    <string name="btn_hosts_apply">重寫/etc/hosts</string>
     <string name="btn_hosts_rawview">编辑 /etc/hosts</string>
     <string name="host_source_add">增加hosts源</string>
     <string name="hosts_source_add_name">名稱</string>
@@ -215,4 +216,19 @@ hosts\n\n
 	<string name="host_rewrite_alert_msg">保存到 /etc/hosts?</string>
 	<string name="host_reset_etc_alert_msg">清空/etc/hosts?\n清空使用中的hosts.</string>
 
+    <string name="btn_hosts_import">@string/menu_dns_import</string>
+    <string name="btn_hosts_export">@string/menu_dns_export</string>
+    <string name="menu_hosts_import">@string/menu_dns_import</string>
+    <string name="menu_hosts_export">@string/menu_dns_export</string>
+    <string name="hosts_import_desc">將從SD卡，根目錄下的dnslite_hosts.js，爲您導入DNS配置信息，您準備好了嗎?</string>
+    <string name="hosts_export_desc">將為您導出DNS配置信息，保存在SD卡根目錄下，名稱爲dnslite_hosts.js</string>
+    <string name="hosts_import_succ">@string/dns_import_succ</string>
+    <string name="hosts_import_fail">@string/dns_import_fail</string>
+    <string name="hosts_export_succ">@string/dns_export_succ</string>
+    <string name="hosts_export_fail">@string/dns_export_fail</string>
+    <string name="share">分享</string>
+    <string name="share_hosts_title">分享我的配置</string>
+    <string name="share_hosts_text">分享我的hosts配置</string>
+    <string name="search_box_hint">搜索</string>
+    <string name="search_add">保存爲</string>
 </resources>

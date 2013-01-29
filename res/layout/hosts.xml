@@ -39,6 +39,22 @@
                android:layout_width="200dp"
                android:layout_height="wrap_content"
                android:text="@string/btn_hosts_apply" />
+
+            <Button
+                    android:id="@+id/btn_hosts_import"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_hosts_import" />
+            <Button
+                    android:id="@+id/btn_hosts_export"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_hosts_export" />
+            <Button
+                    android:id="@+id/btn_share"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/share" />
         </LinearLayout>
     </ScrollView>
 

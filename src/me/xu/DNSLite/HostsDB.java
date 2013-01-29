@@ -1,12 +1,6 @@
 package me.xu.DNSLite;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 import me.xu.tools.Sudo;
 import me.xu.tools.util;
@@ -18,6 +12,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 import android.widget.Toast;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class HostsDB extends SQLiteOpenHelper {
 
@@ -32,8 +29,9 @@ public class HostsDB extends SQLiteOpenHelper {
 	private static final String DB_NAME = "hosts.db";
 	public static boolean first_run_hostsActivity = false;
 	public static boolean first_run_hostsSource = false;
+    public static final String DNSLITE_HOSTS_JSON = "dnslite_hosts.js";
 
-	private HostsDB(Context context) {
+    private HostsDB(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 	}
 
@@ -236,7 +234,7 @@ public class HostsDB extends SQLiteOpenHelper {
 		return true;
 	}
 
-	public long addDnsGroup(String name, String url, long _id) {
+    public long addDnsGroup(String name, String url, long _id) {
 		if (name == null) {
 			return 0;
 		}
@@ -505,15 +503,117 @@ public class HostsDB extends SQLiteOpenHelper {
 
 	/* hosts db */
 
-	public boolean import_hosts_db(String filepath) {
-		return true;
-	}
+    public boolean import_hosts_db(String file_path) {
+        try {
+            String import_json = file_get_content_sd_card(file_path);
+            JSONObject import_obj = new JSONObject(import_json);
+            JSONArray sources = import_obj.optJSONArray("host_sources");
+            int size = sources.length();
+            for (int index=0; index<size; index++) {
+                JSONObject source = sources.optJSONObject(index);
+                String name = source.optString("name");
+                String url = source.optString("url");
+                long source_id = 0;
+                if (!name.equals("Local")) {
+                    source_id = addSource(name, url, 0);
+                }
+                JSONArray hosts = source.optJSONArray("hosts");
+                int hosts_size = hosts.length();
+                for (int host_index=0; host_index<hosts_size; host_index++) {
+                    JSONObject host = hosts.optJSONObject(host_index);
+                    addHost(0, host.optString("domain"), host.optString("ip"),
+                            (int)source_id, host.optInt("ip_group"), host.optInt("status"));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
-	public boolean export_hosts_db(String filepath) {
-		return true;
-	}
+    private static String file_get_content_sd_card(String file_path) throws IOException {
+        File file = new File(Environment.getExternalStorageDirectory(),
+                file_path);
+        InputStream inputStream = new FileInputStream(file);
+        byte bytes[] = new byte[(int) file.length()];
+        inputStream.read(bytes);
+        inputStream.close();
+        return new String(bytes);
+    }
 
-	public static void saved() {
+    public boolean export_hosts_db(String file_path) {
+        Cursor hosts_group = getAllHostsSource();
+        if (null == hosts_group) {
+            return false;
+        }
+        try {
+            JSONObject export = new JSONObject();
+            JSONArray sources = new JSONArray();
+            export.put("version", DB_VERSION);
+            int _id_index = hosts_group.getColumnIndex("_id");
+            int name_index = hosts_group.getColumnIndex("name");
+            int url_index = hosts_group.getColumnIndex("url");
+            while (hosts_group.moveToNext()) {
+                String name = hosts_group.getString(name_index);
+                String url = hosts_group.getString(url_index);
+
+                JSONObject source = new JSONObject();
+                source.put("name", name);
+                if (!(url == null || url.length() < 1)) {
+                    source.put("url", url);
+                }
+
+                Cursor c = getAllHostsBySourceId(hosts_group.getLong(_id_index));
+                if (null == c) {
+                    continue;
+                }
+                JSONArray hosts = new JSONArray();
+                int status_index = c.getColumnIndex("status");
+                int ip_index = c.getColumnIndex("ip");
+                int domain_index = c.getColumnIndex("domain");
+                int ip_group_index = c.getColumnIndex("ip_group");
+                while (c.moveToNext()) {
+                    JSONObject host = new JSONObject();
+                    host.put("status", c.getInt(status_index));
+                    host.put("ip", c.getString(ip_index));
+                    host.put("domain", c.getString(domain_index));
+                    host.put("ip_group", c.getString(ip_group_index));
+                    hosts.put(host);
+                }
+                c.close();
+                source.put("hosts", hosts);
+                sources.put(source);
+            }
+            export.put("host_sources", sources);
+            file_puts_content_sd_card(file_path, export.toString(1));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (hosts_group != null) {
+                hosts_group.close();
+            }
+        }
+        return true;
+    }
+
+    private static void file_puts_content_sd_card(String file_path, String export) throws IOException, JSONException {
+        File file = new File(Environment.getExternalStorageDirectory(),
+                file_path);
+        FileOutputStream file_output = new FileOutputStream(file);
+        file_output.write(export.getBytes());
+        file_output.close();
+    }
+
+    public static void saved() {
 		needRewriteHosts = false;
 	}
 

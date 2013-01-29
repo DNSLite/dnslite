@@ -369,9 +369,6 @@ public class DnsHostsActivity extends ListActivity {
 			Button quick_actions_disable = (Button) popmenu
 					.findViewById(R.id.quick_actions_disable);
 			quick_actions_disable.setOnClickListener(onClickPopMenu);
-			Button quick_actions_comment = (Button) popmenu
-					.findViewById(R.id.quick_actions_comment);
-			quick_actions_comment.setVisibility(View.GONE);
 
 			Button quick_actions_delete = (Button) popmenu
 					.findViewById(R.id.quick_actions_delete);
