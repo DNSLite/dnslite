@@ -4,6 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -26,14 +31,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class DnsHostsActivity extends ListActivity {
 
@@ -46,7 +44,9 @@ public class DnsHostsActivity extends ListActivity {
 	private Cursor cursor = null;
 	private HostsDB hdb = null;
 	private SimpleCursorAdapter adapter = null;
+    private EditText filterText = null;
 	private long search_gid = -1;
+    private View search_add = null;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -59,10 +59,21 @@ public class DnsHostsActivity extends ListActivity {
 		} catch (Exception e) {
 			search_gid = 0;
 		}
-		cursor = hdb.getDnsHostsByGroup(search_gid);
+        cursor = get_hosts_list(null);
+
+        search_add = findViewById(R.id.search_add);
+        filterText = (EditText) findViewById(R.id.search_box);
+        filterText.addTextChangedListener(filterTextWatcher);
 
 		adapter = new SimpleCursorAdapter(this, R.layout.hosts_row, cursor,
 				SCA_item, SCA_item_id, 0);
+
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            @Override
+            public Cursor runQuery(CharSequence constraint) {
+                return get_hosts_list(constraint);
+            }
+        });
 
 		ListView lv = getListView();
 		lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -95,6 +106,64 @@ public class DnsHostsActivity extends ListActivity {
 		});
 		setListAdapter(adapter);
 	}
+
+
+    final int CURSOR_EMPTY_SIGNAL = 1;
+    final int CURSOR_NOT_EMPTY_SIGNAL = 2;
+    private Handler cursor_handler = new Handler() {
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case CURSOR_EMPTY_SIGNAL:
+                    search_add.setVisibility(View.VISIBLE);
+                    break;
+                case CURSOR_NOT_EMPTY_SIGNAL:
+                    search_add.setVisibility(View.GONE);
+                    break;
+            }
+        }
+    };
+
+    private Cursor get_hosts_list(CharSequence constraint) {
+        if (null == constraint || constraint.length() < 1) {
+            return hdb.getDnsHostsByGroup(search_gid);
+        }
+        final Cursor search_cursor = hdb.getDnsHostsByGroupAndDomainLike(search_gid, constraint.toString());
+        if (null != search_cursor) {
+            if (!search_cursor.moveToFirst()) {
+                Message message = new Message();
+                message.what = CURSOR_EMPTY_SIGNAL;
+                cursor_handler.sendMessage(message);
+            } else {
+                Message message = new Message();
+                message.what = CURSOR_NOT_EMPTY_SIGNAL;
+                cursor_handler.sendMessage(message);
+            }
+        }
+        return search_cursor;
+    }
+
+    private TextWatcher filterTextWatcher = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+            SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter)getListView().getAdapter();
+            final String constraint = s.toString();
+            filterAdapter.getFilter().filter(constraint);
+            if (constraint.length() < 1) {
+                search_add.setVisibility(View.GONE);
+            }
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count,
+                                      int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before,
+                                  int count) {
+        }
+    };
+
+    public void btn_search_add_onclick(View v) {
+        addHosts(0, filterText.getText().toString(), null);
+    }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -293,6 +362,7 @@ public class DnsHostsActivity extends ListActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+        filterText.removeTextChangedListener(filterTextWatcher);
 		if (HostsDB.needRewriteDnsCache) {
 			hdb.writeDnsCacheFile();
 		}
