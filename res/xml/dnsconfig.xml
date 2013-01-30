@@ -14,7 +14,7 @@
             android:title="@string/dns_setting_local_title" />
 
         <ListPreference
-            android:defaultValue="60"
+            android:defaultValue="0"
             android:dialogTitle="@string/dialog_title_preference_dns_idle_timeout"
             android:entries="@array/preference_dns_time_entrys"
             android:entryValues="@array/preference_dns_time_entryvalues"

@@ -17,7 +17,6 @@
 
     <string name="v0">0</string>
     <string name="v60">60</string>
-    <string name="v90">90</string>
     <string name="v120">120</string>
     <string name="notext" />
 
@@ -166,9 +165,8 @@ hosts\n\n
     <!-- preference -->
     <string name="preferenceChangeTips">您修改的配置，需要重新啟動服務，才能生效！</string>
     <string name="never">不自動退出</string>
-    <string name="per60mins">每60分鐘</string>
-    <string name="per90mins">每90分鐘</string>
-    <string name="per120mins">每120分鐘</string>
+    <string name="per60mins">60分鐘</string>
+    <string name="per120mins">120分鐘</string>
     <!-- preference end -->
 
     <string name="no_hosts_source">您需要添加網絡hosts源</string>
