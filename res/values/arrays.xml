@@ -2,16 +2,14 @@
 <resources>
 
     <string-array name="preference_dns_time_entrys">
-        <item>@string/per60mins</item>
-        <item>@string/per90mins</item>
-        <item>@string/per120mins</item>
         <item>@string/never</item>
+        <item>@string/per60mins</item>
+        <item>@string/per120mins</item>
     </string-array>
     <string-array name="preference_dns_time_entryvalues">
-        <item>@string/v60</item>
-        <item>@string/v90</item>
-        <item>@string/v120</item>
         <item>@string/v0</item>
+        <item>@string/v60</item>
+        <item>@string/v120</item>
     </string-array>
 
 </resources>

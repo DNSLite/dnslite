@@ -163,9 +163,8 @@ hosts\n\n
     <!-- preference -->
     <string name="preferenceChangeTips">您修改的配置，需要重新启动服务，才能生效！</string>
     <string name="never">不自动退出</string>
-    <string name="per60mins">每60分钟</string>
-    <string name="per90mins">每90分钟</string>
-    <string name="per120mins">每120分钟</string>
+    <string name="per60mins">60分钟</string>
+    <string name="per120mins">120分钟</string>
     <!-- preference end -->
 
     <string name="no_hosts_source">您需要添加网络hosts源</string>

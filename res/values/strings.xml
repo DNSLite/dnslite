@@ -162,9 +162,8 @@ Main features: \n\n
     <!-- DNS Service end -->
     <!-- preference -->
     <string name="preferenceChangeTips">Please restart service if you want apply change.</string>
-    <string name="per60mins">every 60 minutes</string>
-    <string name="per90mins">every 90 minutes</string>
-    <string name="per120mins">every 120 minutes</string>
+    <string name="per60mins">60 minutes</string>
+    <string name="per120mins">120 minutes</string>
     <string name="never">never</string>
     <!-- preference end -->
 
