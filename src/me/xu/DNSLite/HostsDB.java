@@ -933,8 +933,8 @@ public class HostsDB extends SQLiteOpenHelper {
     }
 
     public Cursor getAllHostsByDomain(String str) {
-        String sql = "SELECT * from hosts where domain like ? or domain like ?";
-        return db.rawQuery(sql, new String[]{str + "%", "%" + str});
+        String sql = "SELECT * from hosts where domain like ?";
+        return db.rawQuery(sql, new String[]{"%" + str + "%"});
     }
 
     public static void saveEtcHosts(Context mContext) {
