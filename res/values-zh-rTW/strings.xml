@@ -226,7 +226,7 @@ hosts\n\n
     <string name="hosts_export_fail">@string/dns_export_fail</string>
     <string name="share">分享</string>
     <string name="share_hosts_title">分享我的配置</string>
-    <string name="share_hosts_text">分享我的hosts配置</string>
+    <string name="share_hosts_text">分享我的DNSLite配置</string>
     <string name="search_box_hint">搜索</string>
     <string name="search_add">保存爲</string>
 </resources>
