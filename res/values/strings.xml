@@ -8,7 +8,7 @@
     <string name="menu_fix_netdns">Fix netdns</string>
     <string name="menu_feedback">Feedback</string>
     <string name="menu_share">Share DNSLite</string>
-    <string name="menu_share_tpl">I found a good application, DNSLite market://details?id=me.xu.DNSLite , is used for the DNS proxy service, try it.</string>
+    <string name="menu_share_tpl">I found a good app, DNSLite https://play.google.com/store/apps/details?id=me.xu.DNSLite, is a DNS proxy, try it.</string>
     <string name="fix_netdns_entry">Fix netdns</string>
     <string name="fix_success">Fixed</string>
     <string name="fix_failure">Fix failure, maybe failed to get root privileges</string>
