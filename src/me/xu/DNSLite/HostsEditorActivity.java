@@ -101,6 +101,7 @@ public class HostsEditorActivity extends ListActivity {
 
     public void btn_search_add_onclick(View v) {
         addHosts(0, filterText.getText().toString(), null);
+        filterText.setText("");
     }
 
     private View.OnClickListener empty_view_onclick = new View.OnClickListener() {
