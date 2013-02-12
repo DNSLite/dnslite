@@ -190,10 +190,10 @@ public class DNSProxy {
 	private void loadDnsConfig() {
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(context);
-		int idle_time = 1;
+		int idle_time = 0;
 		try {
 			idle_time = Integer.valueOf(sharedPref.getString(
-					DnsPreferences.KEY_IDLE_TIME, "60"));
+					DnsPreferences.KEY_IDLE_TIME, "0"));
 		} catch (Exception e) {
 		}
 		idle_time *= 60;
