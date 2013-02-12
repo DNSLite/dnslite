@@ -163,6 +163,7 @@ public class DnsHostsActivity extends ListActivity {
 
     public void btn_search_add_onclick(View v) {
         addHosts(0, filterText.getText().toString(), null);
+        filterText.setText("");
     }
 
 	@Override
