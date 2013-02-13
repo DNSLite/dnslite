@@ -30,6 +30,7 @@ public class HostsDB extends SQLiteOpenHelper {
     public static boolean first_run_hostsActivity = false;
     public static boolean first_run_hostsSource = false;
     public static final String DNSLITE_HOSTS_JSON = "dnslite_hosts.js";
+    public static final String DNSLITE_DNS_JSON = "dnslite_dns.js";
 
     private HostsDB(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -102,136 +103,6 @@ public class HostsDB extends SQLiteOpenHelper {
                 addDomainToGroup(domain, ip, gid, 0, 0);
             }
         }
-    }
-
-    public boolean import_dns_db(String filepath) {
-        BufferedReader buf = null;
-        try {
-            File f = new File(Environment.getExternalStorageDirectory(),
-                    filepath);
-            buf = new BufferedReader(new FileReader(f));
-            String s = null;
-            long cur_gid = 0;
-            while ((s = buf.readLine()) != null) {
-                s = s.trim();
-                if (s.length() < 3) {
-                    continue;
-                }
-                int status = 0;
-                if (s.charAt(0) == '#') {
-                    if (s.charAt(1) == '[') {
-                        if (s.endsWith("]")) {
-                            cur_gid = 0;
-                            String group = null;
-                            String url = null;
-                            String info = s.substring(2, s.length() - 1).trim();
-                            int n = info.lastIndexOf(' ');
-                            if (n > 0) {
-                                group = info.substring(0, n - 1);
-                                url = info.substring(n + 1);
-                            } else {
-                                group = info;
-                            }
-                            Cursor cursor = getDnsGroupByName(group);
-                            if (cursor != null) {
-                                if (cursor.moveToFirst()) {
-                                    cur_gid = cursor.getInt(0);
-                                }
-                                cursor.close();
-                            }
-                            if (cur_gid == 0) {
-                                cur_gid = addDnsGroup(group, url, 0);
-                            }
-                        }
-                        continue;
-                    } else {
-                        status = 0;
-                    }
-                } else {
-                    status = 1;
-                }
-                String ip = null;
-                int i = 0;
-                String[] info = s.split("\\s+");
-                if (util.isInetAddress(info[0])) {
-                    ip = info[0];
-                    i = 1;
-                }
-                for (; i < info.length; ++i) {
-                    addDomainToGroup(info[i], ip, cur_gid, 0, status);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            if (buf != null) {
-                try {
-                    buf.close();
-                } catch (IOException e) {
-                }
-            }
-        }
-        return true;
-    }
-
-    public boolean export_dns_db(String filepath) {
-        PrintWriter pw = null;
-        Cursor cgroup = getAllDnsGroup();
-        if (cgroup == null || cgroup.getCount() < 1) {
-            return false;
-        }
-        try {
-            File f = new File(Environment.getExternalStorageDirectory(),
-                    filepath);
-            pw = new PrintWriter(f);
-            while (cgroup.moveToNext()) {
-                String group = cgroup.getString(cgroup.getColumnIndex("name"));
-                String url = cgroup.getString(cgroup.getColumnIndex("url"));
-                if (url == null || url.length() < 1) {
-                    pw.println("#[" + group + "]");
-                } else {
-                    pw.println("#[" + group + " " + url + "]");
-                }
-                Cursor c = getDnsHostsByGroup(cgroup.getLong(cgroup
-                        .getColumnIndex("_id")));
-                if (c != null) {
-                    int statusIdx = c.getColumnIndex("status");
-                    int ipIdx = c.getColumnIndex("ip");
-                    int domainIdx = c.getColumnIndex("domain");
-                    while (c.moveToNext()) {
-                        int status = c.getInt(statusIdx);
-                        String ip = c.getString(ipIdx);
-                        if (ip == null) {
-                            ip = "";
-                        }
-                        if (status == 1) {
-                            pw.println(ip + " " + c.getString(domainIdx));
-                        } else {
-                            pw.println("#" + ip + " " + c.getString(domainIdx));
-                        }
-                    }
-                    c.close();
-                }
-                pw.println();
-            }
-        } catch (NullPointerException npe) {
-            npe.printStackTrace();
-            return false;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            if (pw != null) {
-                pw.close();
-            }
-            if (cgroup != null) {
-                cgroup.close();
-            }
-        }
-        return true;
     }
 
     public long addDnsGroup(String name, String url, long _id) {
@@ -510,6 +381,110 @@ public class HostsDB extends SQLiteOpenHelper {
                 null);
     }
 
+    public boolean export_dns_db(String file_path) {
+        Cursor cgroup = getAllDnsGroup();
+        if (cgroup == null || cgroup.getCount() < 1) {
+            return false;
+        }
+        try {
+            JSONObject export = new JSONObject();
+            JSONArray groups = new JSONArray();
+
+            int name_idx = cgroup.getColumnIndex("name");
+            int url_idx = cgroup.getColumnIndex("url");
+            int id_idx = cgroup.getColumnIndex("_id");
+
+            while (cgroup.moveToNext()) {
+                JSONObject group = new JSONObject();
+                group.put("name", cgroup.getString(name_idx));
+                group.put("url", cgroup.getString(url_idx));
+                JSONArray domains = new JSONArray();
+                group.put("domains", domains);
+                groups.put(group);
+
+                Cursor c = getDnsHostsByGroup(cgroup.getLong(id_idx));
+                if (null == c) {
+                    continue;
+                }
+
+                int status_idx = c.getColumnIndex("status");
+                int ip_idx = c.getColumnIndex("ip");
+                int domain_idx = c.getColumnIndex("domain");
+                while (c.moveToNext()) {
+                    JSONObject domain = new JSONObject();
+                    domain.put("status", c.getInt(status_idx));
+                    domain.put("ip", c.getString(ip_idx));
+                    domain.put("domain", c.getString(domain_idx));
+                    domains.put(domain);
+                }
+                c.close();
+            }
+            export.put("dns", groups);
+            file_puts_content_sd_card(file_path, export.toString(1));
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            return false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (cgroup != null) {
+                cgroup.close();
+            }
+        }
+        return true;
+    }
+
+    public boolean import_dns_db(String file_path) {
+        try {
+            String import_json = file_get_content_sd_card(file_path);
+            JSONObject import_obj = new JSONObject(import_json);
+
+            JSONArray dns_groups = import_obj.optJSONArray("dns");
+            int size = dns_groups.length();
+            for (int index = 0; index < size; index++) {
+                JSONObject group = dns_groups.optJSONObject(index);
+                String name = group.optString("name");
+                String url = group.optString("url");
+
+                JSONArray domains = group.optJSONArray("domains");
+                int domains_size = domains.length();
+                long cur_gid = 0;
+
+                Cursor cursor = getDnsGroupByName(name);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) {
+                        cur_gid = cursor.getInt(0);
+                    }
+                    cursor.close();
+                }
+                if (cur_gid == 0) {
+                    cur_gid = addDnsGroup(name, url, 0);
+                }
+
+                for (int i = 0; i < domains_size; i++) {
+                    JSONObject domain = domains.optJSONObject(i);
+                    addDomainToGroup(domain.optString("domain"), domain.optString("ip"), cur_gid, 0, domain.optInt("status", 0));
+                }
+            }
+        } catch (FileNotFoundException e) {
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 	/* DNS Hosts */
 
 	/* hosts db */
@@ -546,16 +521,6 @@ public class HostsDB extends SQLiteOpenHelper {
             return false;
         }
         return true;
-    }
-
-    private static String file_get_content_sd_card(String file_path) throws IOException {
-        File file = new File(Environment.getExternalStorageDirectory(),
-                file_path);
-        InputStream inputStream = new FileInputStream(file);
-        byte bytes[] = new byte[(int) file.length()];
-        inputStream.read(bytes);
-        inputStream.close();
-        return new String(bytes);
     }
 
     public boolean export_hosts_db(String file_path) {
@@ -608,6 +573,10 @@ public class HostsDB extends SQLiteOpenHelper {
             return false;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         } finally {
             if (hosts_group != null) {
                 hosts_group.close();
@@ -616,7 +585,17 @@ public class HostsDB extends SQLiteOpenHelper {
         return true;
     }
 
-    private static void file_puts_content_sd_card(String file_path, String export) throws IOException, JSONException {
+    private static String file_get_content_sd_card(String file_path) throws IOException {
+        File file = new File(Environment.getExternalStorageDirectory(),
+                file_path);
+        InputStream inputStream = new FileInputStream(file);
+        byte bytes[] = new byte[(int) file.length()];
+        inputStream.read(bytes);
+        inputStream.close();
+        return new String(bytes);
+    }
+
+    private static void file_puts_content_sd_card(String file_path, String export) throws Exception {
         File file = new File(Environment.getExternalStorageDirectory(),
                 file_path);
         FileOutputStream file_output = new FileOutputStream(file);

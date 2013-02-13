@@ -130,8 +130,8 @@ hosts\n\n
     <string name="menu_dns_group_add">增加分组</string>
     <string name="menu_dns_import">导入</string>
     <string name="menu_dns_export">导出</string>
-    <string name="dns_import_desc">将从SD卡，根目录下的dnslite_dns.txt，为您导入DNS配置信息，您准备好了吗?</string>
-    <string name="dns_export_desc">将为您导出DNS配置信息，保存在SD卡根目录下，名称为dnslite_dns.txt</string>
+    <string name="dns_import_desc">将从SD卡，根目录下的dnslite_dns.js，为您导入DNS配置信息，您准备好了吗?</string>
+    <string name="dns_export_desc">将为您导出DNS配置信息，保存在SD卡根目录下，名称为dnslite_dns.js</string>
     <string name="dns_import_succ">导入成功</string>
     <string name="dns_import_fail">导入失败</string>
     <string name="dns_export_succ">导出成功</string>

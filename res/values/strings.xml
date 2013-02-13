@@ -131,8 +131,8 @@ Main features: \n\n
     <string name="menu_dns_group_add">Add Group</string>
     <string name="menu_dns_import">Import</string>
     <string name="menu_dns_export">Export</string>
-    <string name="dns_import_desc">Import DNS configure, from SD card/dnslite_dns.txt, are you ready?</string>
-    <string name="dns_export_desc">Export DNS configure, to SD card/dnslite_dns.txt</string>
+    <string name="dns_import_desc">Import DNS configure, from SD card/dnslite_dns.js, are you ready?</string>
+    <string name="dns_export_desc">Export DNS configure, to SD card/dnslite_dns.js</string>
     <string name="menu_dns_setip">Set Team IP</string>
     <string name="dns_import_succ">Import success</string>
     <string name="dns_import_fail">Import failure</string>
