@@ -89,7 +89,7 @@ public class DnsGroupList extends ListActivity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int which) {
-							boolean status = hdb.import_dns_db(hdb.DNSLITE_DNS_JSON);
+							boolean status = hdb.import_dns_db(hdb.DNSLITE_JSON);
 							new RefreshList().execute();
 							Toast.makeText(
 									DnsGroupList.this,
@@ -102,12 +102,12 @@ public class DnsGroupList extends ListActivity {
 			break;
 		case R.id.menu_dns_export:
 			new AlertDialog.Builder(this)
-			.setMessage(R.string.dns_export_desc)
+			.setMessage(R.string.export_desc)
 			.setPositiveButton(android.R.string.yes,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int which) {
-							boolean status = hdb.export_dns_db(hdb.DNSLITE_DNS_JSON);
+							boolean status = hdb.export_db(hdb.DNSLITE_JSON);
 							Toast.makeText(
 									DnsGroupList.this,
 									getString(status ? R.string.dns_export_succ

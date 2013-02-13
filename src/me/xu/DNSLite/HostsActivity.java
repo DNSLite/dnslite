@@ -124,7 +124,7 @@ public class HostsActivity extends FragmentActivity {
 				break;
                 case R.id.btn_hosts_export:
                     new AlertDialog.Builder(this.getActivity())
-                            .setMessage(R.string.hosts_export_desc)
+                            .setMessage(R.string.export_desc)
                             .setPositiveButton(android.R.string.yes,
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog,
@@ -167,8 +167,8 @@ public class HostsActivity extends FragmentActivity {
 
         private void do_share_hosts() {
             File hosts = new File(Environment.getExternalStorageDirectory(),
-                    HostsDB.DNSLITE_HOSTS_JSON);
-            Log.d(TAG, ""+ getMimeType(HostsDB.DNSLITE_HOSTS_JSON));
+                    HostsDB.DNSLITE_JSON);
+            Log.d(TAG, ""+ getMimeType(HostsDB.DNSLITE_JSON));
             String mime = "text/javascript";
             do_share_files(hosts, mime, R.string.share_hosts_title, R.string.share_hosts_text);
         }
@@ -185,7 +185,7 @@ public class HostsActivity extends FragmentActivity {
         }
 
         private void do_import_hosts() {
-            boolean status = hdb.import_hosts_db(HostsDB.DNSLITE_HOSTS_JSON);
+            boolean status = hdb.import_hosts_db(HostsDB.DNSLITE_JSON);
             Toast.makeText(
                     this.getActivity(),
                     getString(status ? R.string.hosts_import_succ
@@ -194,7 +194,7 @@ public class HostsActivity extends FragmentActivity {
         }
 
         private void do_export_hosts() {
-            boolean status = hdb.export_hosts_db(HostsDB.DNSLITE_HOSTS_JSON);
+            boolean status = hdb.export_db(HostsDB.DNSLITE_JSON);
             Toast.makeText(
                     this.getActivity(),
                     getString(status ? R.string.hosts_export_succ
