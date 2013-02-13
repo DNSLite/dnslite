@@ -31,19 +31,17 @@
     <string name="about_title">歡迎使用 DNSLite</string>
     <string name="about_message"><![CDATA[
 DNS代理(測試)\n\n
-這是一個DNS代理工具，風險參照第5條。\n
+這是一個DNS代理工具。\n
 主要功能：\n\n
-	1. DNS緩存功能，減少網絡訪問延時。隻緩存IP查詢結果(請求類型為A或者AAAA)。\n\n
-	2. 可以TCP方式訪問遠耑DNS服務器，避免D\nS污染。\n\n
-	3. 可以為侷域網其他設備提供DNS服務。\n\n
-	4. 可以查看DNS請求日誌。\n\n
-	5. 可以手工指定域名IP信息。\n\n
-		>>風險: 這樣可能會導緻SSL驗證失敗，而導致android應用聯網失敗，例如Gmail。但在PC下可能會忽略這個問題，而正常訪問。\n\n
-		>>原因: 訪問指定IP時，返回證書中的授權域名，跟請求域名不對應，所以驗證失敗。\n\n
-		>>結郃hosts記录，可以有效彌補這一缺點。\n\n
+	1. 可以TCP方式訪問遠耑DNS服務器，避免DNS污染。\n\n
+	2. 可以為侷域網其他設備提供DNS服務。\n\n
+	3. 可以查看DNS請求日誌。\n\n
+	4. 可以手工指定域名IP信息。\n\n
+		>>風險: 因为指定的IP未必是真正的服务器IP，所以可能會導緻SSL驗證失敗。\n\n
 \n
-	6. 指定域名IP時，域名支持開頭為*的方式。\n\n
-	7. 可以變更或脩複係統DNS，即\net.dns信息。\n\n
+	5. 指定域名IP時，域名支持開頭為*的方式。\n\n
+	6. 可以變更或脩複係統DNS，即net.dns信息。\n\n
+	7. DNS緩存功能，減少網絡訪問延時。隻緩存IP查詢結果(請求類型為A或者AAAA)。\n\n
 \n
 日誌說明\n\n
 日誌開頭字母的意義如下：\n\n
@@ -59,9 +57,8 @@ hosts\n\n
 主要功能：\n\n
 	1. 通過下載網絡上的hosts文件。\n\n
 	2. 手工輸入hosts記录。\n\n
-	3. 數據库的形式琯理hosts，可以添加，刪除，註釋，啟用，禁用hosts。\n\n
-	4. 直接編輯 /etc/hosts。\n\n
-	5. 從"/etc/hosts"的導入hosts記录。\n\n
+	3. 琯理hosts，可以添加，刪除，啟用，禁用hosts。\n\n
+	4. 從"/etc/hosts"的導入hosts記录。\n\n
 		>> 步驟：\n
 		>> a. 請點選"琯理"。\n
 		>> b. 長按 Local源。\n
