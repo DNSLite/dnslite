@@ -133,8 +133,8 @@ hosts\n\n
     <string name="menu_dns_group_add">增加分組</string>
     <string name="menu_dns_import">導入</string>
     <string name="menu_dns_export">導出</string>
-    <string name="dns_import_desc">將從SD卡，根目錄下的dnslite_dns.txt，為您導入DNS配置信息，您準備好了嗎?</string>
-    <string name="dns_export_desc">將為您導出DNS配置信息，保存在SD卡根目錄下，名稱為dnslite_dns.txt</string>
+    <string name="dns_import_desc">將從SD卡，根目錄下的dnslite_dns.js，為您導入DNS配置信息，您準備好了嗎?</string>
+    <string name="dns_export_desc">將為您導出DNS配置信息，保存在SD卡根目錄下，名稱為dnslite_dns.js</string>
     <string name="dns_import_succ">導入成功</string>
     <string name="dns_import_fail">導入失敗</string>
     <string name="dns_export_succ">導出成功</string>

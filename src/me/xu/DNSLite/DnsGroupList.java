@@ -89,7 +89,7 @@ public class DnsGroupList extends ListActivity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int which) {
-							boolean status = hdb.import_dns_db("dnslite_dns.txt");
+							boolean status = hdb.import_dns_db(hdb.DNSLITE_DNS_JSON);
 							new RefreshList().execute();
 							Toast.makeText(
 									DnsGroupList.this,
@@ -107,7 +107,7 @@ public class DnsGroupList extends ListActivity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int which) {
-							boolean status = hdb.export_dns_db("dnslite_dns.txt");
+							boolean status = hdb.export_dns_db(hdb.DNSLITE_DNS_JSON);
 							Toast.makeText(
 									DnsGroupList.this,
 									getString(status ? R.string.dns_export_succ
