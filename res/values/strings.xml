@@ -24,17 +24,15 @@
 DNS proxy (beta) \n\n
 This is a DNS proxy tool \n
 Main features: \n\n
-1 DNS caching to reduce network delay. Only cache the IP query results (querytype A or AAAA). \n\n
-2 TCP mode to access the remote DNS server to avoid DNS pollution. \n\n
-3 DNS service for LAN. \n\n
-4 You can view the DNS request log. \n\n
-5 Can manually specify the domain name IP information. \n\n
->> Risk: This may cause the SSL authentication fails, the android application network failure, such as your Gmail. But in the PC may ignore this issue, and normal access.\n\n
->> reason: Authorized domain name in the SSL certificate does not match the request, so validation fails.\n\n
->> Combination of hosts file, can effectively compensate for this shortcoming. \n\n
+1 TCP mode to access the remote DNS server to avoid DNS pollution. \n\n
+2 DNS service for LAN. \n\n
+3 You can view the DNS request log. \n\n
+4 Can manually specify the domain name IP information. \n\n
+>> Risk: This may cause the SSL authentication fails.\n\n
 \n
-6 Domain name support * way, eg: *.google.com . \n\n
-7 Change or repair the system DNS setting (net.dns). \n\n
+5 Domain name support * way, eg: *.google.com . \n\n
+6 Change or repair the system DNS setting (net.dns). \n\n
+7 DNS caching to reduce network delay. Only cache the IP query results (querytype A or AAAA). \n\n
 \n
 Logs legend\n\n
 The meaning of these letters is\n\n
@@ -50,9 +48,8 @@ This is a /etc/hosts file management tool \n
 Main features: \n\n
 1 download a hosts file from network. \n\n
 2 hand-type hosts records. \n\n
-3 Database style management hosts, you can add, delete, comments, enable, disable hosts. \n\n
-4 directly edit the "/etc/hosts". \n\n
-5 imported from the "/etc/hosts" file. \n\n
+3 Manage hosts, you can add, delete, enable, disable hosts. \n\n
+4 imported from the "/etc/hosts" file. \n\n
 >> Step: \n
 >> A. Click "Manage". \n
 >> B. Long click "Local". \n
