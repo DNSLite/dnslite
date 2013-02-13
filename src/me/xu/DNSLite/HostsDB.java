@@ -29,8 +29,7 @@ public class HostsDB extends SQLiteOpenHelper {
     private static final String DB_NAME = "hosts.db";
     public static boolean first_run_hostsActivity = false;
     public static boolean first_run_hostsSource = false;
-    public static final String DNSLITE_HOSTS_JSON = "dnslite_hosts.js";
-    public static final String DNSLITE_DNS_JSON = "dnslite_dns.js";
+    public static final String DNSLITE_JSON = "dnslite.js";
 
     private HostsDB(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -381,15 +380,14 @@ public class HostsDB extends SQLiteOpenHelper {
                 null);
     }
 
-    public boolean export_dns_db(String file_path) {
+    private JSONArray get_dns_db_json() {
+
         Cursor cgroup = getAllDnsGroup();
-        if (cgroup == null || cgroup.getCount() < 1) {
-            return false;
+        if (cgroup == null) {
+            return null;
         }
         try {
-            JSONObject export = new JSONObject();
             JSONArray groups = new JSONArray();
-
             int name_idx = cgroup.getColumnIndex("name");
             int url_idx = cgroup.getColumnIndex("url");
             int id_idx = cgroup.getColumnIndex("_id");
@@ -419,26 +417,21 @@ public class HostsDB extends SQLiteOpenHelper {
                 }
                 c.close();
             }
-            export.put("dns", groups);
-            file_puts_content_sd_card(file_path, export.toString(1));
+            return groups;
         } catch (NullPointerException npe) {
             npe.printStackTrace();
-            return false;
+            return null;
         } catch (JSONException e) {
             e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         } finally {
             if (cgroup != null) {
                 cgroup.close();
             }
         }
-        return true;
     }
 
     public boolean import_dns_db(String file_path) {
@@ -485,9 +478,90 @@ public class HostsDB extends SQLiteOpenHelper {
         return true;
     }
 
+    public boolean export_dns_db(String file_path) {
+        JSONObject export = new JSONObject();
+        JSONArray groups = get_dns_db_json();
+        if (groups == null) {
+            return false;
+        }
+
+        try {
+            export.put("dns", groups);
+            export.put("version", DB_VERSION);
+            file_puts_content_sd_card(file_path, export.toString(1));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
 	/* DNS Hosts */
 
+
+    public JSONObject export_db_to_json() {
+        JSONObject export = new JSONObject();
+
+        JSONArray sources = get_hosts_db_json();
+        JSONArray dns = get_dns_db_json();
+
+        if (sources == null && dns == null) {
+            return null;
+        }
+
+        try {
+            export.put("version", DB_VERSION);
+            export.put("host_sources", sources);
+            export.put("dns", dns);
+            return export;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean export_db(String file_path) {
+        JSONObject export = export_db_to_json();
+        if (export == null) {
+            return false;
+        }
+
+        try {
+            file_puts_content_sd_card(file_path, export.toString(1));
+            return true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 	/* hosts db */
+
+    public boolean export_hosts_db(String file_path) {
+        JSONObject export = new JSONObject();
+
+        JSONArray sources = get_hosts_db_json();
+        if (sources == null) {
+            return false;
+        }
+        try {
+            export.put("version", DB_VERSION);
+            export.put("host_sources", sources);
+            file_puts_content_sd_card(file_path, export.toString(1));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     public boolean import_hosts_db(String file_path) {
         try {
@@ -523,15 +597,14 @@ public class HostsDB extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean export_hosts_db(String file_path) {
+    private JSONArray get_hosts_db_json() {
+        JSONArray sources = new JSONArray();
+
         Cursor hosts_group = getAllHostsSource();
-        if (null == hosts_group) {
-            return false;
+        if (hosts_group == null) {
+            return null;
         }
         try {
-            JSONObject export = new JSONObject();
-            JSONArray sources = new JSONArray();
-            export.put("version", DB_VERSION);
             int _id_index = hosts_group.getColumnIndex("_id");
             int name_index = hosts_group.getColumnIndex("name");
             int url_index = hosts_group.getColumnIndex("url");
@@ -566,23 +639,18 @@ public class HostsDB extends SQLiteOpenHelper {
                 source.put("hosts", hosts);
                 sources.put(source);
             }
-            export.put("host_sources", sources);
-            file_puts_content_sd_card(file_path, export.toString(1));
         } catch (JSONException e) {
             e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         } finally {
             if (hosts_group != null) {
                 hosts_group.close();
             }
         }
-        return true;
+        return sources;
     }
 
     private static String file_get_content_sd_card(String file_path) throws IOException {
