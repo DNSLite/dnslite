@@ -133,8 +133,7 @@ hosts\n\n
     <string name="menu_dns_group_add">增加分組</string>
     <string name="menu_dns_import">導入</string>
     <string name="menu_dns_export">導出</string>
-    <string name="dns_import_desc">將從SD卡，根目錄下的dnslite_dns.js，為您導入DNS配置信息，您準備好了嗎?</string>
-    <string name="dns_export_desc">將為您導出DNS配置信息，保存在SD卡根目錄下，名稱為dnslite_dns.js</string>
+    <string name="dns_import_desc">將從SD卡，根目錄下的dnslite.js，為您導入DNS配置信息，您準備好了嗎?</string>
     <string name="dns_import_succ">導入成功</string>
     <string name="dns_import_fail">導入失敗</string>
     <string name="dns_export_succ">導出成功</string>
@@ -218,8 +217,8 @@ hosts\n\n
     <string name="btn_hosts_export">@string/menu_dns_export</string>
     <string name="menu_hosts_import">@string/menu_dns_import</string>
     <string name="menu_hosts_export">@string/menu_dns_export</string>
-    <string name="hosts_import_desc">將從SD卡，根目錄下的dnslite_hosts.js，爲您導入DNS配置信息，您準備好了嗎?</string>
-    <string name="hosts_export_desc">將為您導出DNS配置信息，保存在SD卡根目錄下，名稱爲dnslite_hosts.js</string>
+    <string name="hosts_import_desc">將從SD卡，根目錄下的dnslite.js，爲您導入hosts信息，您準備好了嗎?</string>
+    <string name="export_desc">將為您導出DNSLite配置信息(DNS+hosts)，保存在SD卡根目錄下，名稱爲dnslite.js</string>
     <string name="hosts_import_succ">@string/dns_import_succ</string>
     <string name="hosts_import_fail">@string/dns_import_fail</string>
     <string name="hosts_export_succ">@string/dns_export_succ</string>
