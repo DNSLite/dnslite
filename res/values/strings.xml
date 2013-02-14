@@ -77,7 +77,7 @@ Main features: \n\n
     <string name="Status_START_FAIL">Start Service failure, maybe failed to get root privileges</string>
     <string name="Status_UNKNOW_ERROR">unknow error</string>
     <string name="Status_OTHER_STATUS">unknow status</string>
-    <string name="alarm_service_stoped">Long time no request, the DNSLite automatically exit.\nYou can change the setting。</string>
+    <string name="alarm_service_stoped">Long time no request, the DNSLite automatically exit.\nYou can disable it。</string>
     <!-- DNSService end -->
 
     <string name="fail">Fail</string>
@@ -134,10 +134,10 @@ Main features: \n\n
     <string name="dns_import_fail">Import failure</string>
     <string name="dns_export_succ">Export success</string>
     <string name="dns_export_fail">Export failure</string>
-    <string name="dns_host_text_entry">Accept: *.example.com\n\nRisk: This may cause the SSL authentication fails, the android application network failure, such as your Gmail. But in the PC may ignore this issue, and normal access.</string>
+    <string name="dns_host_text_entry">Accept: *.example.com</string>
     <string name="dns_host_domain_null">Domain can\'t be empty</string>
     <string name="dns_host_domain_format_err">Not accept: xxx.*.xxx</string>
-    <string name="dns_setip_entry">Set IP\n\nRisk: This may cause the SSL authentication fails, the android application network failure, such as your Gmail. But in the PC may ignore this issue, and normal access.</string>
+    <string name="dns_setip_entry">Set IP</string>
     <string name="dns_setip_err">No items have been set, maybe already set.</string>
     <string name="dns_group_add_url_hit">Url optional</string>
     <string name="dns_group_no_hosts">Touch here or menu, then you can add hosts info.</string>
