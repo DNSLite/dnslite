@@ -79,7 +79,7 @@ hosts\n\n
     <string name="Status_START_FAIL">啟動失敗, 或許是獲取ROOT權限失敗</string>
     <string name="Status_UNKNOW_ERROR">未知錯誤</string>
     <string name="Status_OTHER_STATUS">未知狀態</string>
-    <string name="alarm_service_stoped">長時間沒有請求，DNSLite將自動退出.\n您可以通過配置，來改變這個時間長短。 </string>
+    <string name="alarm_service_stoped">長時間沒有請求，DNSLite將自動退出.\n您可以通過配置，來禁用自動退出。 </string>
     <!-- DNSService end -->
 
     <string name="fail">失敗</string>
@@ -136,10 +136,10 @@ hosts\n\n
     <string name="dns_export_succ">導出成功</string>
     <string name="dns_export_fail">導出失敗</string>
     <string name="menu_dns_setip">指定統一IP</string>
-    <string name="dns_host_text_entry">可接受*: *.example.com\n\n風險: 這樣可能會導緻SSL驗證失敗，而導致android應用聯網失敗，例如Gmail。但在PC下可能會忽略這個問題，而正常訪問。</string>
+    <string name="dns_host_text_entry">可接受*: *.example.com</string>
     <string name="dns_host_domain_null">域名不能為空</string>
     <string name="dns_host_domain_format_err">還不接受這種寫法: xxx.*.xxx</string>
-    <string name="dns_setip_entry">設定統一IP\n\n風險: 這樣可能會導緻SSL驗證失敗，而導致android應用聯網失敗，例如Gmail。但在PC下可能會忽略這個問題，而正常訪問。</string>
+    <string name="dns_setip_entry">設定統一IP</string>
     <string name="dns_setip_err">沒有配置被變更，或許全部已經是這個IP了。</string>
     <string name="dns_group_add_url_hit">Url 可以不填</string>
     <string name="dns_group_text_entry">添加DNS配置組</string>
