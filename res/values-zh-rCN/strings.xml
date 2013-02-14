@@ -79,7 +79,7 @@ hosts\n\n
     <string name="Status_START_FAIL">启动失败, 可能是ROOT拒绝了请求</string>
     <string name="Status_UNKNOW_ERROR">未知错误</string>
     <string name="Status_OTHER_STATUS">未知状态</string>
-    <string name="alarm_service_stoped">长时间没有请求，DNSLite将自动退出.\n您可以通过配置，来改变这个时间长短。</string>
+    <string name="alarm_service_stoped">长时间没有请求，DNSLite将自动退出.\n您可以通过配置，来禁用自动退出。</string>
     <!-- DNSService end -->
     <string name="fail">失败</string>
     <!-- DNS Service start -->
@@ -133,10 +133,10 @@ hosts\n\n
     <string name="dns_export_succ">导出成功</string>
     <string name="dns_export_fail">导出失败</string>
     <string name="menu_dns_setip">指定统一IP</string>
-    <string name="dns_host_text_entry">可接受*: *.example.com\n\n风险: 这样可能会导致SSL验证失败，而导致android应用联网失败，例如Gmail。但在PC下可能会忽略这个问题，而正常访问。</string>
+    <string name="dns_host_text_entry">可接受*: *.example.com</string>
     <string name="dns_host_domain_null">域名不能为空</string>
     <string name="dns_host_domain_format_err">还不接受这种写法: xxx.*.xxx</string>
-    <string name="dns_setip_entry">设定统一IP\n\n风险: 这样可能会导致SSL验证失败，而导致android应用联网失败，例如Gmail。但在PC下可能会忽略这个问题，而正常访问。</string>
+    <string name="dns_setip_entry">设定统一IP</string>
     <string name="dns_setip_err">没有配置被变更，或许全部已经是这个IP了。</string>
     <string name="dns_group_add_url_hit">Url 可以不填</string>
     <string name="dns_group_text_entry">添加DNS配置组</string>
