@@ -11,7 +11,7 @@ import java.net.SocketException;
 
 public class DNSProxyClient {
 
-	//private final String TAG = "DNSClient";
+	private final static String TAG = "DNSClient";
 	private final String TCP_HOST = "127.0.0.1";
 	private final int SERVER_PORT = 53;
 	private final int CONN_TIMEOUT = 200;
@@ -23,6 +23,7 @@ public class DNSProxyClient {
 	public final static String cmd_SUCC = "xudejianS";
 	public final static String cmd_LOGS = "xudejianL";
 	public final static String cmd_GETP = "xudejianP";
+	public final static String cmd_RESET_DNS = "xudejianR";
 
 	public final static String cmd_QUIT_BACK = "QUIT";
 	public final static String cmd_SUCC_BACK = "SUCC";
@@ -44,7 +45,7 @@ public class DNSProxyClient {
 			close();
 			return false;
 		}
-		
+
 		try {
 			write = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
@@ -102,6 +103,14 @@ public class DNSProxyClient {
 
 	private boolean isServerAlive() {
 		String rv = sendCmd(cmd_SUCC);
+		if (rv != null && rv.equals(cmd_SUCC_BACK)) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean re_set_netdns() {
+		String rv = sendCmd(cmd_RESET_DNS);
 		if (rv != null && rv.equals(cmd_SUCC_BACK)) {
 			return true;
 		}
@@ -185,6 +194,18 @@ public class DNSProxyClient {
 		try {
 			if (dnsc.connect()) {
 				return dnsc.sendQuit();
+			}
+		} finally {
+			dnsc.close();
+		}
+		return false;
+	}
+
+	public static boolean re_set_dns() {
+		DNSProxyClient dnsc = new DNSProxyClient();
+		try {
+			if (dnsc.connect()) {
+				return dnsc.re_set_netdns();
 			}
 		} finally {
 			dnsc.close();

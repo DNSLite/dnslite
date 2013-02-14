@@ -1,79 +1,59 @@
 package me.xu.DNSLite;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-
 import me.xu.tools.DNSProxyClient;
-import me.xu.tools.Sudo;
-import me.xu.tools.util;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
+import android.content.IntentFilter;
+import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.NetworkInfo.State;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Build.VERSION;
-import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 
 public class DNSService extends Service {
+	private static String TAG = "DNSService";
+	private final static int ctl_STOP = 1;
+	private final static int ctl_START = 2;
+	private final static int ctl_RE_SET_DNS = 3;
 
-	public static final int Status_OK = 0;
-	public static final int Status_ALREDY_RUNNING = 1;
-	public static final int Status_BIN_NOTEXIST = 2;
-	public static final int Status_SUFAIL = 3;
-	public static final int Status_SETEXEC_FAIL = 4;
-	public static final int Status_SEND_COMMAND_FAIL = 5;
-	public static final int Status_START_SUCC = 6;
-	public static final int Status_START_FAIL = 7;
-	public static final int Status_UNKNOW_ERROR = 8;
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
-	private CheckTask thr_check = null;
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			String action = arg1.getAction();
+			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+				NetworkInfo info = connManager.getActiveNetworkInfo();
+				if (info == null || !info.isAvailable()) {
+					return;
+				}
+				// String name = info.getTypeName();
+				State state = connManager.getNetworkInfo(
+						ConnectivityManager.TYPE_MOBILE).getState();
+				if (State.CONNECTED == state) {
+					new DnsOp().execute(ctl_RE_SET_DNS);
+				}
+
+				state = connManager.getNetworkInfo(
+						ConnectivityManager.TYPE_WIFI).getState();
+				if (State.CONNECTED == state) {
+					new DnsOp().execute(ctl_RE_SET_DNS);
+				}
+			}
+		}
+
+	};
 
 	private final DNSBinder mBinder = new DNSBinder();
-
-	private boolean useTcp = false;
-	private boolean auto_set_system_dns = true;
-	private String listen_addr = null;
-	private int max_idle_time = 0;
-	private int clean_cache_gap = 0;
-
-	private int run_status = -1;
-	private String dnsBin = null;
-	private String remoteDNS = null;
-
-	public int getStatus() {
-		return run_status;
-	}
-
-	public String getStatusStr() {
-		switch (run_status) {
-		case Status_OK:
-			return getString(R.string.Status_OK);
-		case Status_ALREDY_RUNNING:
-			return getString(R.string.Status_ALREDY_RUNNING);
-		case Status_BIN_NOTEXIST:
-			return getString(R.string.Status_BIN_NOTEXIST);
-		case Status_SUFAIL:
-			return getString(R.string.Status_SUFAIL);
-		case Status_SETEXEC_FAIL:
-			return getString(R.string.Status_SETEXEC_FAIL);
-		case Status_SEND_COMMAND_FAIL:
-			return getString(R.string.Status_SEND_COMMAND_FAIL);
-		case Status_START_SUCC:
-			return getString(R.string.Status_START_SUCC);
-		case Status_START_FAIL:
-			return getString(R.string.Status_START_FAIL);
-		case Status_UNKNOW_ERROR:
-			return getString(R.string.Status_UNKNOW_ERROR);
-		default:
-			return getString(R.string.Status_OTHER_STATUS) + " : " + run_status;
-		}
-	}
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -89,311 +69,98 @@ public class DNSService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		new StartDNS().execute();
-		Thread.yield();
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-		}
+		registerReceiver(mReceiver, new IntentFilter(
+				ConnectivityManager.CONNECTIVITY_ACTION));
+		new DnsOp().execute(ctl_START);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		// We want this service to continue running until it is explicitly
-		// stopped, so return sticky.
+		if (intent != null) {
+			try {
+				Bundle bundle = intent.getExtras();
+				if (bundle != null) {
+					String _idle_exit = bundle.getString("_idle_exit");
+					if (_idle_exit != null && _idle_exit.equals("1")) {
+						showNotification();
+						stopSelf();
+					}
+				}
+			} catch (Exception e) {
+			}
+		}
 		return START_STICKY;
 	}
 
 	@Override
 	public void onDestroy() {
-		if (thr_check != null) {
-			try {
-				thr_check.cancel(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		stopDNSService();
 		try {
-			Thread.sleep(400);
-		} catch (InterruptedException e) {
+			unregisterReceiver(mReceiver);
+		} catch (Exception ee) {
 		}
+		new DnsOp().execute(ctl_STOP);
 		super.onDestroy();
 	}
 
-	/**
-	 * Show a notification while this service is running.
-	 */
+	private class DnsOp extends AsyncTask<Integer, Void, Integer> {
+		protected Integer doInBackground(Integer... cmd) {
+			switch (cmd[0]) {
+			case ctl_STOP: {
+				int t = 5;
+				do {
+					if (DNSProxyClient.quit()) {
+						return R.string.dns_stop_succ;
+					}
+					if (DNSProxyClient.isDnsRuning()) {
+						--t;
+					} else {
+						return R.string.dns_stop_succ;
+					}
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				} while (t > 0);
+				return R.string.dns_stop_fail;
+			}
+			case ctl_START: {
+
+				if (DNSProxyClient.isDnsRuning()) {
+					return R.string.dns_running;
+				} else {
+					DNSProxy dnsproxy = new DNSProxy(getApplicationContext());
+					dnsproxy.startDNSService();
+					return R.string.dns_start_succ;
+				}
+			}
+			case ctl_RE_SET_DNS: {
+				return DNSProxyClient.re_set_dns() ? 0 : -1;
+			}
+			default:
+				break;
+			}
+			return -1;
+		}
+	}
+
 	private void showNotification() {
-		// In this sample, we'll use the same text for the ticker and the
-		// expanded notification
-		CharSequence text = getText(R.string.alarm_service_stoped);
 
-		// Set the icon, scrolling text and timestamp
-		Notification notif = new Notification(R.drawable.ic_launcher, text,
-				System.currentTimeMillis());
-
-		// The PendingIntent to launch our activity if the user selects this
-		// notification
-		PendingIntent contentIntent = PendingIntent.getActivity(
-				DNSService.this, 0, new Intent(DNSService.this,
-						DNSLiteActivity.class), 0);
-
-		// Set the info for the views that show in the notification panel.
-		notif.setLatestEventInfo(DNSService.this, getText(R.string.app_name),
-				text, contentIntent);
-
-		notif.defaults |= Notification.DEFAULT_LIGHTS;
-		notif.flags |= Notification.FLAG_AUTO_CANCEL
-				| Notification.FLAG_SHOW_LIGHTS;
+		PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+				new Intent(this, DNSLiteActivity.class), 0);
 
 		NotificationManager mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+		Notification notif = new NotificationCompat.Builder(this)
+				.setContentIntent(contentIntent)
+				.setSmallIcon(R.drawable.ic_launcher)
+				.setLargeIcon(
+						BitmapFactory.decodeResource(this.getResources(),
+								R.drawable.ic_launcher)).setAutoCancel(true)
+				.setContentTitle(getText(R.string.app_name))
+				.setContentText(getText(R.string.alarm_service_stoped))
+				.getNotification();
+
 		mNM.notify(R.string.alarm_service_stoped, notif);
 	}
 
-	public boolean isStartSucc() {
-		switch (run_status) {
-		case Status_OK:
-		case Status_START_SUCC:
-		case Status_ALREDY_RUNNING:
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	private void stopDNSService() {
-		new StopDNS().execute();
-		Thread.yield();
-	}
-
-	private String getDnsBin() {
-		if (dnsBin == null) {
-			ApplicationInfo ainfo = getApplicationInfo();
-			StringBuffer sb = new StringBuffer();
-
-			if (VERSION.SDK_INT > 8) {
-				sb.append(ainfo.nativeLibraryDir);
-			} else {
-				sb.append(ainfo.dataDir);
-				sb.append("/lib");
-			}
-			sb.append("/libdnslite.so");
-			dnsBin = sb.toString();
-			File bin = new File(dnsBin);
-			if (!bin.exists()) {
-				bin = util.findFile(ainfo.dataDir, "libdnslite.so");
-				if (bin != null) {
-					dnsBin = bin.getAbsolutePath();
-				}
-			}
-		}
-		return dnsBin;
-	}
-
-	private boolean checkDnsBinExists() {
-		try {
-			File check = new File(getDnsBin());
-			return check.exists();
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	private void loadDnsConfig() {
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		int idle_time = 1;
-		try {
-			idle_time = Integer.valueOf(sharedPref.getString(
-					DnsPreferences.KEY_IDLE_TIME, "30"));
-		} catch (Exception e) {
-		}
-		idle_time *= 60;
-		this.max_idle_time = idle_time;
-
-		boolean enable_cache = sharedPref.getBoolean(
-				DnsPreferences.KEY_ENABLE_CACHE, false);
-		if (enable_cache) {
-			this.clean_cache_gap = 7200;
-		} else {
-			this.clean_cache_gap = 0;
-		}
-
-		this.useTcp = sharedPref.getBoolean(DnsPreferences.KEY_USETCP, false);
-		this.auto_set_system_dns = sharedPref.getBoolean(
-				DnsPreferences.KEY_AUTO_SET_SYSTEM_DNS, true);
-		boolean listen_local = sharedPref.getBoolean(
-				DnsPreferences.KEY_LISTEN_LOCAL, false);
-		this.listen_addr = (listen_local) ? "127.0.0.1" : null;
-		remoteDNS = sharedPref.getString(DnsPreferences.KEY_REMOTE_DNS, null);
-	}
-
-	private String getDnsStartCmd(boolean appendTail) {
-		loadDnsConfig();
-		StringBuffer sb = new StringBuffer();
-
-		sb.append(getDnsBin());
-
-		if (useTcp) {
-			sb.append(" -t");
-		}
-
-		File cache = this.getApplicationContext().getFileStreamPath(
-				HostsDB.static_cache);
-		if (cache != null && cache.exists()) {
-			sb.append(" -d ");
-			sb.append(cache.getAbsolutePath());
-		}
-
-		if (listen_addr != null) {
-			listen_addr = listen_addr.trim();
-			if (listen_addr.length() > 0) {
-				sb.append(" -a ");
-				sb.append(listen_addr);
-			}
-		}
-
-		sb.append(" -i ");
-		sb.append(max_idle_time);
-
-		sb.append(" -g ");
-		sb.append(clean_cache_gap);
-
-		if (auto_set_system_dns) {
-			sb.append(" -s");
-		}
-
-		if (remoteDNS != null) {
-			remoteDNS = remoteDNS.replaceAll("\\s", ",").trim();
-			if (remoteDNS.length() > 1) {
-				sb.append(" -r ");
-				sb.append(remoteDNS);
-			}
-		}
-
-		if (appendTail) {
-			sb.append(" && echo XDJ_START_OK || echo XDJ_START_FAIL \n");
-		}
-		return sb.toString();
-	}
-
-	private class CheckTask extends AsyncTask<Void, Void, Integer> {
-
-		@Override
-		protected Integer doInBackground(Void... v) {
-
-			while (!isCancelled()) {
-				try {
-					Thread.sleep(60000);
-				} catch (InterruptedException e) {
-					return 1;
-				}
-
-				if (isCancelled()) {
-					return 1;
-				}
-				if (!DNSProxyClient.isDnsRuning()) {
-					return 0;
-				}
-			}
-			return 1;
-		}
-
-		@Override
-		protected void onPostExecute(Integer result) {
-
-			if (isCancelled()) {
-				return;
-			}
-			if (result == 0) {
-				showNotification();
-				DNSService.this.stopSelf();
-			}
-		}
-	}
-
-	private class StopDNS extends AsyncTask<Void, Void, Boolean> {
-
-		@Override
-		protected Boolean doInBackground(Void... v) {
-			return DNSProxyClient.quit();
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			//System.out.println("result:"+result);
-		}
-	}
-
-	private class StartDNS extends AsyncTask<Void, Void, Integer> {
-
-		@Override
-		protected Integer doInBackground(Void... v) {
-
-			if (DNSProxyClient.isDnsRuning()) {
-				return Status_ALREDY_RUNNING;
-			}
-
-			String cmd = DNSService.this.getDnsStartCmd(true);
-			if (!DNSService.this.checkDnsBinExists()) {
-				return Status_BIN_NOTEXIST;
-			}
-			Sudo sudo = new Sudo();
-
-			try {
-				if (!sudo.prepareSuProc()) {
-					return Status_SUFAIL;
-				}
-
-				String chmodcmd = sudo.getCmdChmod(getDnsBin(), 755);
-				if (chmodcmd != null) {
-					if (!sudo.runcommand(chmodcmd + "\n")) {
-						return Status_SEND_COMMAND_FAIL;
-					}
-				}
-
-				String rv = null;
-				BufferedReader suOut = sudo.getSuOut();
-
-				if (!sudo.runcommand(cmd)) {
-					return Status_SEND_COMMAND_FAIL;
-				}
-				int status = Status_START_FAIL;
-				while ((rv = suOut.readLine()) != null) {
-					if (rv.equals("XDJ_START_OK")) {
-						status = Status_START_SUCC;
-						break;
-					} else if (rv.equals("XDJ_START_FAIL")) {
-						status = Status_START_FAIL;
-						break;
-					} else if (rv.equals("Success. DNS Proxy.")) {
-						status = Status_START_SUCC;
-						break;
-					}
-				}
-				sudo.runcommand("exit\n");
-				return status;
-			} catch (IOException e) {
-				e.printStackTrace();
-				return Status_UNKNOW_ERROR;
-			} catch (Exception e) {
-				e.printStackTrace();
-				return Status_UNKNOW_ERROR;
-			} finally {
-				sudo.close();
-			}
-		}
-
-		@Override
-		protected void onPostExecute(Integer result) {
-			run_status = result;
-			if (isStartSucc()) {
-				if (thr_check == null) {
-					thr_check = new CheckTask();
-					thr_check.execute();
-				}
-			}
-		}
-	}
 }

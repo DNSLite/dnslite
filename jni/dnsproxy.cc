@@ -36,12 +36,6 @@ using namespace std;
 
 #define MIN_CLEAN_CACHE_GAP 86400
 
-#ifdef ANDROID
-# define MIN_IDLE_TIME 1800
-#else
-# define MIN_IDLE_TIME 86400
-#endif
-
 #define MAX_NAMESERVER_NUM 2
 #define MAX_IP_LEN 16
 #define MAX_DOMAIN_LEN 65
@@ -62,7 +56,7 @@ typedef struct conf_t {
 	unsigned int max_idle_time;
 	int listen_udpfd;
 	int logfd;
-	epoll_util_t *eu;
+	event_util_t *eu;
 	int set_system_dns;
 #ifdef ANDROID
 	char net_dns[2][PROP_VALUE_MAX];
@@ -70,11 +64,13 @@ typedef struct conf_t {
 	const char *db_filename;
 	struct in_addr eth0;
 	char host_name[MAXHOSTNAMELEN];
+	const char *fix_system_dns;
 } conf_t;
 
 #define ENABLE_CACHE (gconf->clean_cache_gap)
 #define NEED_CLEAN_CACHE (ENABLE_CACHE && (gconf->tmnow.tv_sec - gconf->last_clean_cache > (int)gconf->clean_cache_gap))
-#define IDLE_TOO_LONG (gconf->tmnow.tv_sec - gconf->last_serv > (int)gconf->max_idle_time)
+#define ENABLE_AUTO_EXIT (gconf->max_idle_time)
+#define IDLE_TOO_LONG (ENABLE_AUTO_EXIT && gconf->tmnow.tv_sec - gconf->last_serv > (int)gconf->max_idle_time)
 
 static conf_t *gconf;
 
@@ -82,9 +78,10 @@ static conf_t *gconf;
 static int find_user_group(const char *user, const char *group, uid_t *uid, gid_t *gid, const char **username);
 #endif
 
-static int do_send_response(epoll_util_t *u, udp_sock_t *c);
-static int do_send_0response(epoll_util_t *u, udp_sock_t *c);
+static int do_send_response(event_util_t *u, udp_sock_t *c);
+static int do_send_0response(event_util_t *u, udp_sock_t *c);
 static void uninit_conf();
+static void set_system_dns();
 
 void printversion()
 {
@@ -182,7 +179,7 @@ static const char *get_rand_nameserver_ip()
 	return gconf->nameservers[t];
 }
 
-static int queryDNS(epoll_util_t *u, udp_sock_t *c)
+static int queryDNS(event_util_t *u, udp_sock_t *c)
 {
 	int ret = 0;
 	int wlen = 0;
@@ -285,7 +282,10 @@ void unexpectedsignal(int sig, siginfo_t * info, void *)
 
 void signalsetup()
 {
-	int catch_sig[] = {SIGILL,SIGQUIT,SIGFPE,SIGBUS,SIGSEGV,SIGSYS,SIGPWR,SIGTERM,
+	int catch_sig[] = {SIGILL,SIGQUIT,SIGFPE,SIGBUS,SIGSEGV,SIGSYS,SIGTERM,
+#ifdef SIGPWR
+		SIGPWR,
+#endif
 #ifdef SIGEMT
 	SIGEMT,
 #endif
@@ -294,7 +294,7 @@ void signalsetup()
 #endif
 	0
 	};
-	
+
 	int i = 0;
 	struct sigaction act;
 	act.sa_flags = SA_SIGINFO;
@@ -305,7 +305,7 @@ void signalsetup()
 	return;
 }
 
-void eu_on_accept_tcp(epoll_util_t *u, int fd, uint32_t)
+void eu_on_accept_tcp(event_util_t *u, int fd, uint32_t)
 {
 	while(1) {
 		int s = accept(fd, NULL, NULL);
@@ -472,7 +472,7 @@ static int cache_hit_ptr(const char *domain, char *ans_cache, int *size)
 	return -1;
 }
 
-static void do_request(epoll_util_t *u, udp_sock_t *c)
+static void do_request(event_util_t *u, udp_sock_t *c)
 {
 	if (c->bufLen < 1) {
 		return;
@@ -572,7 +572,7 @@ static void do_request(epoll_util_t *u, udp_sock_t *c)
 	}
 }
 
-static int do_send_0response(epoll_util_t *u, udp_sock_t *c)
+static int do_send_0response(event_util_t *u, udp_sock_t *c)
 {
 	struct  DNS_HEADER *dns = (struct DNS_HEADER *)(c->buf);
 	dns->qr = 1;
@@ -584,7 +584,7 @@ static int do_send_0response(epoll_util_t *u, udp_sock_t *c)
 	return do_send_response(u, c);
 }
 
-static int do_send_response(epoll_util_t *u, udp_sock_t *c)
+static int do_send_response(event_util_t *u, udp_sock_t *c)
 {
 	int ret = 0;
 	if (c->istcp) {
@@ -599,7 +599,7 @@ static int do_send_response(epoll_util_t *u, udp_sock_t *c)
 	return ret;
 }
 
-void eu_on_accept_udp(epoll_util_t *u, int fd, uint32_t)
+void eu_on_accept_udp(event_util_t *u, int fd, uint32_t)
 {
 	int i;
 	udp_sock_t *UDPSock = (udp_sock_t *)eu_get_userdata(u);
@@ -616,7 +616,7 @@ void eu_on_accept_udp(epoll_util_t *u, int fd, uint32_t)
 	}
 }
 
-void eu_on_read_tcp(epoll_util_t *u, int fd, uint32_t events)
+void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 {
 	if (events & EPOLLRDHUP) {
 		if (gconf->logfd == fd) {
@@ -649,6 +649,14 @@ void eu_on_read_tcp(epoll_util_t *u, int fd, uint32_t events)
 		}
 
 		switch (buf[10]) {
+			case 'R':
+				socket_send(fd, "SUCC\n", 5);
+				// for re-set netdns1
+				if (gconf->set_system_dns) {
+					set_system_dns();
+				}
+				// end
+				break;
 			case 'L':
 				if (gconf->logfd > -1) {
 					eu_del_fd(u, gconf->logfd);
@@ -695,7 +703,7 @@ void eu_on_read_tcp(epoll_util_t *u, int fd, uint32_t events)
 	}
 }
 
-void eu_on_read_dns(epoll_util_t *u, int fd, uint32_t events)
+void eu_on_read_dns(event_util_t *u, int fd, uint32_t events)
 {
 	int i;
 	udp_sock_t *UDPSock = (udp_sock_t *)eu_get_userdata(u);
@@ -742,7 +750,6 @@ static void set_system_dns()
 {
 #ifdef ANDROID
 	char line[512];
-	int net_dnschange = 0;
 	int rv = 0;
 	int i = 0;
 	for (i=0; i<2; ++i) {
@@ -759,17 +766,6 @@ static void set_system_dns()
 		return;
 	}
 
-#ifdef USELESS_HERE
-	rv = __system_property_get("net.dnschange", line);
-	if (rv < 1) {
-		net_dnschange = 0;
-	} else {
-		net_dnschange = atoi (line);
-	}
-	logs("net_dnschange %d\n", net_dnschange);
-#endif
-
-	//rv = snprintf(line, sizeof(line), "setprop net.dns1 127.0.0.1\nsetprop net.dnschange %d\nexit\n", net_dnschange + 1);
 	rv = snprintf(line, sizeof(line), "setprop net.dns1 127.0.0.1");
 	logs("%s\n", line);
 	rv = system(line);
@@ -780,39 +776,51 @@ static void set_system_dns()
 static void reset_system_dns()
 {
 #ifdef ANDROID
+	char line[512];
+	char net_dns[PROP_VALUE_MAX];
+	int rv = 0;
+	int i = 0;
+	if (NULL != gconf->fix_system_dns) {
+		const char *pstart = gconf->fix_system_dns;
+		i = 1;
+		do {
+			const char *p = strchr(pstart, ',');
+			if (NULL == p) {
+				p = pstart + strlen(pstart);
+			}
+			rv = snprintf(line, sizeof(line), "setprop net.dns%d %.*s", i, p - pstart, pstart);
+			if (rv > 0) {
+				rv = system(line);
+				logs("re %s ret:%d\n", line, rv);
+			}
+			if ('\0' == *p) {
+				break;
+			}
+			if (++i > 2) {
+				break;
+			}
+			pstart = p + 1;
+		} while (*pstart);
+	}
+
 	if (gconf->net_dns[0][0] == 0) {
 		return;
 	}
 	if (!strcmp(gconf->net_dns[0], "127.0.0.1")) {
 		return;
 	}
-	char line[512];
-	char net_dns[PROP_VALUE_MAX];
-	int rv = 0;
-	int i = 0;
 	rv = __system_property_get("net.dns1", net_dns);
 	if (rv < 0) {
 		rv = 0;
 	}
 	net_dns[rv] = 0;
 	logs("net.dns1 %s\n", net_dns);
-#ifdef USELESS_HERE
-	int net_dnschange = 0;
-	rv = __system_property_get("net.dnschange", line);
-	if (rv < 1) {
-		net_dnschange = 0;
-	} else {
-		net_dnschange = atoi (line);
-	}
-	logs("net_dnschange %d\n", net_dnschange);
-#endif
 
 	if (strcmp(net_dns, "127.0.0.1")) {
 		logs("need not reset net.dns1=%s\n", net_dns);
 		return;
 	}
 
-	//rv = snprintf(line, sizeof(line), "setprop net.dns1 %s\nsetprop net.dnschange %d\nexit\n", gconf->net_dns[0],  net_dnschange + 1);
 	rv = snprintf(line, sizeof(line), "setprop net.dns1 %s", gconf->net_dns[0]);
 	if (rv > 0) {
 		rv = system(line);
@@ -917,7 +925,7 @@ void init_conf(int argc, char * const *argv)
 	int ch = 0;
 	const char *listen_addr = NULL;
 	const char *remote_dns = NULL;
-	while ((ch = getopt(argc, argv, "r:a:d:i:g:U:G:Dts?vh"))!= -1) {
+	while ((ch = getopt(argc, argv, "r:a:d:i:g:f:U:G:Dts?vh"))!= -1) {
 		switch (ch) {
 			case 'a':
 				listen_addr = optarg;
@@ -942,6 +950,9 @@ void init_conf(int argc, char * const *argv)
 				break;
 			case 'r':
 				remote_dns = optarg;
+				break;
+			case 'f':
+				gconf->fix_system_dns = optarg;
 				break;
 #ifndef ANDROID
 			case 'U':
@@ -1075,8 +1086,8 @@ void init_conf(int argc, char * const *argv)
 	if (ENABLE_CACHE && gconf->clean_cache_gap < MIN_CLEAN_CACHE_GAP) {
 		gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	}
-	if (gconf->max_idle_time < MIN_IDLE_TIME) {
-		gconf->max_idle_time = MIN_IDLE_TIME;
+	if (gconf->max_idle_time < 0) {
+		gconf->max_idle_time = 0;
 	}
 
 	GetTimeCurrent(gconf->tmnow);
@@ -1096,7 +1107,7 @@ int main(int argc, char * const *argv)
 	init_conf (argc, argv);
 	signalsetup();
 	udp_sock_t *UDPSock = gconf->UDPSock;
-	epoll_util_t *eu = gconf->eu;
+	event_util_t *eu = gconf->eu;
 
 	int i;
 	for (i=0; i<MAXSOCKET; i++) {
@@ -1184,6 +1195,9 @@ int main(int argc, char * const *argv)
 */
 		if (IDLE_TOO_LONG) {
 			logs("idle timeout\n");
+#ifdef ANDROID
+			system("am startservice -n me.xu.DNSLite/me.xu.DNSLite.DNSService -e _idle_exit 1");
+#endif
 			break;
 		}
 

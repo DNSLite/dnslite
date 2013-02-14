@@ -1,0 +1,13 @@
+app/*
+out/
+obj/*
+libs/*
+bin/*
+gen/*
+*.exe.stackdump
+\#*#
+*.swp
+*~
+local.properties
+*.iml
+.idea/
