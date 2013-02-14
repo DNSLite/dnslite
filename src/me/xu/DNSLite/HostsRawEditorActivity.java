@@ -2,8 +2,6 @@ package me.xu.DNSLite;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -14,7 +12,6 @@ import me.xu.tools.Sudo;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.view.KeyEvent;
 import android.widget.TextView;
@@ -22,7 +19,6 @@ import android.widget.TextView;
 public class HostsRawEditorActivity extends Activity {
 	private String ori_str;
 
-	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -84,25 +80,5 @@ public class HostsRawEditorActivity extends Activity {
 			}
 		}
 		return super.onKeyDown(keyCode, event);
-	}
-
-	private void writeHostsCacheFile(Context context, String buf) {
-		FileOutputStream outStream = null;
-		try {
-			outStream = context.openFileOutput("hosts", Context.MODE_PRIVATE);
-			outStream.write(buf.getBytes());
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (outStream != null) {
-				try {
-					outStream.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 }

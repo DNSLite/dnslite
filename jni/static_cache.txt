@@ -1,3 +1,5 @@
+#203.69.113.136 *.apple.com
+
 203.208.46.179 google.com
 203.208.46.179 *.google.com
 203.208.46.179 *.google.com.hk
@@ -28,17 +30,11 @@
 203.208.46.179 www.youtube-nocookie.com
 203.208.46.179 adwords.google.sk
 203.208.46.179 www.googletagservices.com
-203.208.46.179 www.google-analytics.com
-203.208.46.179 ssl.google-analytics.com
-203.208.46.179 www.android.com
+203.208.46.179 *.google-analytics.com
 203.208.46.179 android.com
-203.208.46.179 developer.android.com
-203.208.46.179 source.android.com
-203.208.46.179 market.android.com
+203.208.46.179 *.android.com
 203.208.46.179 *.feedburner.com
 203.208.46.179 goo.gl
 203.208.46.179 g.co
-203.208.46.179 blog.google.org
+203.208.46.179 *.google.org
 203.208.46.179 www.googleinsidesearch.com
-2620::1cfe:face:b00c:0:0:3 *.facebook.com
-2620::1cfe:face:b00c:0:0:3 *.ak.fbcdn.net

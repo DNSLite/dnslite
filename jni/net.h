@@ -16,7 +16,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <sys/epoll.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -51,13 +50,13 @@ int socket_send_all(int fd, const void *buf, int len);
 int socket_recv(int fd, void *buf, int len);
 int socket_recvo(int fd, void *buf, int len, int timeout_ms);
 
-typedef struct epoll_util_t epoll_util_t;
+typedef struct event_util_t event_util_t;
 
-typedef void (*eu_on_callback)(epoll_util_t*, int fd, uint32_t events);
+typedef void (*eu_on_callback)(event_util_t*, int fd, uint32_t events);
 
 /*
-void eu_on_accept(epoll_util_t *u, int fd, uint32_t events);
-void eu_on_read(epoll_util_t *u, int fd, uint32_t events);
+void eu_on_accept(event_util_t *u, int fd, uint32_t events);
+void eu_on_read(event_util_t *u, int fd, uint32_t events);
 */
 
 enum e_callback_type{
@@ -71,7 +70,7 @@ enum e_callback_type{
 
 #define MAX_EU_FD_NUM 1024
 
-struct epoll_util_t {
+struct event_util_t {
 	int epoll_fd;
 	unsigned char fds[MAX_EU_FD_NUM];
 	eu_on_callback on_accept_udp;
@@ -81,27 +80,26 @@ struct epoll_util_t {
 	void *userdata;
 };
 
-epoll_util_t *eu_new(int epoll_size);
-void eu_free(epoll_util_t *u);
+event_util_t *eu_new(int epoll_size);
+void eu_free(event_util_t *u);
 
-void eu_set_onaccept_tcp(epoll_util_t *u, eu_on_callback on_func);
-void eu_set_onread_tcp(epoll_util_t *u, eu_on_callback on_func);
-void eu_set_onaccept_udp(epoll_util_t *u, eu_on_callback on_func);
-void eu_set_onread_udp(epoll_util_t *u, eu_on_callback on_func);
+void eu_set_onaccept_tcp(event_util_t *u, eu_on_callback on_func);
+void eu_set_onread_tcp(event_util_t *u, eu_on_callback on_func);
+void eu_set_onaccept_udp(event_util_t *u, eu_on_callback on_func);
+void eu_set_onread_udp(event_util_t *u, eu_on_callback on_func);
 
-void eu_set_userdata(epoll_util_t *u, void *userdata);
-void *eu_get_userdata(epoll_util_t *u);
+void eu_set_userdata(event_util_t *u, void *userdata);
+void *eu_get_userdata(event_util_t *u);
 
-int eu_once(epoll_util_t *u, int timeout);
+int eu_once(event_util_t *u, int timeout);
 
-int eu_add_listenfd(epoll_util_t *u, int fd, int istcp);
-int eu_add_readfd(epoll_util_t *u, int fd, int istcp);
+int eu_add_listenfd(event_util_t *u, int fd, int istcp);
+int eu_add_readfd(event_util_t *u, int fd, int istcp);
 
-int eu_del_fd(epoll_util_t *u, int fd);
+int eu_del_fd(event_util_t *u, int fd);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __DNS_SOCKET_H_ */
-

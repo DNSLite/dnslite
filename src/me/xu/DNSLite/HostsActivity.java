@@ -1,160 +1,36 @@
 package me.xu.DNSLite;
 
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import me.xu.tools.Sudo;
-
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.PopupWindow;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
+import android.widget.*;
 import android.widget.LinearLayout.LayoutParams;
 
-public class HostsActivity extends Activity implements OnClickListener {
-	private PopupWindow mPop = null;
+import java.io.File;
 
-	@Override
+public class HostsActivity extends FragmentActivity {
+
+	public static final String TAG = "HostsA";
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.hosts);
-
-		Button btn_hosts_source_manage = (Button) findViewById(R.id.btn_hosts_source_manage);
-		btn_hosts_source_manage.setOnClickListener(this);
-
-		Button btn_hosts_apply = (Button) findViewById(R.id.btn_hosts_apply);
-		btn_hosts_apply.setOnClickListener(this);
-		Button btn_hosts_resetEtc = (Button) findViewById(R.id.btn_hosts_resetEtc);
-		btn_hosts_resetEtc.setOnClickListener(this);
-
-		Button btn_hosts_edit = (Button) findViewById(R.id.btn_hosts_edit);
-		btn_hosts_edit.setOnClickListener(this);
-		Button btn_hosts_rawview = (Button) findViewById(R.id.btn_hosts_rawview);
-		btn_hosts_rawview.setOnClickListener(this);
-
-		HostsDB.GetInstance(getApplicationContext());
-		if (HostsDB.first_run_hostsActivity) {
-			Timer timer = new Timer();
-			timer.schedule(new firstRunPopupWindow(), 500);
-		}
-	}
-
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.btn_hosts_edit:
-			startActivity(new Intent(HostsActivity.this,
-					HostsEditorActivity.class));
-			break;
-		case R.id.btn_hosts_rawview:
-			startActivity(new Intent(HostsActivity.this,
-					HostsRawEditorActivity.class));
-			break;
-		case R.id.btn_hosts_source_manage:
-			startActivity(new Intent(HostsActivity.this, HostSourceList.class));
-			break;
-		case R.id.btn_hosts_apply:
-			saveEtcHosts();
-			break;
-		case R.id.btn_hosts_resetEtc:
-
-			new AlertDialog.Builder(this)
-					.setMessage("reset hosts?\nClear in use hosts.")
-					.setPositiveButton(android.R.string.yes,
-							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int whichButton) {
-									HostsDB.GetInstance(HostsActivity.this)
-											.resetEtcHosts();
-								}
-							}).setNegativeButton(android.R.string.no, null)
-					.create().show();
-
-			break;
-		default:
-			break;
-		}
-	}
-
-	private void saveEtcHosts() {
-
-		Sudo sudo = new Sudo();
-		if (!sudo.prepareSuProc()) {
-			Toast.makeText(this, getString(R.string.Status_SUFAIL),
-					Toast.LENGTH_SHORT).show();
-			sudo.close();
-			return;
-		}
-
-		if (!sudo.mountRw("/system")) {
-			Toast.makeText(this, "RE-MOUNT fail", Toast.LENGTH_SHORT).show();
-			sudo.close();
-			return;
-		}
-
-		Cursor curs = null;
-		try {
-			HostsDB hdb = HostsDB.GetInstance(getApplicationContext());
-			curs = hdb.getDistinctInUseHosts();
-			sudo.writeBytes("chmod 644 /system/etc/hosts\n");
-			int iIP = curs.getColumnIndex("ip");
-			int iDomain = curs.getColumnIndex("domain");
-			sudo.writeBytes("> /system/etc/hosts\n");
-			while (curs.moveToNext()) {
-				String ip = curs.getString(iIP);
-				if (ip == null || ip.length() < 1) {
-					continue;
-				}
-				String domain = curs.getString(iDomain);
-				if (domain == null || domain.length() < 1) {
-					continue;
-				}
-				String line = ip + " " + domain;
-				line = line.replace('"', ' ');
-				line = line.replace('\'', ' ');
-				line = line.replace('\\', ' ');
-				line = line.trim();
-				sudo.writeBytes("echo '"+line+"' >> /system/etc/hosts\n");
-			}
-			sudo.remountRo();
-			sudo.writeBytes("exit\n");
-			HostsDB.saved();
-			if (curs != null) {
-				curs.close();
-				curs = null;
-			}
-			Toast.makeText(this, "Save Success!", Toast.LENGTH_SHORT).show();
-		} catch (IOException e) {
-			Toast.makeText(this, "Save error, " + e.getMessage(),
-					Toast.LENGTH_SHORT).show();
-			e.printStackTrace();
-		} finally {
-			if (curs != null) {
-				curs.close();
-				curs = null;
-			}
-			sudo.close();
-		}
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		if (mPop != null) {
-			mPop.dismiss();
+		FragmentManager fm = getSupportFragmentManager();
+		if (fm.findFragmentById(android.R.id.content) == null) {
+			HostsFragment dnsfrag = new HostsFragment();
+			fm.beginTransaction().add(android.R.id.content, dnsfrag).commit();
 		}
 	}
 
@@ -163,14 +39,14 @@ public class HostsActivity extends Activity implements OnClickListener {
 		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
 			if (HostsDB.needRewriteHosts) {
 				new AlertDialog.Builder(this)
-						.setMessage("Rewrite /system/etc/hosts?")
+						.setMessage(R.string.host_rewrite_alert_msg)
 						.setPositiveButton(android.R.string.yes,
 								new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog,
 											int whichButton) {
-										saveEtcHosts();
+										HostsDB.saveEtcHosts(getApplicationContext());
+										HostsDB.saved();
 										finish();
-										System.exit(0);
 									}
 								})
 						.setNegativeButton(android.R.string.no,
@@ -180,56 +56,183 @@ public class HostsActivity extends Activity implements OnClickListener {
 										finish();
 									}
 								}).create().show();
-				return true;
-			} else {
-				finish();
-				System.exit(0);
 			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
 
-	private Handler mHandler = new Handler() {
+	public static class HostsFragment extends Fragment implements
+			OnClickListener {
+		private static final String TAG = "HostsFragment";
+        private PopupWindow mPop = null;
+		private Button btn_hosts_source_manage = null;
+		private HostsDB hdb = null;
 
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case 1:
-				try {
-					LayoutInflater mLayoutInflater = (LayoutInflater) HostsActivity.this
-							.getSystemService(LAYOUT_INFLATER_SERVICE);
-					View popmenu = mLayoutInflater.inflate(
-							R.layout.hosts_raw_editor, null);
-					TextView tv = (TextView) popmenu
-							.findViewById(R.id.hosts_raw_editor);
-					tv.setText(R.string.first_run_manage);
-					tv.setBackgroundColor(17170433);
-					tv.setEnabled(false);
-					popmenu.measure(LayoutParams.WRAP_CONTENT,
-							LayoutParams.WRAP_CONTENT);
-					mPop = new PopupWindow(popmenu, LayoutParams.WRAP_CONTENT,
-							LayoutParams.WRAP_CONTENT);
-					mPop.setBackgroundDrawable(getResources().getDrawable(
-							R.drawable.popup_full_bright));
-					mPop.setOutsideTouchable(true);
-					mPop.setFocusable(false);
-					Button btn_hosts_source_manage = (Button) HostsActivity.this
-							.findViewById(R.id.btn_hosts_source_manage);
-					mPop.showAsDropDown(btn_hosts_source_manage, 0, -15);
-				} catch (Exception e) {
-					e.printStackTrace();
+		@Override
+		public void setUserVisibleHint(boolean isVisibleToUser) {
+			super.setUserVisibleHint(isVisibleToUser);
+			if (this.isVisible()) {
+				if (isVisibleToUser) {
+					onPageVisible();
 				}
+			}
+		}
+
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			View view = inflater.inflate(R.layout.hosts, container, false);
+
+			btn_hosts_source_manage = (Button) view
+					.findViewById(R.id.btn_hosts_source_manage);
+			btn_hosts_source_manage.setOnClickListener(this);
+
+			Button btn_hosts_apply = (Button) view
+					.findViewById(R.id.btn_hosts_apply);
+			btn_hosts_apply.setOnClickListener(this);
+
+            Button btn_hosts_export = (Button) view
+                    .findViewById(R.id.btn_hosts_export);
+            btn_hosts_export.setOnClickListener(this);
+            Button btn_hosts_import = (Button) view
+                    .findViewById(R.id.btn_hosts_import);
+            btn_hosts_import.setOnClickListener(this);
+            Button btn_hosts_share = (Button) view
+                    .findViewById(R.id.btn_share);
+            btn_hosts_share.setOnClickListener(this);
+
+            hdb = HostsDB.GetInstance(getActivity().getApplicationContext());
+			return view;
+		}
+
+		public void onPageVisible() {
+			if (HostsDB.first_run_hostsActivity) {
+				showPopupInfo(btn_hosts_source_manage);
 				HostsDB.first_run_hostsActivity = false;
+			}
+		}
+
+		@Override
+		public void onClick(View v) {
+			switch (v.getId()) {
+			case R.id.btn_hosts_source_manage:
+				startActivity(new Intent(getActivity().getApplicationContext(),
+						HostSourceList.class));
+				break;
+			case R.id.btn_hosts_apply:
+				HostsDB.saveEtcHosts(getActivity().getApplicationContext());
+				break;
+                case R.id.btn_hosts_export:
+                    new AlertDialog.Builder(this.getActivity())
+                            .setMessage(R.string.export_desc)
+                            .setPositiveButton(android.R.string.yes,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int which) {
+                                            do_export_hosts();
+                                        }
+                                    }).setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                    break;
+                case R.id.btn_hosts_import:
+                    new AlertDialog.Builder(this.getActivity())
+                            .setMessage(R.string.hosts_import_desc)
+                            .setPositiveButton(android.R.string.yes,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog,
+                                                            int which) {
+                                            do_import_hosts();
+                                        }
+                                    }).setNegativeButton(android.R.string.cancel, null)
+                            .show();
+                    break;
+                case R.id.btn_share:
+                    do_share_hosts();
+                    break;
+			default:
 				break;
 			}
-		};
-	};
+		}
 
-	private class firstRunPopupWindow extends TimerTask {
-		@Override
-		public void run() {
-			Message message = new Message();
-			message.what = 1;
-			mHandler.sendMessage(message);
+        public static String getMimeType(String url) {
+            String type = null;
+            String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+            if (extension != null) {
+                MimeTypeMap mime = MimeTypeMap.getSingleton();
+                type = mime.getMimeTypeFromExtension(extension);
+                Log.d(TAG, url+":"+extension+":"+type);
+            }
+            return type;
+        }
+
+        private void do_share_hosts() {
+            File hosts = new File(Environment.getExternalStorageDirectory(),
+                    HostsDB.DNSLITE_JSON);
+            Log.d(TAG, ""+ getMimeType(HostsDB.DNSLITE_JSON));
+            String mime = "text/javascript";
+            do_share_files(hosts, mime, R.string.share_hosts_title, R.string.share_hosts_text);
+        }
+
+        private void do_share_files(File file, String mime, int subject, int text) {
+            Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            intent.setType(mime);
+            intent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+                    getString(subject));
+            intent.putExtra(android.content.Intent.EXTRA_TEXT, getString(text));
+            startActivity(Intent.createChooser(intent, getString(subject)));
+        }
+
+        private void do_import_hosts() {
+            boolean status = hdb.import_hosts_db(HostsDB.DNSLITE_JSON);
+            Toast.makeText(
+                    this.getActivity(),
+                    getString(status ? R.string.hosts_import_succ
+                            : R.string.hosts_import_fail), Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        private void do_export_hosts() {
+            boolean status = hdb.export_db(HostsDB.DNSLITE_JSON);
+            Toast.makeText(
+                    this.getActivity(),
+                    getString(status ? R.string.hosts_export_succ
+                            : R.string.hosts_export_fail), Toast.LENGTH_SHORT)
+                    .show();
+        }
+
+        @Override
+		public void onDestroy() {
+			super.onDestroy();
+			if (mPop != null) {
+				mPop.dismiss();
+			}
+		}
+
+		public void showPopupInfo(View anchor) {
+			try {
+				LayoutInflater mLayoutInflater = (LayoutInflater) getActivity()
+						.getSystemService(LAYOUT_INFLATER_SERVICE);
+				View popmenu = mLayoutInflater.inflate(
+						R.layout.hosts_raw_editor, null);
+				TextView tv = (TextView) popmenu
+						.findViewById(R.id.hosts_raw_editor);
+				tv.setText(R.string.first_run_manage);
+				tv.setBackgroundColor(17170433);
+				tv.setEnabled(false);
+				popmenu.measure(LayoutParams.WRAP_CONTENT,
+						LayoutParams.WRAP_CONTENT);
+				mPop = new PopupWindow(popmenu, LayoutParams.WRAP_CONTENT,
+						LayoutParams.WRAP_CONTENT);
+				mPop.setBackgroundDrawable(getResources().getDrawable(
+						R.drawable.popup_full_bright));
+				mPop.setOutsideTouchable(true);
+				mPop.setFocusable(false);
+				mPop.showAsDropDown(anchor, 0, -15);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

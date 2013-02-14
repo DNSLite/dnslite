@@ -1,42 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">DNSLite</string>
     <string name="dns_default_dns">8.8.8.8,8.8.4.4</string>
-    
     <string name="dns_lable">DNS代理(测试)</string>
-
     <string name="menu_about">快速提示</string>
     <string name="menu_fix_netdns">修复系统DNS</string>
     <string name="menu_feedback">发送反馈</string>
+    <string name="menu_share">分享DNSLite</string>
+    <string name="menu_share_tpl">我发现一个不错的应用，DNSLite https://play.google.com/store/apps/details?id=me.xu.DNSLite，是个不错的DNS代理，来试试吧。</string>
     <string name="fix_netdns_entry">修复系统DNS设置</string>
     <string name="fix_success">已修复</string>
     <string name="fix_failure">未能完成修复, 获取ROOT权限失败</string>
     <string name="cur">当前</string>
-    
-    <string name="v30">30</string>
+    <string name="v0">0</string>
     <string name="v60">60</string>
-    <string name="v90">90</string>
     <string name="v120">120</string>
     <string name="notext" />
-    
+
     <!-- about -->
     <string name="about_title">欢迎使用 DNSLite</string>
-    <string name="about_message"><![CDATA[
+    <string name="about_message">
+<![CDATA[
 DNS代理(测试)\n\n
-这是一个DNS代理工具，风险参照第5条。\n
+这是一个DNS代理工具。\n
 主要功能：\n\n
-	1. DNS缓存功能，减少网络访问延时。只缓存IP查询结果(请求类型为A或者AAAA)。\n\n
-	2. 可以TCP方式访问远端DNS服务器，避免DNS污染。\n\n
-	3. 可以为局域网其他设备提供DNS服务。\n\n
-	4. 可以查看DNS请求日志。\n\n
-	5. 可以手工指定域名IP信息。\n\n
-		>>风险: 这样可能会导致SSL验证失败，而导致android应用联网失败，例如Gmail。但在PC下可能会忽略这个问题，而正常访问。\n\n
-		>>原因: 访问指定IP时，返回证书中的授权域名，跟请求域名不对应，所以验证失败。\n\n
-		>>结合hosts记录，可以有效弥补这一缺点。\n\n
+	1. 可以TCP方式访问远端DNS服务器，避免DNS污染。\n\n
+	2. 可以为局域网其他设备提供DNS服务。\n\n
+	3. 可以查看DNS请求日志。\n\n
+	4. 可以手工指定域名IP信息。\n\n
+		>>风险: 因为指定的IP未必是真正的服务器IP，所以可能会导致一些HTTPS请求的SSL验证失败。\n\n
 \n
-	6. 指定域名IP时，域名支持开头为*的方式。\n\n
-	7. 可以变更或修复系统DNS，即net.dns信息。\n\n
-	Tips: 可以针对大陆地区，修正Apple应用下载应用时的请求服务器。\n\n
+	5. 指定域名IP时，域名支持开头为*的方式。\n\n
+	6. 可以变更或修复系统DNS，即net.dns信息。\n\n
+	7. DNS缓存功能，减少网络访问延时。只缓存IP查询结果(请求类型为A或者AAAA)。\n\n
+	Tips: 可以针对大陆地区，指定Apple应用下载应用时的请求服务器。\n\n
 \n
 日志说明\n\n
 日志开头字母的意义如下：\n\n
@@ -52,54 +50,50 @@ hosts\n\n
 主要功能：\n\n
 	1. 通过下载网络上的hosts文件。\n\n
 	2. 手工输入hosts记录。\n\n
-	3. 数据库的形式管理hosts，可以添加，刪除，注释，启用，禁用hosts。\n\n
-	4. 直接编辑 /etc/hosts。\n\n
-	5. 从"/etc/hosts"的导入hosts记录。\n\n
+	3. 管理hosts，可以添加，刪除，启用，禁用hosts。\n\n
+	4. 从"/etc/hosts"的导入hosts记录。\n\n
 		>> 步骤：\n
 		>> a. 请点选"管理"。\n
 		>> b. 长按 Local源。\n
 		>> c. 点选下载更新。\n
 		>> 即可为您导入现有hosts文件。\n
-	]]></string>
+	]]>
+    </string>
     <!-- about end -->
-    
+
     <string name="dns1">DNS1</string>
     <string name="dns2">DNS2</string>
     <string name="domain">Domain</string>
     <string name="ip">IP</string>
     <string name="name">Name</string>
     <string name="url">Url</string>
-    
-	<!-- DNSService start -->
-	<string name="Status_OK">OK</string>
-	<string name="Status_ALREDY_RUNNING">服务已经在运行中</string>
-	<string name="Status_BIN_NOTEXIST">作者傻眼了，居然没有打包服务文件。</string>
-	<string name="Status_SUFAIL">获取ROOT权限失败</string>
-	<string name="Status_SETEXEC_FAIL">设置服务文件可执行失败</string>
-	<string name="Status_SEND_COMMAND_FAIL">执行命令失败, 可能是ROOT拒绝了请求</string>
-	<string name="Status_START_SUCC">启动成功</string>
-	<string name="Status_START_FAIL">启动失败, 可能是ROOT拒绝了请求</string>
-	<string name="Status_UNKNOW_ERROR">未知错误</string>
-	<string name="Status_OTHER_STATUS">未知状态</string>
-	
-	<string name="alarm_service_stoped">长时间没有请求，DNSLite将自动退出.\n您可以通过配置，来改变这个时间长短。</string>
-	<!-- DNSService end -->
-	<string name="fail">失败</string>
+
+    <!-- DNSService start -->
+    <string name="Status_OK">OK</string>
+    <string name="Status_ALREDY_RUNNING">服务已经在运行中</string>
+    <string name="Status_BIN_NOTEXIST">作者傻眼了，居然没有打包服务文件。</string>
+    <string name="Status_SUFAIL">获取ROOT权限失败</string>
+    <string name="Status_SETEXEC_FAIL">设置服务文件可执行失败</string>
+    <string name="Status_SEND_COMMAND_FAIL">执行命令失败, 可能是ROOT拒绝了请求</string>
+    <string name="Status_START_SUCC">启动成功</string>
+    <string name="Status_START_FAIL">启动失败, 可能是ROOT拒绝了请求</string>
+    <string name="Status_UNKNOW_ERROR">未知错误</string>
+    <string name="Status_OTHER_STATUS">未知状态</string>
+    <string name="alarm_service_stoped">长时间没有请求，DNSLite将自动退出.\n您可以通过配置，来禁用自动退出。</string>
+    <!-- DNSService end -->
+    <string name="fail">失败</string>
     <!-- DNS Service start -->
     <string name="dnsConfig">配置</string>
     <string name="dnsStart">开启DNS服务</string>
     <string name="dnsStop">停止DNS服务</string>
     <string name="dnsCacheConfig">缓存配置</string>
     <string name="dnsLog">查看日志</string>
-    
     <string name="dns_config">配置</string>
     <string name="dns_control">控制</string>
     <string name="wifi_is_disable">无线没有网络</string>
-    
     <string name="dns_cache_config_summary">指定服务器使用的域名缓存</string>
     <string name="dns_server_connecting">正在连接DNS服务器  &#8230;</string>
     <string name="preference_title_dns_setting">DNS参数配置</string>
-    
     <string name="dns_setting_tcp_title">TCP 方式</string>
     <string name="dns_setting_tcp_summary">TCP方式链接远端DNS服务器</string>
     <string name="dns_setting_local_title">只允许本机访问</string>
@@ -107,21 +101,23 @@ hosts\n\n
     <string name="dialog_title_preference_dns_idle_timeout">最大空闲时间</string>
     <string name="dns_idle_summary">服务空闲一段时间后，将自动停止</string>
     <string name="dns_idle_title">自动停止服务</string>
-    
     <string name="dns_setting_enable_cache_summary">缓存DNS请求结果。(缓存类型: A/AAAA)</string>
     <string name="dns_setting_enable_cache_title">开启缓存</string>
-    <!-- 
+    <!--
     <string name="dialog_title_preference_dns_cc_cycle">清理缓存周期</string>
     <string name="dns_ccc_summary">设置清理缓存时间周期</string>
     <string name="dns_ccc_title">清理缓存</string>
-     -->
+    -->
     <string name="dialog_title_preference_dns_remote_dns">设定远端DNS服务器</string>
     <string name="dns_remote_dns_summary">请设为您期望连接的DNS服务器IP</string>
     <string name="dns_remote_dns_title">远端DNS设定</string>
-    <string name="preference_title_system_dns_setting">系统DNS设置</string>
+    <string name="preference_title_system_setting">系统设置</string>
+    <string name="auto_start_on_bootcompleted_summary">自动启动DNS服务</string>
+    <string name="auto_start_on_bootcompleted_title">自动启动</string>
     <string name="dns_sds_change_summary">自动更改系统DNS为127.0.0.1</string>
     <string name="dns_sds_change_title">更改系统DNS</string>
     <string name="dialog_title_preference_dns_net_dns">系统DNS设定</string>
+    <string name="dialog_title_preference_dns_net_dns_msg"><b>当停止服务时，DNS会被设定为如下值，或者恢复为原始状态。\n推荐：留空。</b></string>
     <string name="dns_net_dns_summary">请设定为您平常使用的DNS</string>
     <string name="dns_net_dns_title">系统DNS</string>
     <string name="dns_checking">检查服务状态  &#8230;</string>
@@ -131,30 +127,24 @@ hosts\n\n
     <string name="menu_dns_group_add">增加分组</string>
     <string name="menu_dns_import">导入</string>
     <string name="menu_dns_export">导出</string>
-    <string name="dns_import_desc">将从SD卡，根目录下的dnslite_dns.txt，为您导入DNS配置信息，您准备好了吗?</string>
-    <string name="dns_export_desc">将为您导出DNS配置信息，保存在SD卡根目录下，名称为dnslite_dns.txt</string>
+    <string name="dns_import_desc">将从SD卡，根目录下的dnslite.js，为您导入DNS配置信息，您准备好了吗?</string>
     <string name="dns_import_succ">导入成功</string>
     <string name="dns_import_fail">导入失败</string>
     <string name="dns_export_succ">导出成功</string>
     <string name="dns_export_fail">导出失败</string>
     <string name="menu_dns_setip">指定统一IP</string>
-    
-    <string name="dns_host_text_entry">可接受*: *.example.com\n\n风险: 这样可能会导致SSL验证失败，而导致android应用联网失败，例如Gmail。但在PC下可能会忽略这个问题，而正常访问。</string>
+    <string name="dns_host_text_entry">可接受*: *.example.com</string>
     <string name="dns_host_domain_null">域名不能为空</string>
     <string name="dns_host_domain_format_err">还不接受这种写法: xxx.*.xxx</string>
-    <string name="dns_setip_entry">设定统一IP\n\n风险: 这样可能会导致SSL验证失败，而导致android应用联网失败，例如Gmail。但在PC下可能会忽略这个问题，而正常访问。</string>
+    <string name="dns_setip_entry">设定统一IP</string>
     <string name="dns_setip_err">没有配置被变更，或许全部已经是这个IP了。</string>
-    
     <string name="dns_group_add_url_hit">Url 可以不填</string>
-    
     <string name="dns_group_text_entry">添加DNS配置组</string>
     <string name="dns_group_add_input_error">组名称不能为空</string>
-    <string name="dns_group_add_fail">组添加失败，或许已经存在</string>    
+    <string name="dns_group_add_fail">组添加失败，或许已经存在</string>
     <string name="no_dns_group">还没有DNS缓存分组，请点击菜单增加分组。</string>
     <string name="dns_group_no_hosts">点击屏幕或者菜单键，您可以增加hosts信息，</string>
-    
     <string name="no_need_update">不需要更新！</string>
-    
     <string name="dns_running">服务已经启动</string>
     <string name="dns_start">启动服务  &#8230;</string>
     <string name="dns_stop">停止服务  &#8230;</string>
@@ -163,27 +153,23 @@ hosts\n\n
     <string name="dns_stop_succ">停止服务  成功</string>
     <string name="dns_stop_fail">停止服务 失败</string>
     <!-- DNS Service end -->
-    
+
+
     <!-- preference -->
     <string name="preferenceChangeTips">您修改的配置，需要重新启动服务，才能生效！</string>
-    <string name="per30mins">每30分钟</string>
-    <string name="per60mins">每60分钟</string>
-    <string name="per90mins">每90分钟</string>
-    <string name="per120mins">每120分钟</string>
+    <string name="never">不自动退出</string>
+    <string name="per60mins">60分钟</string>
+    <string name="per120mins">120分钟</string>
     <!-- preference end -->
 
     <string name="no_hosts_source">您需要添加网络hosts源</string>
     <string name="no_hosts">点击屏幕或者菜单键，您可以增加、下载或者从"/etc/hosts"导入hosts信息，</string>
-    <string name="hosts_source">网络hosts源</string>
-    <string name="hosts_ops">本地hosts数据库</string>
-    <string name="hosts_reset_ops">重置数据库</string>
+    <string name="hosts_source">hosts源</string>
     <string name="hosts_save_ops">保存</string>
     <string name="btn_hosts_source_manage">管理</string>
-    <string name="btn_hosts_edit">管理使用中的hosts</string>
-    <string name="btn_hosts_resetEtc">重置 /etc/hosts</string>
-    <string name="btn_hosts_apply">保存</string>
+    <string name="btn_hosts_resetEtc">清空 /etc/hosts</string>
+    <string name="btn_hosts_apply">重写/etc/hosts</string>
     <string name="btn_hosts_rawview">编辑 /etc/hosts</string>
-    <string name="hosts_welmsg">/etc/hosts 管理工具</string>
     <string name="host_source_add">增加hosts源</string>
     <string name="hosts_source_add_name">名称</string>
     <string name="hosts_source_add_url">网址</string>
@@ -206,7 +192,6 @@ hosts\n\n
     <string name="pop_menu_delete">@string/host_delete</string>
     <string name="pop_menu_edit">编辑</string>
     <string name="menu_item_update">下载更新</string>
-    <string name="menu_item_replace">启用全部(替换/etc/hosts)</string>
     <string name="menu_item_merge">启用全部(合并/etc/hosts)</string>
     <string name="menu_item_disable">禁用全部(本组)</string>
     <string name="menu_item_enableAll">启用全部(本组)</string>
@@ -218,5 +203,22 @@ hosts\n\n
     <string name="first_run_manage">您是第一次打开应用，请跟随向导完成一次"/etc/hosts"的导入。\n1. 请点击 管理 。\n2. 长按 Local源。\n3. 选择下载更新。为您导入现有hosts文件</string>
     <string name="first_run_localsource">请长按 Local源，选择下载更新。为您导入现有hosts文件</string>
     <string name="dns_init_db">Apple:203.69.113.136:*.phobos.apple.com;Google::google.com,*.google.com,*.google.com.hk,*.gstatic.com,*.appspot.com,*.googlevideo.com,*.googleapis.com,*.googleusercontent.com,*.googlecode.com,*.googlesyndication.com,www.googlemashups.com,*.blogger.com,blogger.com,*.googlegroups.com,*.googlelabs.com,gmodules.com,*.gmodules.com,*.ggpht.com,*.gvt0.com,*.googlehosted.com,*.android.com,android.com,*.feedburner.com,goo.gl,g.co,www.googleinsidesearch.com,*.googleinsidesearch.com</string>
+    <string name="host_rewrite_alert_msg">保存到 /etc/hosts?</string>
+    <string name="host_reset_etc_alert_msg">清空/etc/hosts?\n清空使用中的hosts.</string>
 
+    <string name="btn_hosts_import">@string/menu_dns_import</string>
+    <string name="btn_hosts_export">@string/menu_dns_export</string>
+    <string name="menu_hosts_import">@string/menu_dns_import</string>
+    <string name="menu_hosts_export">@string/menu_dns_export</string>
+    <string name="hosts_import_desc">将从SD卡，根目录下的dnslite.js，为您导入hosts信息，您准备好了吗?</string>
+    <string name="export_desc">将为您导出DNSLite配置信息(DNS+hosts)，保存在SD卡根目录下，名称为dnslite.js</string>
+    <string name="hosts_import_succ">@string/dns_import_succ</string>
+    <string name="hosts_import_fail">@string/dns_import_fail</string>
+    <string name="hosts_export_succ">@string/dns_export_succ</string>
+    <string name="hosts_export_fail">@string/dns_export_fail</string>
+    <string name="share">分享</string>
+    <string name="share_hosts_title">分享我的配置</string>
+    <string name="share_hosts_text">分享我的DNSLite配置</string>
+    <string name="search_box_hint">搜索</string>
+    <string name="search_add">添加</string>
 </resources>

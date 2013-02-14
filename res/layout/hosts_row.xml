@@ -21,8 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/status"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@android:color/black" >
+        android:textAppearance="?android:attr/textAppearanceMedium" >
     </TextView>
 
     <TextView
@@ -31,8 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/domain"
         android:layout_below="@id/domain"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/black" />
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <ImageView
         android:id="@+id/more_button"

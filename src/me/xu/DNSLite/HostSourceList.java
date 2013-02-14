@@ -12,35 +12,33 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Build.VERSION;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.SimpleCursorAdapter;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.view.LayoutInflater;
 import android.widget.EditText;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
 
 public class HostSourceList extends ListActivity {
 
@@ -57,35 +55,31 @@ public class HostSourceList extends ListActivity {
 		setContentView(R.layout.host_source);
 		hdb = HostsDB.GetInstance(this);
 		cursor = hdb.getAllHostsSource();
-		if (VERSION.SDK_INT > 10) {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 }, 0);
-		} else {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 });
-		}
+
+		adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
+				cursor, new String[] { "name", "url" }, new int[] { R.id.text1,
+						R.id.text2 }, 0);
+
 		setListAdapter(adapter);
 
 		ListView lv = getListView();
 		registerForContextMenu(lv);
-
-		if (cursor.getCount() > 5) {
-			View adView = this.findViewById(R.id.adView);
-			adView.setVisibility(View.GONE);
-		}
-
-		if (HostsDB.first_run_hostsSource) {
-			Timer timer = new Timer();
-			timer.schedule(new firstRunPopupWindow(), 500);
-		}
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		view(id);
 		super.onListItemClick(l, v, position, id);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		if (HostsDB.first_run_hostsSource) {
+			Timer timer = new Timer();
+			timer.schedule(new firstRunPopupWindow(), 500);
+		}
 	}
 
 	@Override
@@ -97,6 +91,13 @@ public class HostSourceList extends ListActivity {
 		case R.id.menu_host_source_add:
 			addHostsSource(0, null, null);
 			break;
+		case R.id.menu_hosts_raw_edit:
+			startActivity(new Intent(this, HostsRawEditorActivity.class));
+			break;
+		case R.id.menu_hosts_reset:
+			hosts_reset(ALERT_DIALOG_RESET_ETC,
+					R.string.host_reset_etc_alert_msg);
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -107,7 +108,7 @@ public class HostSourceList extends ListActivity {
 		inflater.inflate(R.menu.hosts_source_option, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -143,12 +144,6 @@ public class HostSourceList extends ListActivity {
 			addHostsSource(info.id, name, url);
 		}
 			break;
-		case R.id.menu_item_view:
-			view(info.id);
-			break;
-		case R.id.menu_item_replace:
-			replace(info.id);
-			break;
 		case R.id.menu_item_merge:
 			merge(info.id);
 			break;
@@ -175,10 +170,8 @@ public class HostSourceList extends ListActivity {
 		progressDialog.setTitle(title);
 		progressDialog.setMax(100);
 		progressDialog.setProgress(0);
-		// progressDialog.setSecondaryProgress(0);
 		progressDialog.setIndeterminate(false);
 		progressDialog.setMessage(message);
-		progressDialog.setCancelable(false);
 		progressDialog.show();
 	}
 
@@ -197,10 +190,6 @@ public class HostSourceList extends ListActivity {
 		Intent v = new Intent(HostSourceList.this, HostsEditorActivity.class);
 		v.putExtra("sid", rowId);
 		startActivity(v);
-	}
-
-	private void replace(final long rowId) {
-		hdb.replaceHostsSource(rowId);
 	}
 
 	private void merge(final long rowId) {
@@ -307,6 +296,33 @@ public class HostSourceList extends ListActivity {
 		}
 	}
 
+	private final int ALERT_DIALOG_RESET_ETC = 1;
+	private final int ALERT_DIALOG_REWRITE_HOST = 2;
+
+	public void doPositiveClick(int type) {
+		switch (type) {
+		case ALERT_DIALOG_REWRITE_HOST:
+			HostsDB.saveEtcHosts(this);
+			break;
+		case ALERT_DIALOG_RESET_ETC:
+			hdb.resetEtcHosts();
+			break;
+		}
+	}
+
+	private void hosts_reset(final int type, int message) {
+		new AlertDialog.Builder(this)
+				.setMessage(message)
+				.setPositiveButton(android.R.string.yes,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog,
+									int which) {
+								doPositiveClick(type);
+							}
+						}).setNegativeButton(android.R.string.cancel, null)
+				.show();
+	}
+
 	private class RefreshList extends AsyncTask<Void, Void, Cursor> {
 		protected Cursor doInBackground(Void... params) {
 			Cursor newCursor = hdb.getAllHostsSource();
@@ -314,13 +330,6 @@ public class HostSourceList extends ListActivity {
 		}
 
 		protected void onPostExecute(Cursor newCursor) {
-			try {
-				if (newCursor.getCount() > 5) {
-					View adView = HostSourceList.this.findViewById(R.id.adView);
-					adView.setVisibility(View.GONE);
-				}
-			} catch (Exception e) {
-			}
 			adapter.changeCursor(newCursor);
 			cursor.close();
 			cursor = newCursor;
@@ -395,7 +404,8 @@ public class HostSourceList extends ListActivity {
 					return getString(android.R.string.httpErrorBadUrl);
 				}
 				String schema = urls[0].substring(0, pos).toLowerCase();
-				if (!(schema.equals("http") || schema.equals("https") || schema.equals("ftp"))) {
+				if (!(schema.equals("http") || schema.equals("https") || schema
+						.equals("ftp"))) {
 					return getString(android.R.string.httpErrorUnsupportedScheme);
 				}
 			}
@@ -405,6 +415,10 @@ public class HostSourceList extends ListActivity {
 				HttpGet httpGet = new HttpGet(urls[0]);
 				HttpResponse response;
 				response = client.execute(httpGet);
+
+                if (this.isCancelled()) {
+                    return null;
+                }
 				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 					BufferedReader rd = new BufferedReader(
 							new InputStreamReader(response.getEntity()
@@ -444,10 +458,17 @@ public class HostSourceList extends ListActivity {
 			progressDialog.setProgress(progress[0]);
 		}
 
-		protected void onPostExecute(String result) {
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            progressDialog.dismiss();
+        }
+
+        protected void onPostExecute(String result) {
 			progressDialog.dismiss();
 			if (result != null) {
-				Toast.makeText(HostSourceList.this, getString(R.string.fail) +": " + result,
+				Toast.makeText(HostSourceList.this,
+						getString(R.string.fail) + ": " + result,
 						Toast.LENGTH_SHORT).show();
 			}
 		}

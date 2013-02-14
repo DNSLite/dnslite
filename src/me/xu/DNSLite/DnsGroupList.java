@@ -8,26 +8,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Build.VERSION;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.SimpleCursorAdapter;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -48,15 +46,10 @@ public class DnsGroupList extends ListActivity {
 
 		hdb = HostsDB.GetInstance(this);
 		cursor = hdb.getAllDnsGroup();
-		if (VERSION.SDK_INT > 10) {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 }, 0);
-		} else {
-			adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
-					cursor, new String[] { "name", "url" }, new int[] {
-							R.id.text1, R.id.text2 });
-		}
+
+		adapter = new SimpleCursorAdapter(this, R.layout.host_source_row,
+				cursor, new String[] { "name", "url" }, new int[] {
+						R.id.text1, R.id.text2 }, 0);
 		setListAdapter(adapter);
 
 		ListView lv = getListView();
@@ -68,11 +61,6 @@ public class DnsGroupList extends ListActivity {
 				DnsGroupList.this.openOptionsMenu();
 			}
 		});
-
-		if (cursor.getCount() > 5) {
-			View adView = this.findViewById(R.id.adView);
-			adView.setVisibility(View.GONE);
-		}
 	}
 
 	@Override
@@ -101,7 +89,7 @@ public class DnsGroupList extends ListActivity {
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int which) {
-							boolean status = hdb.import_dns_db("dnslite_dns.txt");
+							boolean status = hdb.import_dns_db(hdb.DNSLITE_JSON);
 							new RefreshList().execute();
 							Toast.makeText(
 									DnsGroupList.this,
@@ -114,12 +102,12 @@ public class DnsGroupList extends ListActivity {
 			break;
 		case R.id.menu_dns_export:
 			new AlertDialog.Builder(this)
-			.setMessage(R.string.dns_export_desc)
+			.setMessage(R.string.export_desc)
 			.setPositiveButton(android.R.string.yes,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog,
 								int which) {
-							boolean status = hdb.export_dns_db("dnslite_dns.txt");
+							boolean status = hdb.export_db(hdb.DNSLITE_JSON);
 							Toast.makeText(
 									DnsGroupList.this,
 									getString(status ? R.string.dns_export_succ
@@ -303,14 +291,6 @@ public class DnsGroupList extends ListActivity {
 		}
 
 		protected void onPostExecute(Cursor newCursor) {
-			try {
-				if (newCursor.getCount() > 5) {
-					View adView = DnsGroupList.this
-							.findViewById(R.id.adView);
-					adView.setVisibility(View.GONE);
-				}
-			} catch (Exception e) {
-			}
 			adapter.changeCursor(newCursor);
 			cursor.close();
 			cursor = newCursor;
