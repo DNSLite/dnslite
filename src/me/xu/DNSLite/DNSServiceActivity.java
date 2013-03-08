@@ -190,13 +190,18 @@ public class DNSServiceActivity extends FragmentActivity {
 				return false;
 			}
 			String name = info.getTypeName();
-			State state = connManager.getNetworkInfo(
-					ConnectivityManager.TYPE_MOBILE).getState();
-			if (State.CONNECTED == state) {
-				if (wifi_ip != null) {
-					wifi_ip.setText(name + " IP:" + getLocalIPAddress());
-				}
-			}
+            State state = null;
+            try {
+                state = connManager.getNetworkInfo(
+                        ConnectivityManager.TYPE_MOBILE).getState();
+                if (State.CONNECTED == state) {
+                    if (wifi_ip != null) {
+                        wifi_ip.setText(name + " IP:" + getLocalIPAddress());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 			try {
 				state = connManager.getNetworkInfo(
