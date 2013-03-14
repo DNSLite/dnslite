@@ -242,7 +242,7 @@ public class DNSLiteActivity extends FragmentActivity {
 					"\"DNSLite\"<xudejian2008@gmail.com>",
 					getString(R.string.menu_feedback),
 					getString(R.string.menu_feedback) + " : "
-							+ this.getPackageName(), "");
+							+ this.getPackageName(), "Do you like dnslite?");
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
