@@ -338,11 +338,13 @@ public class DNSLiteActivity extends FragmentActivity {
 								}
 
 								boolean succ = Sudo.setProperties(names, vals);
+                                DNSServiceActivity.DNSServiceFragment ds = (DNSServiceActivity.DNSServiceFragment)mTabsAdapter.instantiateItem(mViewPager, 0);
+                                ds.updateCurrentDNSView();
 								Toast.makeText(
-										getBaseContext(),
-										getString(succ ? R.string.fix_success
-												: R.string.fix_failure),
-										Toast.LENGTH_SHORT).show();
+                                        getBaseContext(),
+                                        getString(succ ? R.string.fix_success
+                                                : R.string.fix_failure),
+                                        Toast.LENGTH_SHORT).show();
 							}
 						}).setNegativeButton(android.R.string.cancel, null)
 				.create().show();

@@ -181,7 +181,7 @@ public class DNSServiceActivity extends FragmentActivity {
 
 		};
 
-        private void updateCurrentDNSView() {
+        public void updateCurrentDNSView() {
             final String[] netdns = Sudo.getProperties(new String[]{"net.dns1",
                     "net.dns2"});
             if (netdns != null) {
@@ -310,6 +310,7 @@ public class DNSServiceActivity extends FragmentActivity {
 					dnsStop.setVisibility(View.GONE);
 				}
 			}
+            updateCurrentDNSView();
 		}
 
 		private void startProgressDialog(String title, String message) {
