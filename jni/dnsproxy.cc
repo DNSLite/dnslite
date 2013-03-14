@@ -154,7 +154,7 @@ static int init_nameserver(const char *arg)
 			if (end - start < MAX_IP_LEN) {
 				strncpy(gconf->nameservers[ gconf->nameserver_num ], start, end-start);
 				gconf->nameservers[ gconf->nameserver_num ][end-start] = '\0';
-				if (ip_check(gconf->nameservers[ gconf->nameserver_num ], 
+				if (ip_check(gconf->nameservers[ gconf->nameserver_num ],
 							gconf->nameservers[ gconf->nameserver_num ], MAX_IP_LEN) != NULL) {
 					++ gconf->nameserver_num;
 				}
@@ -663,7 +663,7 @@ void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 				}
 				gconf->logfd = fd;
 				GetTimeCurrent(gconf->tmnow);
-				bytecount = snprintf(buf, sizeof(buf), "LOGS\nstatic cache:%ld idle:%ld host:%s ip:%s\n", 
+				bytecount = snprintf(buf, sizeof(buf), "LOGS\nstatic cache:%ld idle:%ld host:%s ip:%s\n",
 						static_cache.size(), gconf->tmnow.tv_sec - gconf->last_serv, gconf->host_name, inet_ntoa(gconf->eth0));
 				socket_send(fd, buf, bytecount);
 				break;
@@ -750,21 +750,23 @@ static void set_system_dns()
 {
 #ifdef ANDROID
 	char line[512];
+	char net_dns[2][PROP_VALUE_MAX];
 	int rv = 0;
 	int i = 0;
 	for (i=0; i<2; ++i) {
 		sprintf(line, "net.dns%d", i+1);
-		rv = __system_property_get(line, gconf->net_dns[i]);
+		rv = __system_property_get(line, net_dns[i]);
 		if (rv < 0) {
 			rv = 0;
 		}
-		gconf->net_dns[i][rv] = 0;
-		logs("%s %s\n", line, gconf->net_dns[i]);
+		net_dns[i][rv] = 0;
+		logs("%s %s\n", line, net_dns[i]);
 	}
 
-	if (!strcmp(gconf->net_dns[0], "127.0.0.1")) {
+	if (!strcmp(net_dns[0], "127.0.0.1")) {
 		return;
 	}
+	memcpy(gconf->net_dns, net_dns, sizeof(net_dns));
 
 	rv = snprintf(line, sizeof(line), "setprop net.dns1 127.0.0.1");
 	logs("%s\n", line);
@@ -1026,7 +1028,7 @@ void init_conf(int argc, char * const *argv)
 		exit(EXIT_FAILURE);
 	}
 	setnonblocking(fd);
-	
+
 	ret = eu_add_listenfd(gconf->eu, fd, 0);
 	if (ret) {
 		exit(EXIT_FAILURE);
@@ -1573,4 +1575,3 @@ static int find_user_group(const char *user, const char *group, uid_t *uid, gid_
 	return 0;
 }
 #endif
-
