@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import me.xu.tools.Sudo;
 
 public class DNSServiceActivity extends FragmentActivity {
 
@@ -50,6 +51,7 @@ public class DNSServiceActivity extends FragmentActivity {
 		private Button dnsStart = null;
 		private Button dnsStop = null;
 		private TextView wifi_ip = null;
+		private TextView cur_dns = null;
 		private ProgressDialog progressDialog = null;
 		private boolean isReceiverRegistered = false;
 
@@ -105,6 +107,7 @@ public class DNSServiceActivity extends FragmentActivity {
 					.findViewById(R.id.dnsCacheConfig);
 			Button dnsLog = (Button) view.findViewById(R.id.dnsLog);
 			wifi_ip = (TextView) view.findViewById(R.id.wifi_ip);
+            cur_dns = (TextView) view.findViewById(R.id.cur_dns);
 
 			dnsConfig.setOnClickListener(this);
 			dnsStart.setOnClickListener(this);
@@ -178,6 +181,14 @@ public class DNSServiceActivity extends FragmentActivity {
 
 		};
 
+        public void updateCurrentDNSView() {
+            final String[] netdns = Sudo.getProperties(new String[]{"net.dns1",
+                    "net.dns2"});
+            if (netdns != null) {
+                cur_dns.setText("DNS1: " + netdns[0] + "\nDNS2: "+netdns[1]);
+            }
+        }
+
 		private boolean checkNetStatus() {
 
 			ConnectivityManager connManager = (ConnectivityManager) getActivity()
@@ -190,13 +201,18 @@ public class DNSServiceActivity extends FragmentActivity {
 				return false;
 			}
 			String name = info.getTypeName();
-			State state = connManager.getNetworkInfo(
-					ConnectivityManager.TYPE_MOBILE).getState();
-			if (State.CONNECTED == state) {
-				if (wifi_ip != null) {
-					wifi_ip.setText(name + " IP:" + getLocalIPAddress());
-				}
-			}
+            State state = null;
+            try {
+                state = connManager.getNetworkInfo(
+                        ConnectivityManager.TYPE_MOBILE).getState();
+                if (State.CONNECTED == state) {
+                    if (wifi_ip != null) {
+                        wifi_ip.setText(name + " IP:" + getLocalIPAddress());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
 			try {
 				state = connManager.getNetworkInfo(
@@ -219,6 +235,7 @@ public class DNSServiceActivity extends FragmentActivity {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+            updateCurrentDNSView();
 			return true;
 		}
 
@@ -293,6 +310,7 @@ public class DNSServiceActivity extends FragmentActivity {
 					dnsStop.setVisibility(View.GONE);
 				}
 			}
+            updateCurrentDNSView();
 		}
 
 		private void startProgressDialog(String title, String message) {

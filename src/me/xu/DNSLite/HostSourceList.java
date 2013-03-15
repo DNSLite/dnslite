@@ -373,6 +373,8 @@ public class HostSourceList extends ListActivity {
 					fr.close();
 				} catch (IOException e) {
 					e.printStackTrace();
+				} catch (Exception ee) {
+					ee.printStackTrace();
 				}
 			}
 			return null;

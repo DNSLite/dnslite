@@ -242,7 +242,7 @@ public class DNSLiteActivity extends FragmentActivity {
 					"\"DNSLite\"<xudejian2008@gmail.com>",
 					getString(R.string.menu_feedback),
 					getString(R.string.menu_feedback) + " : "
-							+ this.getPackageName(), "");
+							+ this.getPackageName(), "Do you like dnslite?");
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -338,11 +338,13 @@ public class DNSLiteActivity extends FragmentActivity {
 								}
 
 								boolean succ = Sudo.setProperties(names, vals);
+                                DNSServiceActivity.DNSServiceFragment ds = (DNSServiceActivity.DNSServiceFragment)mTabsAdapter.instantiateItem(mViewPager, 0);
+                                ds.updateCurrentDNSView();
 								Toast.makeText(
-										getBaseContext(),
-										getString(succ ? R.string.fix_success
-												: R.string.fix_failure),
-										Toast.LENGTH_SHORT).show();
+                                        getBaseContext(),
+                                        getString(succ ? R.string.fix_success
+                                                : R.string.fix_failure),
+                                        Toast.LENGTH_SHORT).show();
 							}
 						}).setNegativeButton(android.R.string.cancel, null)
 				.create().show();
