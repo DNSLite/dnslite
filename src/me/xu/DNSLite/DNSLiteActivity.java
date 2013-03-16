@@ -2,6 +2,7 @@ package me.xu.DNSLite;
 
 import java.util.ArrayList;
 
+import android.net.Uri;
 import me.xu.tools.Sudo;
 import me.xu.tools.util;
 import android.app.AlertDialog;
@@ -228,6 +229,9 @@ public class DNSLiteActivity extends FragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+        case R.id.menu_donate:
+            donatePayPalOnClick();
+            break;
 		case R.id.menu_about:
 			show_about();
 			break;
@@ -249,8 +253,34 @@ public class DNSLiteActivity extends FragmentActivity {
 		}
 		return true;
 	}
+    /**
+     * Donate button with PayPal by opening browser with defined URL For possible parameters see:
+     * https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/
+     * e_howto_html_Appx_websitestandard_htmlvariables
+     */
+    public void donatePayPalOnClick() {
 
-	private void show_about() {
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.scheme("https").authority("www.paypal.com").path("cgi-bin/webscr");
+        uriBuilder.appendQueryParameter("cmd", "_donations");
+
+        uriBuilder.appendQueryParameter("business", "7CX2DG8VSMBN2");
+        uriBuilder.appendQueryParameter("lc", "US");
+        uriBuilder.appendQueryParameter("item_name", "Donate DNSLite");
+        uriBuilder.appendQueryParameter("no_note", "1");
+        // uriBuilder.appendQueryParameter("no_note", "0");
+        // uriBuilder.appendQueryParameter("cn", "Note to the developer");
+        uriBuilder.appendQueryParameter("no_shipping", "1");
+        uriBuilder.appendQueryParameter("currency_code", "USD");
+
+        // uriBuilder.appendQueryParameter("bn", "PP-DonationsBF:btn_donate_LG.gif:NonHosted");
+        Uri payPalUri = uriBuilder.build();
+
+        Intent viewIntent = new Intent(Intent.ACTION_VIEW, payPalUri);
+        startActivity(viewIntent);
+    }
+
+    private void show_about() {
 		new AlertDialog.Builder(this).setIcon(R.drawable.ic_launcher)
 				.setTitle(R.string.about_title)
 				.setMessage(R.string.about_message)
