@@ -4,5 +4,5 @@
     <item android:id="@+id/menu_share" android:title="@string/menu_share" android:icon="@android:drawable/ic_menu_share" android:showAsAction="ifRoom|withText|collapseActionView"></item>
     <item android:id="@+id/menu_feedback" android:title="@string/menu_feedback" android:icon="@android:drawable/ic_menu_send" android:showAsAction="ifRoom|withText|collapseActionView"></item>
     <item android:id="@+id/menu_fix_netdns" android:title="@string/menu_fix_netdns" android:icon="@android:drawable/ic_menu_myplaces"></item>
-    <!-- <item android:id="@+id/menu_exit" android:title="@string/menu_exit" android:icon="@android:drawable/ic_menu_close_clear_cancel"></item> -->
+    <item android:id="@+id/menu_donate" android:title="@string/donate"></item>
 </menu>

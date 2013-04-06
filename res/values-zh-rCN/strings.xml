@@ -7,6 +7,7 @@
     <string name="menu_about">快速提示</string>
     <string name="menu_fix_netdns">修复系统DNS</string>
     <string name="menu_feedback">发送反馈</string>
+    <string name="donate">捐赠 (paypal)</string>
     <string name="menu_share">分享DNSLite</string>
     <string name="menu_share_tpl">我发现一个不错的应用，DNSLite https://play.google.com/store/apps/details?id=me.xu.DNSLite，是个不错的DNS代理，来试试吧。</string>
     <string name="fix_netdns_entry">修复系统DNS设置</string>
