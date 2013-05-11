@@ -27,27 +27,36 @@ public class DNSService extends Service {
 
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
-		@Override
-		public void onReceive(Context arg0, Intent arg1) {
-			String action = arg1.getAction();
-			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-				NetworkInfo info = connManager.getActiveNetworkInfo();
-				if (info == null || !info.isAvailable()) {
-					return;
-				}
-				// String name = info.getTypeName();
-				State state = connManager.getNetworkInfo(
+		public void job_on_connect_action() {
+			ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+			NetworkInfo info = connManager.getActiveNetworkInfo();
+			if (info == null || !info.isAvailable()) {
+				return;
+			}
+			State state = null;
+
+			try {
+				state = connManager.getNetworkInfo(
 						ConnectivityManager.TYPE_MOBILE).getState();
 				if (State.CONNECTED == state) {
 					new DnsOp().execute(ctl_RE_SET_DNS);
 				}
+			} catch (Exception e) {}
 
+			try {
 				state = connManager.getNetworkInfo(
 						ConnectivityManager.TYPE_WIFI).getState();
 				if (State.CONNECTED == state) {
 					new DnsOp().execute(ctl_RE_SET_DNS);
 				}
+			} catch (Exception e) {}
+		}
+
+		@Override
+		public void onReceive(Context arg0, Intent arg1) {
+			String action = arg1.getAction();
+			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+				this.job_on_connect_action();
 			}
 		}
 
