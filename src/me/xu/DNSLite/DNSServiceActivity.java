@@ -235,8 +235,9 @@ public class DNSServiceActivity extends FragmentActivity {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-            updateCurrentDNSView();
-			return true;
+            new ResetDns().execute();
+            new StatusCheck().execute(100, 1500);
+            return true;
 		}
 
 		@Override
@@ -324,16 +325,39 @@ public class DNSServiceActivity extends FragmentActivity {
 			progressDialog.show();
 		}
 
-		private class StatusCheck extends AsyncTask<Void, Void, Boolean> {
-			protected Boolean doInBackground(Void... v) {
-				return DNSProxyClient.isDnsRuning();
+		private class StatusCheck extends AsyncTask<Integer, Boolean, Void> {
+			protected Void doInBackground(Integer... delay) {
+                int count = delay.length;
+                if (count < 1) {
+                    publishProgress(DNSProxyClient.isDnsRuning());
+                    return null;
+                }
+                for (int i=0; i<count; i++) {
+                    try {
+                        Thread.sleep(delay[i]);
+                    } catch (InterruptedException e) {
+                    }
+                    publishProgress(DNSProxyClient.isDnsRuning());
+                }
+                return null;
 			}
 
-			protected void onPostExecute(Boolean result) {
-				dnsliteRunning = result;
-				fixButton();
-			}
+            @Override
+            protected void onProgressUpdate(Boolean... values) {
+                dnsliteRunning = values[0];
+                fixButton();
+                super.onProgressUpdate(values);
+            }
 		}
+
+        private class ResetDns extends AsyncTask<Void, Void, Boolean> {
+            protected Boolean doInBackground(Void... cmd) {
+                return DNSProxyClient.re_set_dns();
+            }
+            protected void onPostExecute(Boolean res) {
+                fixButton();
+            }
+        }
 
 		private class DnsOp extends AsyncTask<Boolean, String, Integer> {
 			protected Integer doInBackground(Boolean... stop) {
