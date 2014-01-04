@@ -52,10 +52,13 @@ public class DNSService extends Service {
 			} catch (Exception e) {}
 		}
 
-		@Override
-		public void onReceive(Context arg0, Intent arg1) {
-			String action = arg1.getAction();
-			if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+        @Override
+        public void onReceive(Context ctx, Intent intent) {
+            if (intent == null) {
+                return;
+            }
+            String action = intent.getAction();
+			if (ConnectivityManager.CONNECTIVITY_ACTION.equals(action)) {
 				this.job_on_connect_action();
 			}
 		}
