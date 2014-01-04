@@ -650,12 +650,12 @@ void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 
 		switch (buf[10]) {
 			case 'R':
-				socket_send(fd, "SUCC\n", 5);
 				// for re-set netdns1
 				if (gconf->set_system_dns) {
 					set_system_dns();
 				}
 				// end
+				socket_send(fd, "SUCC\n", 5);
 				break;
 			case 'L':
 				if (gconf->logfd > -1) {
