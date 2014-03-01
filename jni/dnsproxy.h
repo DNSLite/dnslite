@@ -17,10 +17,6 @@
 #include <net/if.h>
 #include <dirent.h>
 
-#ifndef MAXHOSTNAMELEN
-#define  MAXHOSTNAMELEN  256
-#endif
-
 #include "net.h"
 
 #ifndef ANDROID
@@ -96,16 +92,6 @@ struct RES_RECORD
 };
 #pragma pack(pop)
 
-int getQDomain(const char *query, const int qlen, char *domain, int dsize);
-int getQueryDomain(const char *query, const int qlen, char *domain, int dsize, int *dot, int *type);
-const char *ip_check(const char *ip, char *dst, socklen_t size);
-int getResAAAAAAns(const char *ans, const int len, int *type, char *domain, int dmsize, char *dst, int dst_size);
-
-int cache_add(int is_dnsa, const char *domain, const char *ans, int len);
-
-int cache_hit(int is_dnsa, const char *domain, char *ans_cache, int *size);
-int cache_static_hit(const char *domain, int dot, char *ans_cache, int *size, int query_type);
-void cache_clean();
-void static_cache_add_line(char *line);
+void logs(const char *fmt, ...);
 
 #endif /* _DNSPROXY_INCLUDE_H_ */
