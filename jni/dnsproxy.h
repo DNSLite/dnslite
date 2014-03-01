@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include <netdb.h>
 #include <net/if.h>
+#include <dirent.h>
 
 #ifndef MAXHOSTNAMELEN
 #define  MAXHOSTNAMELEN  256

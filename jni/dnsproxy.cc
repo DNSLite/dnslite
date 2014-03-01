@@ -15,9 +15,13 @@ using namespace std;
 # define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 # define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 #else
-# define  LOGI(...)
-# define  LOGD(...)
-# define  LOGE(...)
+# define  LOGI(...) do{ printf(__VA_ARGS__);printf("\n"); } while(0)
+# define  LOGD(...) do{ printf(__VA_ARGS__);printf("\n"); } while(0)
+# define  LOGE(...) do{ \
+    fprintf(stderr, format, ## __VA_ARGS__); \
+    fprintf(stderr, "\n"); \
+} while(0)
+
 #endif
 
 #define ns_t_a    1
@@ -62,6 +66,7 @@ typedef struct conf_t {
 	char net_dns[2][PROP_VALUE_MAX];
 #endif
 	const char *db_filename;
+	const char *confd;
 	struct in_addr eth0;
 	char host_name[MAXHOSTNAMELEN];
 	const char *fix_system_dns;
@@ -846,62 +851,176 @@ static void uninit_conf()
 	}
 }
 
-void static_cache_add_line(char *line)
+#define LTRIM(str) \
+    while (*str && (*str == ' ' || *str == '\t')) { \
+        ++str; \
+    }
+
+int is_ip(const char *ip)
 {
-	if (line[0] == '#') {
-		return;
-	}
-	int ip_len = 0;
-	char *ip = line;
-	char *domain = line;
-	while (*domain) {
-		if (*domain != ' ' && *domain != '\t') {
-			++domain;
-		} else {
-			break;
-		}
-	}
-	if (*domain) {
-		*domain = 0;
-		ip_len = domain - ip;
-		++domain;
-		while (*domain) {
-			if (*domain == ' ' || *domain == '\t') {
-				++domain;
-			} else {
-				break;
-			}
-		}
-		char *p = domain;
-		while (*p) {
-			if (*p == '\r' || *p == '\n') {
-				*p = 0;
-				break;
-			}
-			++p;
-		}
-		int domain_len = p - domain;
-		if (domain_len < 1 || ip_len < 1) {
-			return;
-		}
-		LOGD("[%s] [%s]", ip, domain);
-		static_cache.insert(pair<string,string>(domain, ip));
-	}
+    return 1;
 }
 
-int load_db_dnscache()
-{
-	FILE *fp = fopen (gconf->db_filename, "r");
-	if (fp == NULL) {
-		return -1;
-	}
+#define GOTO_LINE_END(str) \
+    while (*str && *str != '\r' && *str != '\n') { \
+        ++str; \
+    }
 
-	char line[256];
-	while (fgets(line, sizeof(line), fp) != NULL) {
-		static_cache_add_line(line);
-	}
-	fclose(fp);
-	return static_cache.size();
+#define GOTO_SPACE(str) \
+    while (*str && *str != ' ' && *str != '\t') { \
+        ++str; \
+    }
+
+void static_cache_add(char *domain, char *ip)
+{
+    LOGD("[%s] [%s]", ip, domain);
+    static_cache.insert(pair<string,string>(domain, ip));
+}
+
+void static_cache_add_address(char *line)
+{
+    /* address=/google.com/127.0.0.1 */
+    char *ip = strrchr(line, '/');
+    if (ip == NULL) {
+        return;
+    }
+    *ip++ = 0;
+
+    if (!is_ip(ip)) {
+        return;
+    }
+
+    char delim[] = "/";
+    char *token = strsep(&line, delim);
+    if (token == NULL) {
+        return;
+    }
+    char buf[256];
+    for(token = strsep(&line, delim); token != NULL; token = strsep(&line, delim)) {
+        if (token == ip) {
+            return;
+        }
+        if (*token == '.') {
+            static_cache_add(token+1, ip);
+            snprintf(buf, sizeof(buf), "*%s", token);
+            static_cache_add(buf, ip);
+        } else {
+            static_cache_add(token, ip);
+            snprintf(buf, sizeof(buf), "*.%s", token);
+            static_cache_add(buf, ip);
+        }
+    }
+}
+
+void static_cache_add_server(char *line)
+{
+    /* server=/google.com/127.0.0.1 */
+    char *ip = strrchr(line, '/');
+    if (ip == NULL) {
+        return;
+    }
+    *ip++ = 0;
+
+    if (!is_ip(ip)) {
+        return;
+    }
+
+    char delim[] = "/";
+    char *token = strsep(&line, delim);
+    if (token == NULL) {
+        return;
+    }
+    for(token = strsep(&line, delim); token != NULL; token = strsep(&line, delim)) {
+        if (token == ip) {
+            return;
+        }
+    }
+}
+
+void static_cache_add_hosts_line(char *line)
+{
+	char *ip = line;
+	char *domain = line;
+
+    GOTO_SPACE(domain);
+    if (!*domain) {
+        return;
+    }
+
+    if (domain == ip) {
+        return;
+    }
+    *domain++ = 0;
+    if (!is_ip(ip)) {
+        return;
+    }
+
+    LTRIM(domain);
+
+    char *dend = domain;
+    GOTO_LINE_END(dend);
+    *dend = 0;
+
+    if (domain == dend) {
+        return;
+    }
+    static_cache_add(domain, ip);
+}
+
+void load_db_file(const char *filename)
+{
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        char *p = line;
+        LTRIM(p);
+        if (p[0] == '#') {
+            continue;
+        }
+        char *pend = p;
+        GOTO_LINE_END(pend);
+        *pend = 0;
+#define START_WITH(str, with) \
+        (!strncasecmp(str, with, sizeof(with) - 1))
+
+        if (START_WITH(p, "address=/")) {
+            static_cache_add_address(p);
+        } else if (START_WITH(p, "server=/")) {
+            static_cache_add_server(p);
+        } else {
+            static_cache_add_hosts_line(p);
+        }
+    }
+    fclose(fp);
+}
+
+void load_db_dir(const char *path)
+{
+    DIR *dirp = opendir(path);
+    if (dirp == NULL) {
+        return;
+    }
+    char filename[256];
+    struct dirent *dp;
+    while ((dp = readdir(dirp)) != NULL) {
+        if (dp->d_type != DT_REG) {
+            continue;
+        }
+        snprintf(filename, sizeof(filename), "%s/%s", path, dp->d_name);
+        load_db_file(filename);
+    }
+    closedir(dirp);
+}
+
+void load_db_dnscache()
+{
+    load_db_file("/etc/hosts");
+    load_db_file(gconf->db_filename);
+    load_db_dir(gconf->confd);
 }
 
 void init_conf(int argc, char * const *argv)
@@ -927,13 +1046,16 @@ void init_conf(int argc, char * const *argv)
 	int ch = 0;
 	const char *listen_addr = NULL;
 	const char *remote_dns = NULL;
-	while ((ch = getopt(argc, argv, "r:a:d:i:g:f:U:G:Dts?vh"))!= -1) {
+	while ((ch = getopt(argc, argv, "C:r:a:d:i:g:f:U:G:Dts?vh"))!= -1) {
 		switch (ch) {
 			case 'a':
 				listen_addr = optarg;
 				break;
 			case 'd':
 				gconf->db_filename = optarg;
+				break;
+			case 'C':
+				gconf->confd = optarg;
 				break;
 			case 'D':
 				nodaemon = 1;
@@ -1057,12 +1179,14 @@ void init_conf(int argc, char * const *argv)
 
 	logs("Success. DNS Proxy.\n");
 
+#if !defined(__APPLE__)
 	if (!nodaemon) {
 		if (daemon(1, 0)) {
 			logs("Error: daemon %d\n", errno);
 			setsid();
 		}
 	}
+#endif
 
 #ifndef ANDROID
 	if (geteuid() == 0) {
@@ -1088,9 +1212,6 @@ void init_conf(int argc, char * const *argv)
 	if (ENABLE_CACHE && gconf->clean_cache_gap < MIN_CLEAN_CACHE_GAP) {
 		gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	}
-	if (gconf->max_idle_time < 0) {
-		gconf->max_idle_time = 0;
-	}
 
 	GetTimeCurrent(gconf->tmnow);
 	gconf->last_serv = gconf->tmnow.tv_sec;
@@ -1098,8 +1219,8 @@ void init_conf(int argc, char * const *argv)
 
 	init_nameserver(remote_dns);
 
-	ret = load_db_dnscache();
-	logs("pid:%d load_db_dnscache %d\n", getpid(), ret);
+    load_db_dnscache();
+    logs("pid:%d load_db_dnscache %d\n", getpid(), static_cache.size());
 	atexit(uninit_conf);
 }
 
