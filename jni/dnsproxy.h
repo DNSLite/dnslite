@@ -15,7 +15,6 @@
 #include <stdarg.h>
 #include <netdb.h>
 #include <net/if.h>
-#include <dirent.h>
 
 #include "net.h"
 

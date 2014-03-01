@@ -168,7 +168,7 @@ void static_cache_add_server(char *line)
 
 void static_cache_add(char *domain, char *ip)
 {
-    LOGD("[%s] [%s]", ip, domain);
+    logs("[%s] [%s]\n", ip, domain);
     static_cache.insert(pair<string,string>(domain, ip));
 }
 
