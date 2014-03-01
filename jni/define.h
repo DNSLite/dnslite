@@ -13,13 +13,9 @@
 # define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 # define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 #else
-# define  LOGI(...) do{ printf(__VA_ARGS__);printf("\n"); } while(0)
-# define  LOGD(...) do{ printf(__VA_ARGS__);printf("\n"); } while(0)
-# define  LOGE(...) do{ \
-    fprintf(stderr, format, ## __VA_ARGS__); \
-    fprintf(stderr, "\n"); \
-} while(0)
-
+# define  LOGI(...)
+# define  LOGD(...)
+# define  LOGE(...)
 #endif
 
 #define ns_t_a    1

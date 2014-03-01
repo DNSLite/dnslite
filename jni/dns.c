@@ -1,5 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <assert.h>
 #include <string.h>
-#include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include "dns.h"
 
 int cname2_info_set(char *ans_cache, int *size)
