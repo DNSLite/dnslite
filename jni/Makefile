@@ -9,7 +9,7 @@ LIBO=dnsproxy test
 
 all	: $(LIBO)
 
-dnsproxy: net.o dnsproxy.o
+dnsproxy: net.o dns.o nameserver.o cache.o dnsproxy.o
 	$(CXX) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
 test:test.o net.o
