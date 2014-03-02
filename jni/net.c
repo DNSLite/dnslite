@@ -598,7 +598,7 @@ int eu_once(event_util_t *u, int timeout)
 		struct timespec *ptspec = NULL;
 		struct timespec tspec;
 		if (timeout > 0) {
-			tspec.tv_sec = timeout / 1000000;
+			tspec.tv_sec = timeout / 1000;
 			tspec.tv_nsec = timeout * 1000 % 1000000;
 			ptspec = &tspec;
 		}
