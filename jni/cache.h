@@ -16,6 +16,8 @@ void static_cache_add(char *domain, char *ip);
 
 long static_cache_count();
 
+void nameserver_cache_add(char *domain, char *ip);
+
 int cache_add(int is_dnsa, const char *domain, const char *ans, int len);
 int cache_hit(int is_dnsa, const char *domain, char *ans_cache, int *size);
 int cache_hit_ptr(const char *domain, char *ans_cache, int *size);

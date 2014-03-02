@@ -15,6 +15,7 @@ extern conf_t *gconf;
 #include <string>
 using namespace std;
 std::map <string, string> static_cache;
+std::map <string, string> nameserver_cache;
 std::map <string, string> dnsa_cache;
 std::map <string, string> dnsaaaa_cache;
 
@@ -166,6 +167,7 @@ void static_cache_add_server(char *line)
     if (token == NULL) {
         return;
     }
+    char buf[256];
     for(token = strsep(&line, delim); token != NULL; token = strsep(&line, delim)) {
         if (!*token) {
             continue;
@@ -174,12 +176,28 @@ void static_cache_add_server(char *line)
         if (token == ip) {
             return;
         }
+
+        if (*token == '.') {
+            nameserver_cache_add(token+1, ip);
+            snprintf(buf, sizeof(buf), "*%s", token);
+            nameserver_cache_add(buf, ip);
+        } else {
+            nameserver_cache_add(token, ip);
+            snprintf(buf, sizeof(buf), "*.%s", token);
+            nameserver_cache_add(buf, ip);
+        }
     }
+}
+
+void nameserver_cache_add(char *domain, char *ip)
+{
+    logs("server [%s] [%s]\n", ip, domain);
+    nameserver_cache.insert(pair<string,string>(domain, ip));
 }
 
 void static_cache_add(char *domain, char *ip)
 {
-    logs("[%s] [%s]\n", ip, domain);
+    logs("location [%s] [%s]\n", ip, domain);
     static_cache.insert(pair<string,string>(domain, ip));
 }
 
