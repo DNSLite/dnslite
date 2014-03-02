@@ -78,32 +78,35 @@ void load_db_file(const char *filename)
 
 void static_cache_add_hosts_line(char *line)
 {
-    char *ip = line;
-    char *domain = line;
-
-    GOTO_SPACE(domain);
-    if (!*domain) {
+    char delim[] = " ";
+    char *token = strsep(&line, delim);
+    if (token == NULL) {
         return;
     }
 
-    if (domain == ip) {
-        return;
-    }
-    *domain++ = 0;
+    char *ip = token;
     if (!is_ip(ip)) {
         return;
     }
 
-    LTRIM(domain);
+    char buf[256];
+    for(token = strsep(&line, delim); token != NULL; token = strsep(&line, delim)) {
+        if (!*token) {
+            continue;
+        }
 
-    char *dend = domain;
-    GOTO_LINE_END(dend);
-    *dend = 0;
+        if (*token == '#') {
+            return;
+        }
 
-    if (domain == dend) {
-        return;
+        if (*token == '.') {
+            static_cache_add(token+1, ip);
+            snprintf(buf, sizeof(buf), "*%s", token);
+            static_cache_add(buf, ip);
+        } else {
+            static_cache_add(token, ip);
+        }
     }
-    static_cache_add(domain, ip);
 }
 
 void static_cache_add_address(char *line)
@@ -126,6 +129,10 @@ void static_cache_add_address(char *line)
     }
     char buf[256];
     for(token = strsep(&line, delim); token != NULL; token = strsep(&line, delim)) {
+        if (!*token) {
+            continue;
+        }
+
         if (token == ip) {
             return;
         }
@@ -160,6 +167,10 @@ void static_cache_add_server(char *line)
         return;
     }
     for(token = strsep(&line, delim); token != NULL; token = strsep(&line, delim)) {
+        if (!*token) {
+            continue;
+        }
+
         if (token == ip) {
             return;
         }
