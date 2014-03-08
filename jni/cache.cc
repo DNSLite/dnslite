@@ -15,7 +15,6 @@ extern conf_t *gconf;
 #include <string>
 using namespace std;
 std::map <string, string> static_cache;
-std::map <string, string> nameserver_cache;
 std::map <string, string> dnsa_cache;
 std::map <string, string> dnsaaaa_cache;
 
@@ -79,7 +78,7 @@ void load_db_file(const char *filename)
 
 void static_cache_add_hosts_line(char *line)
 {
-    char delim[] = " ";
+    char delim[] = " \t";
     char *token = strsep(&line, delim);
     if (token == NULL) {
         return;
@@ -191,14 +190,32 @@ void static_cache_add_server(char *line)
 
 void nameserver_cache_add(char *domain, char *ip)
 {
+    char addr[100];
+    strncpy(addr+1, ip, 99);
+    addr[99] = 0;
+    addr[0] = '@';
     logs("server [%s] [%s]\n", ip, domain);
-    nameserver_cache.insert(pair<string,string>(domain, ip));
+    static_cache_add(domain, addr);
 }
 
 void static_cache_add(char *domain, char *ip)
 {
     logs("location [%s] [%s]\n", ip, domain);
-    static_cache.insert(pair<string,string>(domain, ip));
+    map<string, string>::iterator it;
+    it = static_cache.find(domain);
+    if (it != static_cache.end()) {
+        const char *str = (*it).second.c_str();
+        if (*str == '@') {
+            string ip_str(ip);
+            (*it).second = ip_str + "/" + (*it).second;
+        } else {
+            (*it).second.append("/");
+            (*it).second.append(ip);
+        }
+        logs("  --> [%s] [%s]\n", (*it).second.c_str(), domain);
+    } else {
+        static_cache.insert(pair<string,string>(domain, ip));
+    }
 }
 
 int is_ip(const char *ip)
@@ -212,6 +229,47 @@ void cache_clean()
     dnsaaaa_cache.clear();
     gconf->last_clean_cache = gconf->tmnow.tv_sec;
     logs("cache clear\n");
+}
+
+int cache_static_ans(const char *res, char *ans_cache, int *size)
+{
+    int addr_type = -1;
+    int wlen = 0;
+    struct in6_addr addr;
+    int num = -1;
+
+    int ret = inet_pton(AF_INET, res, (struct in_addr*)&addr);
+    if (ret > 0) {
+        addr_type = AF_INET;
+    } else {
+        ret = inet_pton(AF_INET6, res, &addr);
+        if (ret > 0) {
+            addr_type = AF_INET6;
+        } else {
+            logs("E: inet_pton: %d\n", errno);
+            return -1;
+        }
+    }
+    int cnlen = *size;
+    ret = cname2_info_set(ans_cache, &cnlen);
+    if (ret > 0) {
+        ans_cache += cnlen;
+        wlen = cnlen;
+    } else {
+        wlen = 0;
+    }
+    cnlen = *size - wlen;
+    if (addr_type == AF_INET) {
+        ret = a_info_set((const char *)&addr, ans_cache, &cnlen);
+    } else {
+        ret = aaaa_info_set((const char *)&addr, ans_cache, &cnlen);
+    }
+    if (ret > 0) {
+        *size = cnlen + wlen;
+        num = 2;
+        //dumpHex(UDPSock[sockNo].buf, bytecount);
+    }
+    return num;
 }
 
 int cache_static_hit(const char *domain, int dot, char *ans_cache, int *size, const int query_type)
@@ -230,53 +288,29 @@ int cache_static_hit(const char *domain, int dot, char *ans_cache, int *size, co
     do {
         it = static_cache.find(addr+i);
         if (it != static_cache.end()) {
-            int addr_type = -1;
-            int wlen = 0;
-            struct in6_addr addr;
-
-            int ret = inet_pton(AF_INET, (*it).second.c_str(), (struct in_addr*)&addr);
-            if (ret > 0) {
-                addr_type = AF_INET;
-            } else {
-                ret = inet_pton(AF_INET6, (*it).second.c_str(), &addr);
-                if (ret > 0) {
-                    addr_type = AF_INET6;
-                } else {
-                    logs("E: inet_pton: %d\n", errno);
-                    break;
+            if (*((*it).second.c_str()) == '@') {
+                strncpy(ans_cache, (*it).second.c_str() + 1, *size);
+                ans_cache[*size - 1] = 0;
+                if (*size > (int)(*it).second.length()) {
+                    *size = (*it).second.length();
                 }
-            }
-            int cnlen = *size;
-            ret = cname2_info_set(ans_cache, &cnlen);
-            if (ret > 0) {
-                ans_cache += cnlen;
-                wlen = cnlen;
-            } else {
-                wlen = 0;
-            }
-            cnlen = *size - wlen;
-            if (addr_type == AF_INET) {
-                ret = a_info_set((const char *)&addr, ans_cache, &cnlen);
-            } else {
-                ret = aaaa_info_set((const char *)&addr, ans_cache, &cnlen);
-            }
-            if (ret > 0) {
-                *size = cnlen + wlen;
-                num = 2;
-                //dumpHex(UDPSock[sockNo].buf, bytecount);
-            }
-            break;
-        } else {
-            while (addr[i] == '*') ++i;
-            while (addr[i] == '.') ++i;
-            while (addr[i] && addr[i] != '.') ++i;
-            if (addr[i] && i > 0) {
-                --i;
-                addr[i] = '*';
-                --dot;
-            } else {
+                num = -2;
                 break;
             }
+
+            num = cache_static_ans((*it).second.c_str(), ans_cache, size);
+            break;
+        }
+
+        while (addr[i] == '*') ++i;
+        while (addr[i] == '.') ++i;
+        while (addr[i] && addr[i] != '.') ++i;
+        if (addr[i] && i > 0) {
+            --i;
+            addr[i] = '*';
+            --dot;
+        } else {
+            break;
         }
     } while (dot > 1);
 

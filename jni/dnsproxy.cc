@@ -64,8 +64,15 @@ static int queryDNS(event_util_t *u, udp_sock_t *c)
 {
 	int ret = 0;
 	int wlen = 0;
+    const char *nameserver = get_rand_nameserver_ip();
+    if (*(c->buf + c->bufLen) == '@') {
+        nameserver = c->buf + c->bufLen + 1;
+    } else {
+        nameserver = get_rand_nameserver_ip();
+    }
+
 	if (gconf->useTcp) {
-		c->fd = socket_tcpconnect4(get_rand_nameserver_ip(), 53, 1000);
+		c->fd = socket_tcpconnect4(nameserver, 53, 1000);
 		if (c->fd == -1) {
 			c->status = ST_IDLE;
 			logs("E: socket_tcpconnect4, %d\n", errno);
@@ -83,7 +90,7 @@ static int queryDNS(event_util_t *u, udp_sock_t *c)
 		wlen = c->bufLen+2;
 		ret = socket_send(c->fd, c->tcpbuf, wlen);
 	} else {
-		c->fd = socket_udpconnect4(get_rand_nameserver_ip(), 53, 1000);
+		c->fd = socket_udpconnect4(nameserver, 53, 1000);
 		if (c->fd == -1) {
 			c->status = ST_IDLE;
 			logs("E: socket_udpconnect4, %d\n", errno);
@@ -268,6 +275,9 @@ static void do_request(event_util_t *u, udp_sock_t *c)
 				SetTimeUsed(ret, c->start, gconf->tmnow);
 				logs("S:%d %s %dus\n", type, domain, ret);
 			} else {
+                if (ret != -2) {
+                    *(c->buf + c->bufLen) = 0;
+                }
 				c->status = ST_QUERY;
 			}
 		}
