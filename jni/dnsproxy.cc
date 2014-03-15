@@ -598,6 +598,7 @@ void init_conf(int argc, char * const *argv)
 		exit (EXIT_FAILURE);
 	}
 	memset(gconf, 0, sizeof(conf_t));
+    gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	gconf->logfd = -2;
 #ifndef ANDROID
 	logs("sizeof(conf_t)=%zd\n", sizeof(conf_t));
