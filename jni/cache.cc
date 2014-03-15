@@ -294,10 +294,11 @@ int cache_static_hit(const char *domain, int dot, char *ans_cache, int *size, co
         it = static_cache.find(addr+i);
         if (it != static_cache.end()) {
             if (*((*it).second.c_str()) == '@') {
-                strncpy(ans_cache, (*it).second.c_str() + 1, *size);
+                strncpy(ans_cache, (*it).second.c_str(), *size);
                 ans_cache[*size - 1] = 0;
                 if (*size > (int)(*it).second.length()) {
                     *size = (*it).second.length();
+                    ans_cache[*size] = 0;
                 }
                 num = -2;
                 break;
