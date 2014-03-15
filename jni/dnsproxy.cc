@@ -516,6 +516,9 @@ static void set_system_dns()
 	rv = system(line);
 	logs("setprop ret:%d\n", rv);
 #endif
+#if defined(__APPLE__)
+    system("killall -HUP mDNSResponder");
+#endif
 }
 
 static void reset_system_dns()
@@ -601,6 +604,9 @@ void init_conf(int argc, char * const *argv)
 	memset(gconf, 0, sizeof(conf_t));
     gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	gconf->logfd = -2;
+#if defined(__APPLE__)
+    gconf->set_system_dns = 1;
+#endif
 #ifndef ANDROID
 	logs("sizeof(conf_t)=%zd\n", sizeof(conf_t));
 #endif
