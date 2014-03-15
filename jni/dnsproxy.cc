@@ -64,7 +64,7 @@ static int queryDNS(event_util_t *u, udp_sock_t *c)
 {
 	int ret = 0;
 	int wlen = 0;
-    const char *nameserver = get_rand_nameserver_ip();
+    const char *nameserver = NULL;
     if (*(c->buf + c->bufLen) == '@') {
         nameserver = c->buf + c->bufLen + 1;
     } else {
@@ -115,6 +115,7 @@ static int queryDNS(event_util_t *u, udp_sock_t *c)
 		return -1;
 	} else {
 		c->status = ST_WAIT_ANS;
+        logs("Q: %s\n", nameserver);
 	}
 	return 0;
 }
@@ -480,7 +481,7 @@ void eu_on_read_dns(event_util_t *u, int fd, uint32_t events)
 			logs("E: do_send_response fail : %d\n", errno);
 		}
 	} else {
-		logs("E: read from DNS server errno=%d\n", errno);
+		logs("E: read from DNS server ret=%d errno=%d\n", bytecount, errno);
 		eu_del_fd(u, fd);
 		UDPSock[i].fd = -1;
 		UDPSock[i].status = ST_IDLE;
