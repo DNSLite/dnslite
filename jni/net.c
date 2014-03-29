@@ -19,6 +19,22 @@
 # define _eu_fd_create epoll_create
 #endif
 
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+
+#if defined(_ENABLE_SSL)
+#include <openssl/rand.h>
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#endif
+
 #include "net.h"
 
 #ifndef NDEBUG
@@ -454,6 +470,68 @@ int socket_connect_unix(const char *path, int timeout_ms)
 	return fd;
 }
 
+#if defined(_ENABLE_SSL)
+connection *ssl_connect(int tcp_fd)
+{
+    connection *c;
+
+    c = malloc (sizeof (connection));
+    if (c == NULL) {
+        return NULL;
+    }
+
+    c->socket = tcp_fd;
+    c->ssl_handle = NULL;
+    c->ssl_context = NULL;
+
+    // Register the error strings for libcrypto & libssl
+    SSL_load_error_strings ();
+    // Register the available ciphers and digests
+    SSL_library_init ();
+
+    // New context saying we are a client, and using SSL 2 or 3
+    c->ssl_context = SSL_CTX_new (SSLv23_client_method ());
+    if (c->ssl_context == NULL) {
+        ERR_print_errors_fp (stderr);
+    }
+
+    // Create an SSL struct for the connection
+    c->ssl_handle = SSL_new (c->ssl_context);
+    if (c->ssl_handle == NULL) {
+        ERR_print_errors_fp (stderr);
+    }
+
+    // Connect the SSL struct to our connection
+    if (!SSL_set_fd (c->ssl_handle, c->socket)) {
+        ERR_print_errors_fp (stderr);
+    }
+
+    // Initiate SSL handshake
+    if (SSL_connect (c->ssl_handle) != 1) {
+        ERR_print_errors_fp (stderr);
+    }
+
+    return c;
+}
+
+void ssl_disconnect(connection *c)
+{
+    if (c->socket) {
+        close (c->socket);
+    }
+
+    if (c->ssl_handle) {
+        SSL_shutdown (c->ssl_handle);
+        SSL_free (c->ssl_handle);
+    }
+    if (c->ssl_context) {
+        SSL_CTX_free (c->ssl_context);
+    }
+
+    free (c);
+}
+#endif
+
 int wait_for_io(int socket, int for_read, int timeout_ms, int *revents)
 {
 	struct pollfd pfd;
@@ -665,3 +743,22 @@ void *eu_get_userdata(event_util_t *u)
 {
 	return u->userdata;
 }
+
+#if defined(_ENABLE_SSL)
+int ssl_read(connection *c, void *buf, int num)
+{
+    if (!c) {
+        return -1;
+    }
+
+    return SSL_read (c->ssl_handle, buf, num);
+}
+
+int ssl_write(connection *c, const void *buf, int num)
+{
+    if (!c) {
+        return -1;
+    }
+    return SSL_write (c->ssl_handle, buf, num);
+}
+#endif
