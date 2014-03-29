@@ -25,6 +25,19 @@ extern "C" {
 #define EPOLLRDHUP 0x2000
 #endif
 
+#if defined(_ENABLE_SSL)
+typedef struct {
+    int socket;
+    SSL *ssl_handle;
+    SSL_CTX *ssl_context;
+} connection;
+
+connection *ssl_connect(int tcp_fd);
+void ssl_disconnect(connection *c);
+int ssl_read(connection *c, void *buf, int num);
+int ssl_write(connection *c, const void *buf, int num);
+#endif
+
 void dumpMemStatus();
 void dumpHex(char *buf, int len);
 
