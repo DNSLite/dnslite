@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "me.xu.DNSLite"
-        minSdkVersion 9
+        minSdkVersion 8
         targetSdkVersion 20
         versionCode 9
         versionName "1.5.2"
