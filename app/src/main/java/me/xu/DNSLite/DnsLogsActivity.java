@@ -36,8 +36,6 @@ public class DnsLogsActivity extends ListActivity {
         setContentView(R.layout.dns_logs);
 
         AdView adView = (AdView)this.findViewById(R.id.adView);
-        adView.setAdSize(AdSize.SMART_BANNER);
-        adView.setAdUnitId(getString(R.string.ad_unit_id));
         AdRequest adRequest = new AdRequest.Builder()
             .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
             .build();
