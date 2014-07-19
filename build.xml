@@ -97,6 +97,7 @@
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
     <target name="-pre-build">
+        <copy todir="${resource.absolute.dir}/values" file="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib/res/values/version.xml" />
         <copy todir="${jar.libs.dir}">
             <fileset
                 dir="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib/libs"
@@ -107,6 +108,9 @@
         </copy>
         <exec executable="${ndk.dir}/ndk-build" failonerror="true"/>
         <exec executable="jni/build.sh" />
+    </target>
+    <target name="-post-build">
+        <delete file="${resource.absolute.dir}/values/version.xml" failonerror="false"/>
     </target>
     <target name="clean" depends="android_rules.clean">
         <exec executable="${ndk.dir}/ndk-build" failonerror="true">
