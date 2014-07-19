@@ -30,6 +30,8 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.*;
+
 public class DNSLiteActivity extends FragmentActivity {
 	TabHost mTabHost;
 	ViewPager mViewPager;
@@ -70,6 +72,11 @@ public class DNSLiteActivity extends FragmentActivity {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.tabs);
+
+        AdView adView = (AdView)this.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
 		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
 		mTabHost.setup();
 
@@ -267,9 +274,8 @@ public class DNSLiteActivity extends FragmentActivity {
         uriBuilder.appendQueryParameter("business", "7CX2DG8VSMBN2");
         uriBuilder.appendQueryParameter("lc", "US");
         uriBuilder.appendQueryParameter("item_name", "Donate DNSLite");
-        uriBuilder.appendQueryParameter("no_note", "1");
-        // uriBuilder.appendQueryParameter("no_note", "0");
-        // uriBuilder.appendQueryParameter("cn", "Note to the developer");
+        uriBuilder.appendQueryParameter("no_note", "0");
+        uriBuilder.appendQueryParameter("cn", "Note to the developer");
         uriBuilder.appendQueryParameter("no_shipping", "1");
         uriBuilder.appendQueryParameter("currency_code", "USD");
 

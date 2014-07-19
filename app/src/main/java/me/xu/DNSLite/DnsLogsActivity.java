@@ -20,6 +20,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.*;
+
 public class DnsLogsActivity extends ListActivity {
 
 	private DNSProxyClient dnsc = new DNSProxyClient();
@@ -32,6 +34,11 @@ public class DnsLogsActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.dns_logs);
+
+        AdView adView = (AdView)this.findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
+
 		mAdapter = new LogAdapter(this, R.layout.dns_logs_row, mStrings);
 		setListAdapter(mAdapter);
 		asyncLog = new DNSProxyLog();
