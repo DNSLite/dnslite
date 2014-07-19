@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="font_black">#ff231f20</color>
-    <color name="grey_disabled_quick_action_icons">#ffc0c0c0</color>
-    <color name="list_entry_activated">#22000000</color>
-    <color name="list_entry_disabled_focused">#ffe0e0e0</color>
-    <color name="list_entry_focused">@color/list_entry_pressed</color>
-    <color name="list_entry_pressed">#ffff9900</color>
-</resources>

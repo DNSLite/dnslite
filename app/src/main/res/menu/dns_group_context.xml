@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menu_dns_disable" android:title="@string/menu_item_disable"></item>
+    <item android:id="@+id/menu_dns_enableAll" android:title="@string/menu_item_enableAll"></item>
+
+    <item android:id="@+id/menu_dns_delete" android:title="@string/menu_item_delete"></item>
+    <item android:id="@+id/menu_dns_empty" android:title="@string/menu_item_empty"></item>
+    <item android:id="@+id/menu_dns_edit" android:title="@string/menu_item_edit"></item>
+
+    <item android:id="@+id/menu_dns_view" android:title="@string/menu_item_view"></item>
+    <item android:id="@+id/menu_dns_update" android:title="@string/menu_item_update"></item>
+</menu>
