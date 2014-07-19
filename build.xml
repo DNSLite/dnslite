@@ -36,6 +36,9 @@
     <condition property="sdk.dir" value="${env.ANDROID_HOME}">
         <isset property="env.ANDROID_HOME" />
     </condition>
+    <condition property="ndk.dir" value="${env.ANDROID_NDK_HOME}">
+        <isset property="env.ANDROID_NDK_HOME" />
+    </condition>
 
     <!-- The project.properties file is created and updated by the 'android'
          tool, as well as ADT.
@@ -52,6 +55,10 @@
     <fail
             message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
             unless="sdk.dir"
+    />
+    <fail
+            message="ndk.dir is missing."
+            unless="ndk.dir"
     />
 
     <!--
@@ -89,4 +96,21 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
+    <target name="-pre-build">
+        <copy todir="${jar.libs.dir}">
+            <fileset
+                dir="${sdk.dir}/extras/google/google_play_services/libproject/google-play-services_lib/libs"
+                includes="*.jar" />
+            <fileset
+                dir="${sdk.dir}/extras/android/support/v4"
+                includes="*.jar" />
+        </copy>
+        <exec executable="${ndk.dir}/ndk-build" failonerror="true"/>
+        <exec executable="jni/build.sh" />
+    </target>
+    <target name="clean" depends="android_rules.clean">
+        <exec executable="${ndk.dir}/ndk-build" failonerror="true">
+            <arg value="clean"/>
+        </exec>
+    </target>
 </project>
