@@ -24,7 +24,7 @@
 
         <meta-data
             android:name="ADMOB_PUBLISHER_ID"
-            android:value="a14f8ec92eb2438" />
+            android:value="ca-app-pub-6345519330512974/7749855617" />
         <meta-data
             android:name="ADMOB_ALLOW_LOCATION_FOR_ADS"
             android:value="true" />

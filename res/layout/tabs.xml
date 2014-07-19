@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             ads:adSize="SMART_BANNER"
-            ads:adUnitId="a14f8ec92eb2438"
+            ads:adUnitId="ca-app-pub-6345519330512974/7749855617"
             ads:loadAdOnCreate="true"
             ads:testDevices="TEST_EMULATOR" />
     </LinearLayout>
