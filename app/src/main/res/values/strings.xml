@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="ad_unit_id">ca-app-pub-6345519330512974/7749855617</string>
     <string name="app_name">DNSLite</string>
     <string name="dns_lable">DNS Proxy Beta</string>
     <string name="hosts_lable">hosts Manage</string>

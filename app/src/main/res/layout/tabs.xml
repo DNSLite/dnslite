@@ -29,9 +29,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            ads:adSize="SMART_BANNER"
-            ads:adUnitId="ca-app-pub-6345519330512974/7749855617"
-            ads:loadAdOnCreate="true"
-            ads:testDevices="TEST_EMULATOR" />
+            />
     </LinearLayout>
 </TabHost>

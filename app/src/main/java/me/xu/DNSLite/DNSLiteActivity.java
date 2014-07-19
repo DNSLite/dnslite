@@ -74,7 +74,11 @@ public class DNSLiteActivity extends FragmentActivity {
 		setContentView(R.layout.tabs);
 
         AdView adView = (AdView)this.findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.setAdSize(AdSize.SMART_BANNER);
+        adView.setAdUnitId(getString(R.string.ad_unit_id));
+        AdRequest adRequest = new AdRequest.Builder()
+            .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+            .build();
         adView.loadAd(adRequest);
 
 		mTabHost = (TabHost) findViewById(android.R.id.tabhost);
