@@ -499,7 +499,7 @@ public class HostsDB extends SQLiteOpenHelper {
         return true;
     }
 
-	/* DNS Hosts */
+    /* DNS Hosts */
 
 
     public JSONObject export_db_to_json() {
@@ -540,7 +540,7 @@ public class HostsDB extends SQLiteOpenHelper {
             return false;
         }
     }
-	/* hosts db */
+    /* hosts db */
 
     public boolean export_hosts_db(String file_path) {
         JSONObject export = new JSONObject();
