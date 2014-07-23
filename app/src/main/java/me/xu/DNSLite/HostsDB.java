@@ -499,8 +499,7 @@ public class HostsDB extends SQLiteOpenHelper {
         return true;
     }
 
-	/* DNS Hosts */
-
+    /* DNS Hosts */
 
     public JSONObject export_db_to_json() {
         JSONObject export = new JSONObject();
