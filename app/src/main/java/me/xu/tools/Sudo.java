@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import android.util.Log;
 
@@ -345,10 +346,10 @@ public class Sudo {
 			}
 			String rv;
 			while ((rv = suOut.readLine()) != null) {
-				if (rv.toLowerCase().indexOf("permission denied") != -1) {
+				if (rv.toLowerCase(Locale.US).indexOf("permission denied") != -1) {
 					close();
 					return false;
-				} else if (rv.toLowerCase().indexOf("not allowed to su") != -1) {
+				} else if (rv.toLowerCase(Locale.US).indexOf("not allowed to su") != -1) {
 					close();
 					return false;
 				} else if (rv.equals("0")) {
