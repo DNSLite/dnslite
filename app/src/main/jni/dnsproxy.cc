@@ -6,8 +6,7 @@
 #include "nameserver.h"
 
 conf_t *gconf;
-
-#ifndef ANDROID
+#ifndef __ANDROID__
 static int find_user_group(const char *user, const char *group, uid_t *uid, gid_t *gid, const char **username);
 #endif
 
@@ -491,19 +490,15 @@ void eu_on_read_dns(event_util_t *u, int fd, uint32_t events)
 
 static void set_system_dns()
 {
-#ifdef ANDROID
-	char line[512];
+#ifdef __ANDROID__
+	char name[PROP_NAME_MAX];
 	char net_dns[2][PROP_VALUE_MAX];
 	int rv = 0;
 	int i = 0;
 	for (i=0; i<2; ++i) {
-		sprintf(line, "net.dns%d", i+1);
-		rv = __system_property_get(line, net_dns[i]);
-		if (rv < 0) {
-			rv = 0;
-		}
-		net_dns[i][rv] = 0;
-		logs("%s %s\n", line, net_dns[i]);
+		sprintf(name, "net.dns%d", i+1);
+		getprop(name, net_dns[i]);
+		logs("%s %s\n", name, net_dns[i]);
 	}
 
 	if (!strcmp(net_dns[0], "127.0.0.1")) {
@@ -511,10 +506,8 @@ static void set_system_dns()
 	}
 	memcpy(gconf->net_dns, net_dns, sizeof(net_dns));
 
-	rv = snprintf(line, sizeof(line), "setprop net.dns1 127.0.0.1");
-	logs("%s\n", line);
-	rv = system(line);
-	logs("setprop ret:%d\n", rv);
+	rv = setprop("net.dns1", "127.0.0.1");
+	logs("setprop net.dns1 127.0.0.1 ret:%d\n", rv);
 #endif
 #if defined(__APPLE__)
     system("killall -HUP mDNSResponder");
@@ -523,9 +516,9 @@ static void set_system_dns()
 
 static void reset_system_dns()
 {
-#ifdef ANDROID
-	char line[512];
-	char net_dns[PROP_VALUE_MAX];
+#ifdef __ANDROID__
+	char name[PROP_NAME_MAX];
+	char value[PROP_VALUE_MAX];
 	int rv = 0;
 	int i = 0;
 	if (NULL != gconf->fix_system_dns) {
@@ -536,11 +529,10 @@ static void reset_system_dns()
 			if (NULL == p) {
 				p = pstart + strlen(pstart);
 			}
-			rv = snprintf(line, sizeof(line), "setprop net.dns%d %.*s", i, p - pstart, pstart);
-			if (rv > 0) {
-				rv = system(line);
-				logs("re %s ret:%d\n", line, rv);
-			}
+			snprintf(name, sizeof(name), "net.dns%d", i);
+			snprintf(value, sizeof(value), "%.*s", (int)(p - pstart), pstart);
+			rv = setprop(name, value);
+			logs("re setprop %s %s ret:%d\n", name, value, rv);
 			if ('\0' == *p) {
 				break;
 			}
@@ -557,30 +549,23 @@ static void reset_system_dns()
 	if (!strcmp(gconf->net_dns[0], "127.0.0.1")) {
 		return;
 	}
-	rv = __system_property_get("net.dns1", net_dns);
-	if (rv < 0) {
-		rv = 0;
-	}
-	net_dns[rv] = 0;
-	logs("net.dns1 %s\n", net_dns);
+	getprop("net.dns1", value);
+	logs("net.dns1 %s\n", value);
 
-	if (strcmp(net_dns, "127.0.0.1")) {
-		logs("need not reset net.dns1=%s\n", net_dns);
+	if (strcmp(value, "127.0.0.1")) {
+		logs("need not reset net.dns1=%s\n", value);
 		return;
 	}
 
-	rv = snprintf(line, sizeof(line), "setprop net.dns1 %s", gconf->net_dns[0]);
-	if (rv > 0) {
-		rv = system(line);
-		logs("re %s ret:%d\n", line, rv);
-	}
+	rv = setprop("net.dns1", gconf->net_dns[0]);
+	logs("re setprop net.dns1 %s ret:%d\n", gconf->net_dns[0], rv);
 #endif
 }
 
 static void uninit_conf()
 {
 	if (gconf) {
-#ifndef ANDROID
+#ifndef __ANDROID__
 		dumpMemStatus();
 #endif
 		if (gconf->set_system_dns) {
@@ -607,11 +592,11 @@ void init_conf(int argc, char * const *argv)
 #if defined(__APPLE__)
     gconf->set_system_dns = 1;
 #endif
-#ifndef ANDROID
+#ifndef __ANDROID__
 	logs("sizeof(conf_t)=%zd\n", sizeof(conf_t));
 #endif
 
-#ifndef ANDROID
+#ifndef __ANDROID__
 	const char *username = NULL;
 	const char *usergroup = NULL;
 #endif
@@ -651,7 +636,7 @@ void init_conf(int argc, char * const *argv)
 			case 'f':
 				gconf->fix_system_dns = optarg;
 				break;
-#ifndef ANDROID
+#ifndef __ANDROID__
 			case 'U':
 				username = optarg;
 				break;
@@ -677,7 +662,7 @@ void init_conf(int argc, char * const *argv)
 		set_system_dns();
 	}
 
-#ifdef ANDROID
+#ifdef __ANDROID__
 	if (!strstr(argv[0], APP_NAME)) {
 		char cwd[256];
 		memset(cwd, 0, sizeof(cwd));
@@ -761,7 +746,7 @@ void init_conf(int argc, char * const *argv)
 	}
 #endif
 
-#ifndef ANDROID
+#ifndef __ANDROID__
 	if (geteuid() == 0) {
 		uid_t uid;
 		gid_t gid;
@@ -891,7 +876,7 @@ int main(int argc, char * const *argv)
 */
 		if (IDLE_TOO_LONG) {
 			logs("idle timeout\n");
-#ifdef ANDROID
+#ifdef __ANDROID__
 			system("am startservice -n me.xu.DNSLite/me.xu.DNSLite.DNSService -e _idle_exit 1");
 #endif
 			break;
@@ -906,7 +891,7 @@ int main(int argc, char * const *argv)
 	return EXIT_SUCCESS;
 }
 
-#ifndef ANDROID
+#ifndef __ANDROID__
 static int find_user_group(const char *user, const char *group, uid_t *uid, gid_t *gid, const char **username)
 {
 	uid_t my_uid = 0;

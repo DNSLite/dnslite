@@ -1,7 +1,8 @@
 CC=gcc
 CFLAGS= -O3 -W -Wall -D_REENTRANT -DNDEBUG #-g
 LDFLAGS= #-g
-LDLIBS=-lssl -lcrypto
+LDLIBS=
+#LDLIBS+=-lssl -lcrypto
 CXXFLAGS=$(CFLAGS)
 OBJS=net.o dnsproxy.o
 

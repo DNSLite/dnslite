@@ -22,7 +22,7 @@ typedef struct conf_t {
     int logfd;
     event_util_t *eu;
     int set_system_dns;
-#ifdef ANDROID
+#ifdef __ANDROID__
     char net_dns[2][PROP_VALUE_MAX];
 #endif
     const char *db_filename;

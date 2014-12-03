@@ -1,10 +1,10 @@
 #ifndef _DEFINE_INCLUDE_H_
 #define _DEFINE_INCLUDE_H_
 
-#ifdef ANDROID
+#ifdef __ANDROID__
 #define APP_NAME "me.xu.DNSLite"
-#include <sys/system_properties.h>
 //#include <android/log.h>
+#include "android_sys_prop.h"
 #endif
 
 #ifdef _ANDROID_LOG_H

@@ -18,7 +18,7 @@
 
 #include "net.h"
 
-#ifndef ANDROID
+#ifndef __ANDROID__
 #include <execinfo.h>
 #endif
 
