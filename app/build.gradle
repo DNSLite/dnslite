@@ -16,7 +16,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('src/main/dnslite.keystore')
+            storeFile file('dnslite.keystore')
             storePassword System.getenv("KSTOREPWD")
             keyAlias 'dnslite'
             keyPassword System.getenv("KEYPWD")
