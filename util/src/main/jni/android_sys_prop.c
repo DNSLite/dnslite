@@ -1,1 +1,1 @@
-../../../../app/src/main/jni/android_sys_prop.c
+../../../../dnslited/src/main/jni/android_sys_prop.c

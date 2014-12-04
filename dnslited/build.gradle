@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.1"
+
+    defaultConfig {
+        minSdkVersion 9
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDirs = ['src/main/libs']
+    }
+
+    task buildJNI(type: Exec) {
+        commandLine "ndk-build", '-C', file('src/main').absolutePath
+    }
+
+    task postBuildJNI {
+        doLast {
+            FileTree tree = fileTree (dir: "src/main/libs", include: '**/dnsproxy');
+            tree.each { File file ->
+                println file.name
+                file.renameTo((file.absolutePath + "###").replace("dnsproxy###", "libdnslite.so"))
+            }
+        }
+    }
+    postBuildJNI.dependsOn 'buildJNI'
+
+    task cleanJNI(type: Exec) {
+        commandLine "ndk-build", '-C', file('src/main').absolutePath, 'clean'
+    }
+
+    clean.dependsOn 'cleanJNI'
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn postBuildJNI
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+}

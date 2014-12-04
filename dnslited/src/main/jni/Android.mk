@@ -1,4 +1,3 @@
-# for i in *;do cd $i && cp dnsproxy libdnsproxy.so && cd ..;done
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -11,12 +10,3 @@ LOCAL_CPP_EXTENSION := .cc
 #LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
 
 include $(BUILD_EXECUTABLE)
-
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE    := util
-LOCAL_SRC_FILES := util.c android_sys_prop.c
-
-include $(BUILD_SHARED_LIBRARY)
-

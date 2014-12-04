@@ -24,14 +24,10 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
         }
-    }
-    sourceSets.main {
-        jni.srcDirs = []
-        jniLibs.srcDirs = ['src/main/libs']
     }
 }
 
@@ -41,4 +37,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.+'
     compile 'com.google.android.gms:play-services:6.+'
     compile project(':util')
+    compile project(':dnslited')
 }
