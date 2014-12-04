@@ -26,20 +26,19 @@ android {
         jniLibs.srcDirs = ['src/main/libs']
     }
 
-    task buildJNI(type: Exec) {
-        commandLine "ndk-build", '-C', file('src/main').absolutePath
-    }
-
-    task postBuildJNI {
+    task buildJNI {
+        doFirst {
+            exec {
+                commandLine "ndk-build", '-C', file('src/main').absolutePath
+            }
+        }
         doLast {
             FileTree tree = fileTree (dir: "src/main/libs", include: '**/dnsproxy');
             tree.each { File file ->
-                println file.name
                 file.renameTo((file.absolutePath + "###").replace("dnsproxy###", "libdnslite.so"))
             }
         }
     }
-    postBuildJNI.dependsOn 'buildJNI'
 
     task cleanJNI(type: Exec) {
         commandLine "ndk-build", '-C', file('src/main').absolutePath, 'clean'
@@ -48,7 +47,7 @@ android {
     clean.dependsOn 'cleanJNI'
 
     tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn postBuildJNI
+        compileTask -> compileTask.dependsOn buildJNI
     }
 }
 
