@@ -29,7 +29,8 @@ android {
     task buildJNI {
         doFirst {
             exec {
-                commandLine "ndk-build", '-C', file('src/main').absolutePath
+                def ndkDir = project.plugins.findPlugin('com.android.library').getNdkFolder()
+                commandLine "$ndkDir/ndk-build", '-C', file('src/main').absolutePath
             }
         }
         doLast {
@@ -41,7 +42,8 @@ android {
     }
 
     task cleanJNI(type: Exec) {
-        commandLine "ndk-build", '-C', file('src/main').absolutePath, 'clean'
+        def ndkDir = project.plugins.findPlugin('com.android.library').getNdkFolder()
+        commandLine "$ndkDir/ndk-build", '-C', file('src/main').absolutePath, 'clean'
     }
 
     clean.dependsOn 'cleanJNI'
