@@ -5,6 +5,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+import me.xu.DNSLite.DNSLiteApp.TrackerName;
 import me.xu.tools.DNSProxyClient;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -248,6 +251,10 @@ public class DNSServiceActivity extends FragmentActivity {
 						DnsPreferences.class));
 				break;
 			case R.id.dnsStart:
+                Tracker t = ((DNSLiteApp) getActivity().getApplication()).getTracker(TrackerName.APP_TRACKER);
+                t.setScreenName("/dns/start");
+                t.send(new HitBuilders.AppViewBuilder().build());
+
 				startProgressDialog(getString(R.string.dns_start),
 						getString(R.string.dns_start));
 
