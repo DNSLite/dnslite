@@ -694,6 +694,13 @@ public class HostsDB extends SQLiteOpenHelper {
                 SQLiteDatabase.CONFLICT_IGNORE);
     }
 
+
+    public long updateAllIpInHostGroup(long sid, String ip) {
+        ContentValues cv = new ContentValues();
+        cv.put("ip", ip);
+        return db.update("hosts", cv, "sid=" + String.valueOf(sid), null);
+    }
+
     public int addHostLine(String line, int sid, int ip_group) {
         int len = line.length();
         if (len < 9) {

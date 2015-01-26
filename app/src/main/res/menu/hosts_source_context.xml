@@ -7,4 +7,5 @@
     <item android:id="@+id/menu_item_empty" android:title="@string/menu_item_empty"></item>
     <item android:id="@+id/menu_item_edit" android:title="@string/menu_item_edit"></item>
     <item android:id="@+id/menu_item_update" android:title="@string/menu_item_update"></item>
+    <item android:id="@+id/menu_item_setip" android:title="@string/menu_dns_setip"></item>
 </menu>

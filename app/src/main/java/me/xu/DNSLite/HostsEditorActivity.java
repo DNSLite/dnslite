@@ -226,11 +226,50 @@ public class HostsEditorActivity extends ListActivity {
 				}
 			}
 			break;
+        case R.id.menu_item_setip:
+            if (search_sid == -1) {
+                break;
+            }
+            setIP(search_sid);
+            break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
+
+    private void setIP(long sid) {
+        final long the_sid = sid;
+        LayoutInflater factory = LayoutInflater.from(HostsEditorActivity.this);
+        final View textEntryView = factory.inflate(R.layout.hosts_host_add,
+            null);
+        View et_domain = textEntryView.findViewById(R.id.domain_edit);
+        et_domain.setVisibility(View.GONE);
+        View domain = textEntryView.findViewById(R.id.domain);
+        domain.setVisibility(View.GONE);
+
+        new AlertDialog.Builder(HostsEditorActivity.this)
+            .setMessage(R.string.dns_setip_entry)
+            .setView(textEntryView)
+            .setPositiveButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog,
+                                        int whichButton) {
+								/* User clicked OK so do some stuff */
+                        EditText et_ip = (EditText) textEntryView
+                            .findViewById(R.id.ip_edit);
+                        String ip = et_ip.getText().toString().trim();
+                        if (hdb.updateAllIpInHostGroup(the_sid, ip) > 0) {
+                            new RefreshList().execute();
+                        } else {
+                            Toast.makeText(HostsEditorActivity.this,
+                                getString(R.string.dns_setip_err),
+                                Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }).setNegativeButton(android.R.string.cancel, null)
+            .create().show();
+    }
 
 	private void startProgressDialog(String title, String message) {
 		if (progressDialog == null) {
