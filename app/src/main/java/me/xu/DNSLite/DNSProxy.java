@@ -30,6 +30,7 @@ public class DNSProxy {
 	private boolean useTcp = false;
 	private boolean auto_set_system_dns = true;
 	private String listen_addr = null;
+    private String conf_dir = null;
 	private int max_idle_time = 0;
 	private int clean_cache_gap = 0;
 
@@ -215,6 +216,7 @@ public class DNSProxy {
 		this.listen_addr = (listen_local) ? "127.0.0.1" : null;
 		remoteDNS = sharedPref.getString(DnsPreferences.KEY_REMOTE_DNS, null);
 		fixDNS = sharedPref.getString(DnsPreferences.KEY_FIX_DNS, null);
+        conf_dir = sharedPref.getString(DnsPreferences.KEY_CONF_DIR, null);
 	}
 
 	private String getDnsStartCmd(boolean appendTail) {
@@ -233,6 +235,13 @@ public class DNSProxy {
 			sb.append(" -d ");
 			sb.append(cache.getAbsolutePath());
 		}
+
+        if (conf_dir != null) {
+            if (conf_dir.length() > 0) {
+                sb.append(" -C ");
+                sb.append(conf_dir);
+            }
+        }
 
 		if (listen_addr != null) {
 			listen_addr = listen_addr.trim();

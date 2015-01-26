@@ -43,6 +43,12 @@
                 android:targetClass="me.xu.DNSLite.DnsGroupList"
                 android:targetPackage="me.xu.DNSLite" />
         </PreferenceScreen>
+
+        <EditTextPreference
+            android:dialogTitle="@string/dialog_title_preference_conf_dir"
+            android:key="conf_dir"
+            android:summary="@string/conf_dir_summary"
+            android:title="@string/conf_dir_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preference_title_system_setting" >
         <CheckBoxPreference

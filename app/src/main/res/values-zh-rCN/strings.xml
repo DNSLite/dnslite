@@ -222,4 +222,8 @@ hosts\n\n
     <string name="share_hosts_text">分享我的DNSLite配置</string>
     <string name="search_box_hint">搜索</string>
     <string name="search_add">添加</string>
+
+    <string name="dialog_title_preference_conf_dir">配置目录</string>
+    <string name="conf_dir_summary">兼容 dnsmasq</string>
+    <string name="conf_dir_title">配置目录</string>
 </resources>
