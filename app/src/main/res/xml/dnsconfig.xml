@@ -45,6 +45,7 @@
         </PreferenceScreen>
 
         <EditTextPreference
+            android:defaultValue="/mnt/sdcard/dnslite"
             android:dialogTitle="@string/dialog_title_preference_conf_dir"
             android:key="conf_dir"
             android:summary="@string/conf_dir_summary"
