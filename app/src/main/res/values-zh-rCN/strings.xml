@@ -3,7 +3,7 @@
 
     <string name="app_name">DNSLite</string>
     <string name="dns_default_dns">8.8.8.8,8.8.4.4</string>
-    <string name="dns_lable">DNS代理(测试)</string>
+    <string name="dns_lable">DNS代理</string>
     <string name="menu_about">快速提示</string>
     <string name="menu_fix_netdns">修复系统DNS</string>
     <string name="menu_feedback">发送反馈</string>
@@ -23,14 +23,14 @@
     <string name="about_title">欢迎使用 DNSLite</string>
     <string name="about_message">
 <![CDATA[
-DNS代理(测试)\n\n
+DNS代理\n\n
 这是一个DNS代理工具。\n
 主要功能：\n\n
 	1. 可以TCP方式访问远端DNS服务器，避免DNS污染。\n\n
 	2. 可以为局域网其他设备提供DNS服务。\n\n
 	3. 可以查看DNS请求日志。\n\n
 	4. 可以手工指定域名IP信息。\n\n
-		>>风险: 因为指定的IP未必是真正的服务器IP，所以可能会导致一些HTTPS请求的SSL验证失败。\n\n
+		>>风险: 如果指定的IP不是指向真正的服务器，可能会引起HTTPS请求的SSL验证失败。\n\n
 \n
 	5. 指定域名IP时，域名支持开头为*的方式。\n\n
 	6. 可以变更或修复系统DNS，即net.dns信息。\n\n
