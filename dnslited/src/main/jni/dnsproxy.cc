@@ -509,9 +509,6 @@ static void set_system_dns()
 	rv = setprop("net.dns1", "127.0.0.1");
 	logs("setprop net.dns1 127.0.0.1 ret:%d\n", rv);
 #endif
-#if defined(__APPLE__)
-    system("killall -HUP mDNSResponder");
-#endif
 }
 
 static void reset_system_dns()
