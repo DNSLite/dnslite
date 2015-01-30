@@ -11,6 +11,8 @@ __BEGIN_DECLS
 int getprop(const char *name, char *value);
 int setprop(const char *name, const char *value);
 
+int getprop_int(const char *name);
+
 __END_DECLS
 
 #endif

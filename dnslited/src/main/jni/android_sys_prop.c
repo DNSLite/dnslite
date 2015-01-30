@@ -29,6 +29,24 @@ int getprop(const char *name, char *value)
 	return strlen(value);
 }
 
+int getprop_int(const char *name)
+{
+	FILE *fp;
+	char buffer[64];
+	int value;
+
+	snprintf(buffer, sizeof(buffer), "getprop %s", name);
+	fp = popen(buffer, "r");
+	if (NULL == fp) {
+		return -1;
+	}
+
+	fscanf(fp, "%d", &value);
+	pclose(fp);
+
+	return value;
+}
+
 int setprop(const char *name, const char *value)
 {
 	char buffer[256];

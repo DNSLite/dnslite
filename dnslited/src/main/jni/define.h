@@ -4,7 +4,7 @@
 #ifdef __ANDROID__
 #define APP_NAME "me.xu.DNSLite"
 //#include <android/log.h>
-#include "android_sys_prop.h"
+#include "android.h"
 #endif
 
 #ifdef _ANDROID_LOG_H

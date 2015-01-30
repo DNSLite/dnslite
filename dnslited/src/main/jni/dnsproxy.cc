@@ -493,7 +493,6 @@ static void set_system_dns()
 #ifdef __ANDROID__
 	char name[PROP_NAME_MAX];
 	char net_dns[2][PROP_VALUE_MAX];
-	int rv = 0;
 	int i = 0;
 	for (i=0; i<2; ++i) {
 		sprintf(name, "net.dns%d", i+1);
@@ -506,8 +505,8 @@ static void set_system_dns()
 	}
 	memcpy(gconf->net_dns, net_dns, sizeof(net_dns));
 
-	rv = setprop("net.dns1", "127.0.0.1");
-	logs("setprop net.dns1 127.0.0.1 ret:%d\n", rv);
+	set_net_dns1("127.0.0.1");
+	logs("set net.dns1 127.0.0.1\n");
 #endif
 }
 
@@ -554,8 +553,8 @@ static void reset_system_dns()
 		return;
 	}
 
-	rv = setprop("net.dns1", gconf->net_dns[0]);
-	logs("re setprop net.dns1 %s ret:%d\n", gconf->net_dns[0], rv);
+	set_net_dns1(gconf->net_dns[0]);
+	logs("re set net.dns1 %s\n", gconf->net_dns[0]);
 #endif
 }
 
