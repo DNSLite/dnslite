@@ -319,6 +319,10 @@ public class DNSProxy {
 
 		if (remoteDNS != null) {
 			remoteDNS = remoteDNS.replaceAll("\\s", ",").trim();
+            if (remoteDNS.equals("8.8.8.8,8.8.4.4")) {
+                remoteDNS = "";
+            }
+
 			if (remoteDNS.length() > 1) {
 				sb.append(" -r ");
 				sb.append(remoteDNS);
