@@ -29,7 +29,6 @@
             android:title="@string/dns_setting_enable_cache_title" />
 
         <EditTextPreference
-            android:defaultValue="@string/dns_default_dns"
             android:dialogTitle="@string/dialog_title_preference_dns_remote_dns"
             android:key="remote_dns"
             android:summary="@string/dns_remote_dns_summary"
