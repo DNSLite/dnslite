@@ -24,6 +24,7 @@ public class DNSProxyClient {
 	public final static String cmd_LOGS = "xudejianL";
 	public final static String cmd_GETP = "xudejianP";
 	public final static String cmd_RESET_DNS = "xudejianR";
+    public final static String cmd_NETID = "xudejianN";
 
 	public final static String cmd_QUIT_BACK = "QUIT";
 	public final static String cmd_SUCC_BACK = "SUCC";
@@ -117,6 +118,17 @@ public class DNSProxyClient {
 		return false;
 	}
 
+    public boolean update_netid(String ids) {
+        if (ids.isEmpty()) {
+            return false;
+        }
+        String rv = sendCmd(cmd_NETID+ids);
+        if (rv != null && rv.equals(cmd_SUCC_BACK)) {
+            return true;
+        }
+        return false;
+    }
+
 	public String getLog() throws IOException {
 		return read.readLine();
 	}
@@ -194,18 +206,6 @@ public class DNSProxyClient {
 		try {
 			if (dnsc.connect()) {
 				return dnsc.sendQuit();
-			}
-		} finally {
-			dnsc.close();
-		}
-		return false;
-	}
-
-	public static boolean re_set_dns() {
-		DNSProxyClient dnsc = new DNSProxyClient();
-		try {
-			if (dnsc.connect()) {
-				return dnsc.re_set_netdns();
 			}
 		} finally {
 			dnsc.close();

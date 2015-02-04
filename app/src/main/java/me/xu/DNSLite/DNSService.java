@@ -11,10 +11,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
@@ -30,26 +32,21 @@ public class DNSService extends Service {
 		public void job_on_connect_action() {
 			ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
 			NetworkInfo info = connManager.getActiveNetworkInfo();
-			if (info == null || !info.isAvailable()) {
+			if (info == null || !info.isConnected()) {
 				return;
 			}
-			State state = null;
 
-			try {
-				state = connManager.getNetworkInfo(
-						ConnectivityManager.TYPE_MOBILE).getState();
-				if (State.CONNECTED == state) {
-					new DnsOp().execute(ctl_RE_SET_DNS);
-				}
-			} catch (Exception e) {}
-
-			try {
-				state = connManager.getNetworkInfo(
-						ConnectivityManager.TYPE_WIFI).getState();
-				if (State.CONNECTED == state) {
-					new DnsOp().execute(ctl_RE_SET_DNS);
-				}
-			} catch (Exception e) {}
+            try {
+                switch (info.getType()) {
+                    case ConnectivityManager.TYPE_MOBILE:
+                    case ConnectivityManager.TYPE_WIMAX:
+                    case ConnectivityManager.TYPE_WIFI:
+                        new DnsOp().execute(ctl_RE_SET_DNS);
+                        break;
+                    default:
+                        break;
+                }
+            } catch (Exception e) {}
 		}
 
         @Override
@@ -146,7 +143,8 @@ public class DNSService extends Service {
 				}
 			}
 			case ctl_RE_SET_DNS: {
-				return DNSProxyClient.re_set_dns() ? 0 : -1;
+                DNSProxy dnsproxy = new DNSProxy(getApplicationContext());
+				return dnsproxy.re_set_dns() ? 0 : -1;
 			}
 			default:
 				break;

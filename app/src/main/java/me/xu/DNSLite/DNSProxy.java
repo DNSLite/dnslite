@@ -10,6 +10,10 @@ import me.xu.tools.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Build.VERSION;
 import android.preference.PreferenceManager;
 
@@ -42,6 +46,38 @@ public class DNSProxy {
 	public DNSProxy(Context context) {
 		this.context = context;
 	}
+
+    public String getNetId() {
+        String id = "";
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return id;
+        }
+
+        ConnectivityManager cm = (ConnectivityManager) this.context.getSystemService(this.context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        if (info == null || !info.isConnected()) {
+            return id;
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Network[] networks = cm.getAllNetworks();
+            for (Network network : networks) {
+                try {
+                    NetworkInfo ni = cm.getNetworkInfo(network);
+                    if (ni.isConnected()) {
+                        id += network.getClass().getDeclaredField("netId").get(network) + " ";
+                    }
+
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        id = id.trim().replaceAll(" ", ",");
+        return id;
+    }
 
 	public int getStatus() {
 		return run_status;
@@ -86,6 +122,20 @@ public class DNSProxy {
 			return false;
 		}
 	}
+
+    public boolean re_set_dns() {
+        String netId = getNetId();
+        DNSProxyClient dnsc = new DNSProxyClient();
+        try {
+            if (dnsc.connect()) {
+                dnsc.update_netid(netId);
+                return dnsc.re_set_netdns();
+            }
+        } finally {
+            dnsc.close();
+        }
+        return false;
+    }
 
 	public void stopDNSService() {
 		DNSProxyClient.quit();
@@ -228,6 +278,12 @@ public class DNSProxy {
 		if (useTcp) {
 			sb.append(" -t");
 		}
+
+        String netId = getNetId();
+        if (!netId.isEmpty()) {
+            sb.append(" -n ");
+            sb.append(netId);
+        }
 
 		File cache = context.getApplicationContext().getFileStreamPath(
 				HostsDB.static_cache);

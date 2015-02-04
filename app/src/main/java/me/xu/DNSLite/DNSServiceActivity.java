@@ -17,11 +17,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
@@ -196,18 +198,32 @@ public class DNSServiceActivity extends FragmentActivity {
 
 			ConnectivityManager connManager = (ConnectivityManager) getActivity()
 					.getSystemService(CONNECTIVITY_SERVICE);
-			NetworkInfo info = connManager.getActiveNetworkInfo();
-			if (info == null || !info.isAvailable()) {
-				if (wifi_ip != null) {
-					wifi_ip.setText(getString(R.string.wifi_is_disable));
-				}
-				return false;
-			}
+
+            NetworkInfo info = connManager.getActiveNetworkInfo();
+            if (info == null || !info.isConnected()) {
+                if (wifi_ip != null) {
+                    wifi_ip.setText(getString(R.string.wifi_is_disable));
+                }
+                return false;
+            }
+
 			String name = info.getTypeName();
             State state = null;
             try {
                 state = connManager.getNetworkInfo(
                         ConnectivityManager.TYPE_MOBILE).getState();
+                if (State.CONNECTED == state) {
+                    if (wifi_ip != null) {
+                        wifi_ip.setText(name + " IP:" + getLocalIPAddress());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                state = connManager.getNetworkInfo(
+                    ConnectivityManager.TYPE_WIMAX).getState();
                 if (State.CONNECTED == state) {
                     if (wifi_ip != null) {
                         wifi_ip.setText(name + " IP:" + getLocalIPAddress());
@@ -359,7 +375,8 @@ public class DNSServiceActivity extends FragmentActivity {
 
         private class ResetDns extends AsyncTask<Void, Void, Boolean> {
             protected Boolean doInBackground(Void... cmd) {
-                return DNSProxyClient.re_set_dns();
+                DNSProxy d = new DNSProxy(getActivity().getApplicationContext());
+                return d.re_set_dns();
             }
             protected void onPostExecute(Boolean res) {
                 fixButton();
