@@ -33,6 +33,7 @@ void printHelp()
 			"\t-G group ANDROID not support\n"
 			"\t-t usetcp\n"
 			"\t-r remote dns eg:8.8.8.8,8.8.4.4\n"
+			"\t-n netId\n"
 			"\t-v verion\n"
 			"\th? this info\n");
 	printversion();
@@ -92,7 +93,7 @@ static int queryDNS(event_util_t *u, udp_sock_t *c)
 		c->fd = socket_udpconnect4(nameserver, 53, 1000);
 		if (c->fd == -1) {
 			c->status = ST_IDLE;
-			logs("E: socket_udpconnect4, %d\n", errno);
+			logs("E: socket_udpconnect4, %s %d\n", nameserver, errno);
 			return -1;
 		}
 
@@ -380,9 +381,9 @@ void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 
 	bytecount = ((buf[0] & 0xff) << 8) | (buf[1] & 0xff);
 	if (bytecount == 1025) {
-		memset(buf, 0, 12);
 		int bytecount = socket_recv(fd, buf, 256);
-		if (bytecount != 11 || strncmp(buf+2, "xudejian", 8)) {
+		buf[bytecount] = '\0';
+		if (strncmp(buf+2, "xudejian", 8)) {
 			if (gconf->logfd == fd) {
 				gconf->logfd = -2;
 			}
@@ -418,6 +419,10 @@ void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 				socket_send(fd, buf, bytecount);
 				break;
 			case 'S':
+				socket_send(fd, "SUCC\n", 5);
+				break;
+			case 'N':
+				setenv(NETID_ENV, buf+11, 1);
 				socket_send(fd, "SUCC\n", 5);
 				break;
 			default:
@@ -505,7 +510,7 @@ static void set_system_dns()
 	}
 	memcpy(gconf->net_dns, net_dns, sizeof(net_dns));
 
-	set_net_dns1("127.0.0.1");
+	set_net_dns_2("127.0.0.1", gconf->net_dns[1]);
 	logs("set net.dns1 127.0.0.1\n");
 #endif
 }
@@ -513,30 +518,11 @@ static void set_system_dns()
 static void reset_system_dns()
 {
 #ifdef __ANDROID__
-	char name[PROP_NAME_MAX];
 	char value[PROP_VALUE_MAX];
 	int rv = 0;
 	int i = 0;
 	if (NULL != gconf->fix_system_dns) {
-		const char *pstart = gconf->fix_system_dns;
-		i = 1;
-		do {
-			const char *p = strchr(pstart, ',');
-			if (NULL == p) {
-				p = pstart + strlen(pstart);
-			}
-			snprintf(name, sizeof(name), "net.dns%d", i);
-			snprintf(value, sizeof(value), "%.*s", (int)(p - pstart), pstart);
-			rv = setprop(name, value);
-			logs("re setprop %s %s ret:%d\n", name, value, rv);
-			if ('\0' == *p) {
-				break;
-			}
-			if (++i > 2) {
-				break;
-			}
-			pstart = p + 1;
-		} while (*pstart);
+		set_net_dns(gconf->fix_system_dns);
 	}
 
 	if (gconf->net_dns[0][0] == 0) {
@@ -553,7 +539,7 @@ static void reset_system_dns()
 		return;
 	}
 
-	set_net_dns1(gconf->net_dns[0]);
+	set_net_dns_2(gconf->net_dns[0], gconf->net_dns[1]);
 	logs("re set net.dns1 %s\n", gconf->net_dns[0]);
 #endif
 }
@@ -600,7 +586,7 @@ void init_conf(int argc, char * const *argv)
 	int ch = 0;
 	const char *listen_addr = NULL;
 	const char *remote_dns = NULL;
-	while ((ch = getopt(argc, argv, "C:r:a:d:i:g:f:U:G:Dts?vh"))!= -1) {
+	while ((ch = getopt(argc, argv, "C:r:a:d:i:g:f:n:U:G:Dts?vh"))!= -1) {
 		switch (ch) {
 			case 'a':
 				listen_addr = optarg;
@@ -625,6 +611,11 @@ void init_conf(int argc, char * const *argv)
 				break;
 			case 't':
 				gconf->useTcp = 1;
+				break;
+			case 'n':
+#ifdef __ANDROID__
+				setenv(NETID_ENV, optarg, 1);
+#endif
 				break;
 			case 'r':
 				remote_dns = optarg;
@@ -669,6 +660,7 @@ void init_conf(int argc, char * const *argv)
 			exit(1);
 		}
 	}
+	setenv("ANDROID_DNS_MODE", "local", 1);
 #endif
 
 	gconf->eu = eu_new(MAXSOCKET);
@@ -713,6 +705,16 @@ void init_conf(int argc, char * const *argv)
 	gconf->listen_udpfd = fd;
 
 	{
+		char ifname[64];
+#ifdef __ANDROID__
+		ret = getprop("wifi.interface", ifname);
+#else
+		ret = -1;
+#endif
+		if (ret < 1) {
+			strcpy(ifname, "eth0");
+		}
+
 		gconf->host_name[0] = 0;
 		gconf->eth0.s_addr = 0;
 		if (!gethostname(gconf->host_name, sizeof(gconf->host_name))) {
@@ -721,7 +723,7 @@ void init_conf(int argc, char * const *argv)
 		}
 		struct ifreq ifr;
 		int inet_sock = socket(AF_INET, SOCK_DGRAM, 0);
-		strcpy(ifr.ifr_name, "eth0");
+		strcpy(ifr.ifr_name, ifname);
 		if (ioctl(inet_sock, SIOCGIFADDR, &ifr) < 0) {
 			gconf->eth0.s_addr = 0;
 		} else {
