@@ -571,9 +571,7 @@ void init_conf(int argc, char * const *argv)
 	memset(gconf, 0, sizeof(conf_t));
     gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	gconf->logfd = -2;
-#if defined(__APPLE__)
-    gconf->set_system_dns = 1;
-#endif
+
 #ifndef __ANDROID__
 	logs("sizeof(conf_t)=%zd\n", sizeof(conf_t));
 #endif
@@ -645,9 +643,6 @@ void init_conf(int argc, char * const *argv)
 	}
 
 	cache_clean();
-	if (gconf->set_system_dns) {
-		set_system_dns();
-	}
 
 #ifdef __ANDROID__
 	if (!strstr(argv[0], APP_NAME)) {
@@ -769,15 +764,28 @@ void init_conf(int argc, char * const *argv)
 		gconf->clean_cache_gap = MIN_CLEAN_CACHE_GAP;
 	}
 
+	atexit(uninit_conf);
+
+	if (gconf->set_system_dns) {
+		set_system_dns();
+	}
+
+#ifdef __ANDROID__
+	char dns_buf[256];
+	if (!remote_dns || !*remote_dns) {
+		snprintf(dns_buf, sizeof(dns_buf), "%s,%s", gconf->net_dns[0], gconf->net_dns[1]);
+		remote_dns = dns_buf;
+	}
+#endif
+	init_nameserver(remote_dns);
+
+	load_db_dnscache();
+	logs("pid:%d load_db_dnscache %d\n", getpid(), static_cache_count());
+
 	GetTimeCurrent(gconf->tmnow);
 	gconf->last_serv = gconf->tmnow.tv_sec;
 	gconf->last_clean_cache = gconf->tmnow.tv_sec;
 
-	init_nameserver(remote_dns);
-
-    load_db_dnscache();
-    logs("pid:%d load_db_dnscache %d\n", getpid(), static_cache_count());
-	atexit(uninit_conf);
 }
 
 int main(int argc, char * const *argv)
