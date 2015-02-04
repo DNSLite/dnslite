@@ -8,7 +8,31 @@ tools:ignore="TypographyDashes">
 
     <!-- The screen names that will appear in reports -->
     <screenName name="me.xu.DNSLite.DNSLiteActivity">
-        DNSLite Android DNSLiteActivity
+        DNSLiteActivity
+    </screenName>
+    <screenName name="me.xu.DNSLite.DnsPreferences">
+        DnsPreferences
+    </screenName>
+    <screenName name="me.xu.DNSLite.DNSServiceActivity">
+        DNSServiceActivity
+    </screenName>
+    <screenName name="me.xu.DNSLite.DnsGroupList">
+        DnsGroupList
+    </screenName>
+    <screenName name="me.xu.DNSLite.DnsHostsActivity">
+        DnsHostsActivity
+    </screenName>
+    <screenName name="me.xu.DNSLite.DnsLogsActivity">
+        DnsLogsActivity
+    </screenName>
+    <screenName name="me.xu.DNSLite.HostsActivity">
+        HostsActivity
+    </screenName>
+    <screenName name="me.xu.DNSLite.HostSourceList">
+        HostSourceList
+    </screenName>
+    <screenName name="me.xu.DNSLite.HostsGroupListActivity">
+        HostsGroupListActivity
     </screenName>
 
     <string name="ga_trackingId">UA-57942565-1</string>
