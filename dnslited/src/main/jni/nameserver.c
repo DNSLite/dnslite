@@ -39,8 +39,8 @@ int init_nameserver(const char *arg)
         }
     }
     if (gconf->nameserver_num < 1) {
-        snprintf(gconf->nameservers[0], MAX_IP_LEN, "8.8.8.8");
-        snprintf(gconf->nameservers[1], MAX_IP_LEN, "8.8.4.4");
+        snprintf(gconf->nameservers[0], MAX_IP_LEN, "208.67.222.222");
+        snprintf(gconf->nameservers[1], MAX_IP_LEN, "8.8.8.8");
         gconf->nameserver_num = 2;
     }
     return 0;
