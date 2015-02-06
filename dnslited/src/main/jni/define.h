@@ -35,7 +35,7 @@
 #define MIN_CLEAN_CACHE_GAP 86400
 
 #define MAX_NAMESERVER_NUM 2
-#define MAX_IP_LEN 16
+#define MAX_IP_LEN 32
 #define MAX_DOMAIN_LEN 65
 
 #define ENABLE_CACHE (gconf->clean_cache_gap)

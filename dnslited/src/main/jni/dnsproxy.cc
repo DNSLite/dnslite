@@ -422,7 +422,9 @@ void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 				socket_send(fd, "SUCC\n", 5);
 				break;
 			case 'N':
+#ifdef __ANDROID__
 				setenv(NETID_ENV, buf+11, 1);
+#endif
 				socket_send(fd, "SUCC\n", 5);
 				break;
 			default:
@@ -672,8 +674,19 @@ void init_conf(int argc, char * const *argv)
 	eu_set_onaccept_udp(gconf->eu, eu_on_accept_udp);
 	eu_set_onread_udp(gconf->eu, eu_on_read_dns);
 
+	int port = 53;
+	{
+		const char *p = strchr(listen_addr, ':');
+		if (p) {
+			port = atoi(p+1);
+			if (port < 1 || port > 65535) {
+				port = 53;
+			}
+		}
+	}
+
 	int ret = 0;
-	int fd = socket_tcplisten_port("127.0.0.1", 53, 5);
+	int fd = socket_tcplisten_port("127.0.0.1", port, 5);
 	if (fd == -1) {
 		logs("Server: tcp bind() failed! Error: %d.\n", errno);
 		exit(EXIT_FAILURE);
@@ -685,7 +698,7 @@ void init_conf(int argc, char * const *argv)
 		exit(EXIT_FAILURE);
 	}
 
-	fd = socket_udp_bind_port(listen_addr, 53);
+	fd = socket_udp_bind_port(listen_addr, port);
 	if (fd == -1) {
 		logs("Server: udp bind() failed! Error: %d.\n", errno);
 		exit(EXIT_FAILURE);

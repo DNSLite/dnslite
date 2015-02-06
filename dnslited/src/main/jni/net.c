@@ -100,16 +100,45 @@ int setnonblocking(int fd)
 
 const char *ip_check(const char *ip, char *dst, socklen_t size)
 {
-	struct in_addr saddr_v4;
-	int ret = inet_pton(AF_INET, ip, &saddr_v4);
-	if (ret > 0) {
-		return inet_ntop(AF_INET, (void *)&saddr_v4, dst, size);
+	const char *p = ip;
+	int v6 = 0;
+	while (*p) {
+		if (':' == *p) {
+			v6 = 1;
+			break;
+		}
+		if ('.' == *p) {
+			v6 = 0;
+			break;
+		}
+		p++;
 	}
-	struct in6_addr saddr_v6;
-	ret = inet_pton(AF_INET6, ip, &saddr_v6);
-	if (ret > 0) {
-		return inet_ntop(AF_INET6, (void *)&saddr_v6, dst, size);
+
+	if (v6) {
+		struct in6_addr saddr_v6;
+		int ret = inet_pton(AF_INET6, ip, &saddr_v6);
+		if (ret > 0) {
+			return inet_ntop(AF_INET6, (void *)&saddr_v6, dst, size);
+		}
+	} else {
+		char *nip = (char *)ip;
+		p = strchr(ip, ':');
+		if (p) {
+			char buf[64];
+			if (sizeof(buf) - (p - ip) > 0) {
+				strncpy(buf, ip, p - ip);
+				buf[p - ip] = '\0';
+				nip = buf;
+			}
+		}
+
+		struct in_addr saddr_v4;
+		int ret = inet_pton(AF_INET, nip, &saddr_v4);
+		if (ret > 0) {
+			return inet_ntop(AF_INET, (void *)&saddr_v4, dst, size);
+		}
 	}
+
 	errno = EAFNOSUPPORT;
 	return NULL;
 }
@@ -126,6 +155,32 @@ int lingering_close(int fd)
 	return close(fd);
 }
 
+struct sockaddr_in get_inet(const char *_ip, const int _port)
+{
+	char *ip = (char *)_ip;
+	int port = _port;
+	struct sockaddr_in al;
+	memset(&al, 0, sizeof(al));
+	char *p = strchr(ip, ':');
+	if (p) {
+		int n = atoi(p + 1);
+		if (n > 0 && n < 65535) {
+			port = n;
+		}
+		char buf[128];
+		if (p - ip < 128) {
+			strncpy(buf, ip, p - ip);
+			buf[p-ip] = '\0';
+			ip = buf;
+		}
+	}
+
+	al.sin_family = AF_INET;
+	al.sin_addr.s_addr = (ip==NULL) ? INADDR_ANY : inet_addr(ip);
+	al.sin_port = htons( port );
+	return al;
+}
+
 int socket_tcplisten_port(const char *ip, const int port, int backlog)
 {
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -140,12 +195,7 @@ int socket_tcplisten_port(const char *ip, const int port, int backlog)
 	optval = 1;
 	setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &optval, sizeof(optval));
 
-	struct sockaddr_in al;
-	memset(&al, 0, sizeof(al));
-
-	al.sin_family = AF_INET;
-	al.sin_addr.s_addr = (ip==NULL)?INADDR_ANY:inet_addr(ip);
-	al.sin_port = htons( port );
+	struct sockaddr_in al = get_inet(ip, port);
 
 	if (bind(fd, (struct sockaddr *)&al, sizeof(al)) < 0) {
 		close(fd);
@@ -167,12 +217,7 @@ int socket_udp_bind_port(const char *ip, const int port)
 		return -1;
 	}
 
-	struct sockaddr_in al;
-	memset(&al, 0, sizeof(al));
-
-	al.sin_family = AF_INET;
-	al.sin_addr.s_addr = (ip==NULL) ? INADDR_ANY : inet_addr(ip);
-	al.sin_port = htons( port );
+	struct sockaddr_in al = get_inet(ip, port);
 
 	int optval = 1;
 	setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
@@ -416,11 +461,7 @@ int socket_tcpconnect4(const char *ip, const int port, int timeout_ms)
 	unsigned long ul = 1;
 	ioctl(fd, FIONBIO, &ul);
 
-	struct sockaddr_in addr;
-	bzero(&addr, sizeof(struct sockaddr));
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(port);
-	addr.sin_addr.s_addr = inet_addr(ip);
+	struct sockaddr_in addr = get_inet(ip, port);
 	if (connect_timeout(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr), timeout_ms) == -1) {
 		close(fd);
 		return -1;
@@ -437,11 +478,7 @@ int socket_udpconnect4(const char *ip, const int port, int timeout_ms)
 	unsigned long ul = 1;
 	ioctl(fd, FIONBIO, &ul);
 
-	struct sockaddr_in addr;
-	memset(&addr, 0, sizeof(struct sockaddr_in));
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = inet_addr(ip);
-	addr.sin_port = htons(port);
+	struct sockaddr_in addr = get_inet(ip, port);
 	if (connect_timeout(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr), timeout_ms) == -1) {
 		close(fd);
 		return -1;
