@@ -3,6 +3,7 @@ package me.xu.DNSLite;
 import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.HitBuilders;
 
 import android.app.Application;
 
@@ -31,7 +32,6 @@ public class DNSLiteApp extends Application {
         if (!mTrackers.containsKey(trackerId)) {
 
             GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
-            analytics.getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
             Tracker t = (trackerId == TrackerName.APP_TRACKER) ? analytics.newTracker(PROPERTY_ID)
                 : (trackerId == TrackerName.GLOBAL_TRACKER) ? analytics.newTracker(R.xml.global_tracker)
                 : analytics.newTracker(R.xml.ecommerce_tracker);
@@ -39,5 +39,11 @@ public class DNSLiteApp extends Application {
             mTrackers.put(trackerId, t);
         }
         return mTrackers.get(trackerId);
+    }
+
+    public void trackApp(String screenName) {
+        Tracker t = getTracker(TrackerName.APP_TRACKER);
+        t.setScreenName(screenName);
+        t.send(new HitBuilders.AppViewBuilder().build());
     }
 }
