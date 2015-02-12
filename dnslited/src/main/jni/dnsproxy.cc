@@ -423,7 +423,11 @@ void eu_on_read_tcp(event_util_t *u, int fd, uint32_t events)
 				break;
 			case 'N':
 #ifdef __ANDROID__
-				setenv(NETID_ENV, buf+11, 1);
+				{
+					int netid = atoi(buf+11);
+					sprintf(buf, "%d", netid);
+					setenv(NETID_ENV, buf, 1);
+				}
 #endif
 				socket_send(fd, "SUCC\n", 5);
 				break;
@@ -614,7 +618,11 @@ void init_conf(int argc, char * const *argv)
 				break;
 			case 'n':
 #ifdef __ANDROID__
-				setenv(NETID_ENV, optarg, 1);
+				{
+					char tmp[32];
+					sprintf(tmp, "%d", atoi(optarg));
+					setenv(NETID_ENV, tmp, 1);
+				}
 #endif
 				break;
 			case 'r':
@@ -675,7 +683,7 @@ void init_conf(int argc, char * const *argv)
 	eu_set_onread_udp(gconf->eu, eu_on_read_dns);
 
 	int port = 53;
-	{
+	if (listen_addr) {
 		const char *p = strchr(listen_addr, ':');
 		if (p) {
 			port = atoi(p+1);
@@ -713,7 +721,7 @@ void init_conf(int argc, char * const *argv)
 	gconf->listen_udpfd = fd;
 
 	{
-		char ifname[64];
+		char ifname[PROP_VALUE_MAX];
 #ifdef __ANDROID__
 		ret = getprop("wifi.interface", ifname);
 #else
@@ -788,6 +796,7 @@ void init_conf(int argc, char * const *argv)
 	if (!remote_dns || !*remote_dns) {
 		snprintf(dns_buf, sizeof(dns_buf), "%s,%s", gconf->net_dns[0], gconf->net_dns[1]);
 		remote_dns = dns_buf;
+		logs("remote dns %s", remote_dns);
 	}
 #endif
 	init_nameserver(remote_dns);

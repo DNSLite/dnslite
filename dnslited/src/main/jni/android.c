@@ -4,6 +4,22 @@
 #include <stdarg.h>
 #include "android.h"
 
+#undef LOG_TAG
+#undef LOGI
+#undef LOGD
+#undef LOGE
+
+#ifdef _ANDROID_LOG_H
+# define  LOG_TAG    "libdnslite.so"
+# define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+# define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+# define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#else
+# define  LOGI(...)
+# define  LOGD(...)
+# define  LOGE(...)
+#endif
+
 static void ndc_set_net_dns(const char *dns);
 
 int get_build_version_sdk_int()
@@ -53,8 +69,11 @@ void set_net_dns_2(const char *dns1, const char *dns2)
 
 void set_net_dns(const char *dns)
 {
+	if (!dns || !*dns) {
+		return;
+	}
 	char buf[512];
-	strncpy(buf, dns, sizeof(buf)-1);
+	strncpy(buf, dns, sizeof(buf));
 	buf[sizeof(buf)-1] = '\0';
 
 	char *p;
@@ -125,7 +144,7 @@ void ndc_set_net_dns(const char *dns)
 			return;
 		}
 		char buf[PROP_VALUE_MAX];
-		strncpy(buf, ids, sizeof(buf)-1);
+		strncpy(buf, ids, sizeof(buf));
 		buf[sizeof(buf)-1] = '\0';
 
 		char *sep = ",";

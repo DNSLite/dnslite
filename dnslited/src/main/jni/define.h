@@ -3,8 +3,11 @@
 
 #ifdef __ANDROID__
 #define APP_NAME "me.xu.DNSLite"
-//#include <android/log.h>
 #include "android.h"
+#endif
+
+#ifndef PROP_VALUE_MAX
+#define PROP_VALUE_MAX  92
 #endif
 
 #ifdef _ANDROID_LOG_H

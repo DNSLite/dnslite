@@ -2,6 +2,8 @@
 #define _INCLUDE_ANDROID_H
 
 #include <sys/cdefs.h>
+#include <sys/system_properties.h>
+#include <android/log.h>
 #include "android_sys_prop.h"
 
 __BEGIN_DECLS

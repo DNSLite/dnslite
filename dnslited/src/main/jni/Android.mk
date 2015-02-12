@@ -9,6 +9,6 @@ LOCAL_C_INCLUDES := .
 LOCAL_CFLAGS += -pie -fPIE
 LOCAL_LDFLAGS += -pie -fPIE
 LOCAL_CPP_EXTENSION := .cc
-#LOCAL_LDLIBS := -L$(SYSROOT)/usr/lib -llog
+LOCAL_LDLIBS := -llog
 
 include $(BUILD_EXECUTABLE)

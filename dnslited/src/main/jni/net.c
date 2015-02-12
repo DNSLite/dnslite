@@ -121,10 +121,10 @@ const char *ip_check(const char *ip, char *dst, socklen_t size)
 			return inet_ntop(AF_INET6, (void *)&saddr_v6, dst, size);
 		}
 	} else {
-		char *nip = (char *)ip;
+		char buf[64];
+		const char *nip = ip;
 		p = strchr(ip, ':');
 		if (p) {
-			char buf[64];
 			if (sizeof(buf) - (p - ip) > 0) {
 				strncpy(buf, ip, p - ip);
 				buf[p - ip] = '\0';
@@ -157,7 +157,11 @@ int lingering_close(int fd)
 
 struct sockaddr_in get_inet(const char *_ip, const int _port)
 {
-	char *ip = (char *)_ip;
+	char ip[32] = "";
+	if (_ip) {
+		strncpy(ip, _ip, sizeof(ip));
+	}
+	ip[sizeof(ip)-1] = '\0';
 	int port = _port;
 	struct sockaddr_in al;
 	memset(&al, 0, sizeof(al));
@@ -167,16 +171,15 @@ struct sockaddr_in get_inet(const char *_ip, const int _port)
 		if (n > 0 && n < 65535) {
 			port = n;
 		}
-		char buf[128];
-		if (p - ip < 128) {
-			strncpy(buf, ip, p - ip);
-			buf[p-ip] = '\0';
-			ip = buf;
-		}
+		*p = '\0';
 	}
 
 	al.sin_family = AF_INET;
-	al.sin_addr.s_addr = (ip==NULL) ? INADDR_ANY : inet_addr(ip);
+	if ('\0' == *ip) {
+		al.sin_addr.s_addr = INADDR_ANY;
+	} else {
+		al.sin_addr.s_addr = inet_addr(ip);
+	}
 	al.sin_port = htons( port );
 	return al;
 }

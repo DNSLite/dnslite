@@ -2,11 +2,9 @@
 #define _INCLUDE_ANDROID_SYSTEM_PROPERTIES_H
 
 #include <sys/cdefs.h>
+#include <sys/system_properties.h>
 
 __BEGIN_DECLS
-
-#define PROP_NAME_MAX   32
-#define PROP_VALUE_MAX  92
 
 int getprop(const char *name, char *value);
 int setprop(const char *name, const char *value);
