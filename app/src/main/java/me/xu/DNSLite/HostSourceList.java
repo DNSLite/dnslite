@@ -64,6 +64,7 @@ public class HostSourceList extends ListActivity {
 
 		ListView lv = getListView();
 		registerForContextMenu(lv);
+        ((DNSLiteApp) getApplication()).trackApp("/dns/hosts");
 	}
 
 	@Override

@@ -264,8 +264,6 @@ public class DNSServiceActivity extends FragmentActivity {
 						DnsPreferences.class));
 				break;
 			case R.id.dnsStart:
-                ((DNSLiteApp) getActivity().getApplication()).trackApp("/dns/start");
-
 				startProgressDialog(getString(R.string.dns_start),
 						getString(R.string.dns_start));
 
@@ -284,11 +282,14 @@ public class DNSServiceActivity extends FragmentActivity {
 						new Intent(getActivity().getApplicationContext(),
 								DNSService.class));
 				doBindService();
+                ((DNSLiteApp) getActivity().getApplication()).trackApp("/dns/start");
 				break;
 			case R.id.dnsStop:
 				startProgressDialog(getString(R.string.dns_stop),
 						getString(R.string.dns_stop));
 				new DnsOp().execute(true);
+
+                ((DNSLiteApp) getActivity().getApplication()).trackApp("/dns/stop");
 				break;
 			case R.id.dnsCacheConfig:
 				startActivity(new Intent(getActivity().getApplicationContext(),

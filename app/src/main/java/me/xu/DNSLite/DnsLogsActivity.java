@@ -36,6 +36,8 @@ public class DnsLogsActivity extends ListActivity {
 		setListAdapter(mAdapter);
 		asyncLog = new DNSProxyLog();
 		asyncLog.execute();
+
+        ((DNSLiteApp) getApplication()).trackApp("/dns/logs");
 	}
 
 	@Override
@@ -75,7 +77,7 @@ public class DnsLogsActivity extends ListActivity {
 			} else {
 				tv.setBackgroundColor(0x300000FF);
 			}
-			
+
 			String log = getItem(position);
 			if (log.length() > 2 && log.charAt(1) == ':') {
 				switch (log.charAt(0)) {

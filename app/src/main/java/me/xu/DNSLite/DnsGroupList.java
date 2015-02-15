@@ -61,6 +61,8 @@ public class DnsGroupList extends ListActivity {
 				DnsGroupList.this.openOptionsMenu();
 			}
 		});
+
+        ((DNSLiteApp) getApplication()).trackApp("/dns/config");
 	}
 
 	@Override
