@@ -1,1 +1,1 @@
-include ':app', ':util', ':dnslited'
+include ':app', ':util', ':dnslited', ':run_pie'

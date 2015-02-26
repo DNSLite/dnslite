@@ -152,9 +152,11 @@ public class DNSProxy {
 			run_status = Status_BIN_NOTEXIST;
 			return;
 		}
+
 		Sudo sudo = new Sudo();
 
 		try {
+
 			if (!sudo.prepareSuProc()) {
 				run_status = Status_SUFAIL;
 				return;
@@ -210,7 +212,7 @@ public class DNSProxy {
 			ApplicationInfo ainfo = context.getApplicationInfo();
 			StringBuffer sb = new StringBuffer();
 
-			if (VERSION.SDK_INT > 8) {
+			if (VERSION.SDK_INT > Build.VERSION_CODES.FROYO) {
 				sb.append(ainfo.nativeLibraryDir);
 			} else {
 				sb.append(ainfo.dataDir);
@@ -228,6 +230,11 @@ public class DNSProxy {
 		}
 		return dnsBin;
 	}
+
+    private String run_pie() {
+        ApplicationInfo app = context.getApplicationInfo();
+        return app.nativeLibraryDir + "/librun_pie.so ";
+    }
 
 	private boolean checkDnsBinExists() {
 		try {
@@ -272,7 +279,9 @@ public class DNSProxy {
 	private String getDnsStartCmd(boolean appendTail) {
 		loadDnsConfig();
 		StringBuffer sb = new StringBuffer();
-
+        if (VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            sb.append(run_pie());
+        }
 		sb.append(getDnsBin());
 
 		if (useTcp) {

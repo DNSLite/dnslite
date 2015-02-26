@@ -452,12 +452,14 @@ public class DNSServiceActivity extends FragmentActivity {
 					dnsliteRunning = false;
 					break;
 				case R.string.dns_stop_fail:
+                    ((DNSLiteApp) getActivity().getApplication()).trackApp("/dns/stop/fail");
 					dnsliteRunning = true;
 					break;
 				case R.string.dns_start_succ:
 					dnsliteRunning = true;
 					break;
 				case R.string.dns_start_fail:
+                    ((DNSLiteApp) getActivity().getApplication()).trackApp("/dns/start/fail");
 					dnsliteRunning = false;
 					break;
 				}

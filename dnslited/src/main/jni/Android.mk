@@ -6,8 +6,8 @@ LOCAL_MODULE    := dnsproxy
 LOCAL_SRC_FILES := dnsproxy.cc net.c cache.cc dns.c nameserver.c \
 	android_sys_prop.c android.c
 LOCAL_C_INCLUDES := .
-LOCAL_CFLAGS += -pie -fPIE
-LOCAL_LDFLAGS += -pie -fPIE
+LOCAL_CFLAGS += -fvisibility=default -fPIE
+LOCAL_LDFLAGS += -rdynamic -pie
 LOCAL_CPP_EXTENSION := .cc
 LOCAL_LDLIBS := -llog
 

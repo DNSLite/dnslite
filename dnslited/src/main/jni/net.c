@@ -503,7 +503,7 @@ int socket_connect_unix(const char *path, int timeout_ms)
 	addr.sun_family = AF_UNIX;
 	strncpy(addr.sun_path, path, sizeof(addr.sun_path));
 	addr.sun_path[ sizeof(addr.sun_path) - 1 ] = '\0';
-	if (connect_timeout(fd, (struct sockaddr *)&addr, SUN_LEN(&addr), timeout_ms) < 0 ) {
+	if (connect_timeout(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_un), timeout_ms) < 0 ) {
 		close(fd);
 		return -1;
 	}
