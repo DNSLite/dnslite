@@ -34,6 +34,9 @@ void load_db_dnscache()
 
 void load_db_dir(const char *path)
 {
+	if (NULL == path) {
+		return;
+	}
     DIR *dirp = opendir(path);
     if (dirp == NULL) {
         return;
@@ -52,6 +55,9 @@ void load_db_dir(const char *path)
 
 void load_db_file(const char *filename)
 {
+	if (NULL == filename) {
+		return;
+	}
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
         return;
