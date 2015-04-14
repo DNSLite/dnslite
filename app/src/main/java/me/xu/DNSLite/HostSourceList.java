@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -442,7 +443,7 @@ public class HostSourceList extends ListActivity {
 				if (pos < 1) {
 					return getString(android.R.string.httpErrorBadUrl);
 				}
-				String schema = urls[0].substring(0, pos).toLowerCase();
+				String schema = urls[0].substring(0, pos).toLowerCase(Locale.US);
 				if (!(schema.equals("http") || schema.equals("https") || schema
 						.equals("ftp"))) {
 					return getString(android.R.string.httpErrorUnsupportedScheme);

@@ -64,13 +64,15 @@ public class DNSProxy {
             for (Network network : networks) {
                 try {
                     NetworkInfo ni = cm.getNetworkInfo(network);
-                    if (ni.isConnected()) {
+                    if (ni != null && ni.isConnected()) {
                         id += network.getClass().getDeclaredField("netId").get(network) + " ";
                     }
 
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 } catch (NoSuchFieldException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
