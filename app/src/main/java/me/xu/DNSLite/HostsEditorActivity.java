@@ -588,8 +588,13 @@ public class HostsEditorActivity extends ListActivity {
 			} catch (IOException e) {
 				e.printStackTrace();
 				return e.getMessage();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return e.getMessage();
 			} finally {
-				client.close();
+                if (null != client) {
+                    client.close();
+                }
 			}
 			return null;
 		}

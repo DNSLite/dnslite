@@ -355,8 +355,13 @@ public class DnsGroupList extends ListActivity {
 			} catch (IOException e) {
 				e.printStackTrace();
 				return e.getMessage();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return e.getMessage();
 			} finally {
-				client.close();
+                if (client != null) {
+                    client.close();
+                }
 			}
 			return null;
 		}

@@ -41,7 +41,7 @@ public class DNSService extends Service {
                     case ConnectivityManager.TYPE_MOBILE:
                     case ConnectivityManager.TYPE_WIMAX:
                     case ConnectivityManager.TYPE_WIFI:
-                        new DnsOp().execute(ctl_RE_SET_DNS);
+                        new DnsOp(DNSService.this).execute(ctl_RE_SET_DNS);
                         break;
                     default:
                         break;
@@ -79,8 +79,8 @@ public class DNSService extends Service {
 	public void onCreate() {
 		super.onCreate();
 		registerReceiver(mReceiver, new IntentFilter(
-				ConnectivityManager.CONNECTIVITY_ACTION));
-		new DnsOp().execute(ctl_START);
+            ConnectivityManager.CONNECTIVITY_ACTION));
+		new DnsOp(this).execute(ctl_START);
 	}
 
 	@Override
@@ -107,11 +107,16 @@ public class DNSService extends Service {
 			unregisterReceiver(mReceiver);
 		} catch (Exception ee) {
 		}
-		new DnsOp().execute(ctl_STOP);
+		new DnsOp(this).execute(ctl_STOP);
 		super.onDestroy();
 	}
 
 	private class DnsOp extends AsyncTask<Integer, Void, Integer> {
+        private Context mContext;
+        public DnsOp(Context ctx) {
+            mContext = ctx;
+        }
+
 		protected Integer doInBackground(Integer... cmd) {
 			switch (cmd[0]) {
 			case ctl_STOP: {
@@ -133,17 +138,16 @@ public class DNSService extends Service {
 				return R.string.dns_stop_fail;
 			}
 			case ctl_START: {
-
 				if (DNSProxyClient.isDnsRuning()) {
 					return R.string.dns_running;
 				} else {
-					DNSProxy dnsproxy = new DNSProxy(getApplicationContext());
+					DNSProxy dnsproxy = new DNSProxy(mContext);
 					dnsproxy.startDNSService();
 					return R.string.dns_start_succ;
 				}
 			}
 			case ctl_RE_SET_DNS: {
-                DNSProxy dnsproxy = new DNSProxy(getApplicationContext());
+                DNSProxy dnsproxy = new DNSProxy(mContext);
 				return dnsproxy.re_set_dns() ? 0 : -1;
 			}
 			default:
